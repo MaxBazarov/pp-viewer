@@ -1,4 +1,4 @@
-server=root@mbazarov.net:/app/teplo500/web/figma/demo-station/code-hosting
+server=www-data@mbazarov.net:/app/teplo500/web/figma/demo-station/code-hosting
 #
 ver="$1"
 if [ "$ver" == "" ]; then
@@ -9,5 +9,8 @@ url="${server}/${ver}/"
 #
 cd dist
 rm -f *.zip
-zip -r viewer.zip viewer/viewer viewer/resources
+cd viewer
+zip -r ../viewer.zip viewer resources
+cd ..
 rsync -e "ssh -p 12322" -r *  $url
+rm -r *.zip
