@@ -1,3 +1,5 @@
+server=www-data@mbazarov.net:/app/teplo500/web/figma/demo-station/code-hosting
+#
 ver="$1"
 if [ "$ver" == "" ]; then
 	echo "specify server version"
