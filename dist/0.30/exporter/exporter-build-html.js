@@ -87,6 +87,7 @@ function buildMainHTML(options) {
 
     const verPostfix = "?" + ExporterConstants.DOCUMENT_VERSION_PLACEHOLDER
     const srcPath = "srcPath" in options ? options.srcPath : ""
+    console.log("srcPath=" + srcPath)
 
     let s = "";
     s += `
