@@ -118,6 +118,14 @@
   transition: all 0.3s;
 }
 
+.contentSymbolsVisible .symbolDiv.exp:hover {
+    outline: 2px solid orange;
+}
+
+.contentSymbolsVisible .symbolDiv.exp {
+    outline: 2px solid orange;
+}
+
 .svBorderLineDiv {
     position: absolute;
     display: none;
@@ -165,9 +173,8 @@
     color:white;
 }
 
-#comments_viewer,
-#symbol_viewer,
-#info_viewer {
+.viewer
+{
   width: 100%;
   overflow-y: auto;
   padding-bottom: 20px;
@@ -293,9 +300,7 @@ select:focus{
   margin-right: 40px;
 }
 
-#comments_viewer .title,
-#symbol_viewer .title,
-#info_viewer .title {
+.viewer .title{
   height: 56px;
   display: flex;
   align-items: center;
@@ -367,7 +372,26 @@ select:focus{
 #sv_content{
     font-size: 20px;
     line-height: 18px;
-  }
+}
+
+
+#exp_viewer .page{
+    padding-bottom:     10px;
+    color:              var(--color-accent);
+}
+
+#exp_viewer .layer{
+    margin-left:        20px;
+    color:              var(--color-primary);
+    font-size:          12px;
+}
+
+#exp_viewer .layer .counter{
+    color:              var(--color-secondary);
+    font-size:          12px;
+}
+
+
 
 /* #symbol_viewer_content .head {
   color: var(--color-secondary);
@@ -868,7 +892,8 @@ body {
 }
 
 .navLeft,
-.nav #pageComments {
+.nav #pageComments,
+.nav #experimental {
   pointer-events: all;
 }
 .navCenter {
@@ -879,6 +904,7 @@ body {
 .nav .btnMenu,
 .nav .navPreviewNext,
 .nav #pageComments,
+.nav #experimental,
 .nav .infoViewerMode,
 .nav .pageName {
   display: flex;
@@ -889,7 +915,7 @@ body {
   border-radius: 36px;
   box-shadow: var(--shadow1);
   align-self: center;
-  /* opacity: .9; */
+  opacity: .8; 
 }
 
 .nav .infoViewerMode{
@@ -908,6 +934,7 @@ body {
 
 .btnMenu,
 .nav #pageComments,
+.nav #experimental,
 .btnPreview,
 .btnNext {
   cursor: pointer;
@@ -938,6 +965,7 @@ body {
 
 .btnMenu:hover,
 .nav #pageComments:hover,
+.nav #experimental:hover,
 .btnPreview:hover,
 .btnNext:hover {
   background: var(--color-hover);
@@ -947,6 +975,7 @@ body {
 
 .btnMenu:active,
 .nav #pageComments:active,
+.nav #experimental:active, 
 .btnPreview:active,
 .btnNext:active {
   background: var(--color-active);
@@ -963,6 +992,18 @@ body {
 .nav .disabled {
   opacity: .5;
 }
+
+.nav #experimental {
+    width:36px;
+    margin-left: 12px;  
+    background: #FFB70A;;
+}
+
+
+.nav #experimental:hover { 
+    background: #FED574;;
+}
+  
 
 /*** MENU ***/
 .menu {
@@ -1171,6 +1212,8 @@ area {
 
   /* Dark mode styles go here! */
   :root {
+    --color-danger:#E40949;
+    --color-warning:#FFB70A;
     --color-primary: #E0E1E1;
     --color-secondary: #989EA5;
     --color-accent: #568AF2;
