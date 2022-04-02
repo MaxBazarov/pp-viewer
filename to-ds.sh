@@ -7,7 +7,7 @@ fi
 cd src
 rm -f *.zip
 cd viewer
-zip -r ../viewer.zip viewer resources
+zip -r ../viewer.zip js resources
 cd ..
 mkdir ../dist/$ver
 cp -rf . ../dist/${ver}/
