@@ -41,10 +41,11 @@ let TRANS_ANIMATIONS = [
 
 function inViewport($el)
 {
+    // source: https://stackoverflow.com/questions/24768795/get-the-visible-height-of-a-div-with-jquery
     var elH = $el.outerHeight(),
         H = $(window).height(),
         r = $el[0].getBoundingClientRect(), t = r.top, b = r.bottom;
-    return Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H));
+    return [r.top,Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H))]
 }
 
 function handleAnimationEndOnHide(el)
@@ -426,7 +427,7 @@ class ViewerPage
             var regPage = viewer.lastRegularPage
 
             this.currentLeft += Math.round(regPage.width / 2) - Math.round(this.width / 2)
-            const visibleHeight = inViewport(regPage.imageDiv)
+            const [y,visibleHeight] = inViewport(regPage.imageDiv)
             this.currentTop += Math.round(visibleHeight / 2) - Math.round(this.height / 2 * viewer.currentZoom)
             if (this.currentTop < 0) this.currentTop = 0
             if (this.currentLeft < 0) this.currentLeft = 0
@@ -438,13 +439,21 @@ class ViewerPage
                 contentModal.css("overflow-y", "scroll")
             else
                 contentModal.css("overflow-y", "")
-
-
         } else if ("overlay" == this.type)
         {
             this.currentLeft = viewer.currentPage ? viewer.currentPage.currentLeft : 0
             this.currentTop = viewer.currentPage ? viewer.currentPage.currentTop : 0
         }
+        // Update fixed layers position)
+        /*let py = null, ph = null
+        this.fixedPanels.filter(p => !p.constrains.top && p.constrains.bottom).forEach(p =>
+        {            
+            if (py === null) [py, ph] = inViewport(this.imageDiv)
+            if(viewer.currentZoom>=1)
+                p.imageDiv.css("top", (py + ph - p.height) + "px")
+            else
+                p.imageDiv.css("top", (this.height - p.height) + "px")
+        }, this)*/
     }
 
     showOverlayByLinkIndex(linkIndex)
@@ -500,7 +509,7 @@ class ViewerPage
 
         // handle mouse hover if this page is overlay
         var _hideSelf = false
-        while (Constants.TRIGGER_ON_CLICK == this.overlayByEvent)
+        while (true)//Constants.TRIGGER_ON_CLICK == this.overlayByEvent)
         {
             var localX = Math.round(x / viewer.currentZoom) - this.currentLeft
             var localY = Math.round(y / viewer.currentZoom) - this.currentTop
@@ -691,7 +700,7 @@ class ViewerPage
         }
 
         const enableLinks = true
-        var isModal = this.type === "modal";
+        var isModal = this.type === "modal";        
 
         var content = $('#content')
         var cssStyle = "height: " + this.height + "px; width: " + this.width + "px;"
@@ -705,11 +714,13 @@ class ViewerPage
             style: cssStyle
         });
         this.imageDiv = imageDiv
-
+        
 
         // create fixed panel images        
         for (var panel of this.fixedPanels)
         {
+            const isBottomFloat = panel.isFloat && !panel.constrains.top && panel.constrains.bottom
+
             let style = "'"
             let cssClass = ""
 
@@ -743,7 +754,9 @@ class ViewerPage
                     style += "box-shadow:" + panel.shadow + ";"
 
                 // create Div for fixed panel            
-                if (panel.isFloat)
+                if(isBottomFloat){
+                    cssClass = 'fixedBottomPanelFloat'
+                }else if (panel.isFloat)
                 {
                     cssClass = 'fixedPanelFloat'
                 } else if (panel.isVertScroll)
@@ -764,8 +777,20 @@ class ViewerPage
                 id: divID,
                 class: cssClass,
                 style: style
-            });
-            panelDiv.appendTo(imageDiv);
+            })
+            if(isBottomFloat){
+                const wrap1 = $("<div>", {                    
+                    style: `position: absolute; z-index:13;`
+                })
+                const wrap2 = $("<div>", {                    
+                    style: `position: fixed; height:100vh; max-height: ${this.height}px; top:0px;`
+                })
+                panelDiv.appendTo(wrap2);
+                wrap2.appendTo(wrap1)
+                wrap1.appendTo(imageDiv)
+            }else{
+                panelDiv.appendTo(imageDiv);
+            }
             panel.imageDiv = panelDiv
 
             // create link div
@@ -945,6 +970,7 @@ class ViewerPage
                 if (link.triggerOnHover)
                 {
                     eventType = Constants.TRIGGER_ON_HOVER
+                    destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
                 } else if ('overlay' == destPage.type)
                 {
                     eventType = destPage.overlayByEvent
