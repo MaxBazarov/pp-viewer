@@ -270,7 +270,8 @@ class infoViewer extends AbstractViewer
             info += `<div class="head" style="font-weight:bold;"><div class="tooltip">Owner: ${story.ownerName}<span class="tooltiptext">${story.ownerEmail}</span></div></div>`
         } else
         {
-            info += "Unknown"
+            // Owner is uknown
+            info += ""
         }
         info += `<div id = "info_viewer_content_dynamic"/>`
 
