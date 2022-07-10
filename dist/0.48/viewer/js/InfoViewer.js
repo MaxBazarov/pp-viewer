@@ -254,7 +254,7 @@ class infoViewer extends AbstractViewer
         if ('diff' == this.mode)
         {
             if (viewer.figma)
-                newSrc = `images-diff/${screen['screen_name']}`
+                newSrc = `images-diff/${screen['image_name']}`
             else
                 newSrc = data['journals_path'] + '/' + data['dir'] + "/diffs/" + screen['screen_name'] + "." + story.fileType
         } else if ('new' == this.mode)
