@@ -219,7 +219,12 @@ class infoViewer extends AbstractViewer
             if (showNew)
                 info += "<img src='" + screen['image_url'] + "' border='0' width='360px'/>";
             else
-                info += "<img src='" + rec['journals_path'] + '/' + rec['dir'] + "/diffs/" + screen['screen_name'] + "." + story.fileType + "' border='0' width='360px'/>";
+            {
+                if (viewer.figma)
+                    info += `<img src="diffs/${screen['screen_name']}.${story.fileType} border='0' width='360px'/>`;
+                else
+                    info += "<img src='" + rec['journals_path'] + '/' + rec['dir'] + "/diffs/" + screen['screen_name'] + "." + story.fileType + "' border='0' width='360px'/>";
+            }
             info += "</div>";
             info += "</div>";
         }
