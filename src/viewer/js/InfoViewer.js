@@ -218,7 +218,7 @@ class infoViewer extends AbstractViewer
             info += "</div><div>";
             if (viewer.figma)
             {
-                info += `<img src="diffs/${screen['image_name']}.${story.fileType} border='0' width='360px'/>`;
+                info += `<img src="diffs/${screen['image_name']}" border="0" width="360px"/>`
                 alert(info)
             }
             else
