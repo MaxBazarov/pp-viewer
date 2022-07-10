@@ -59,6 +59,7 @@ class infoViewer extends AbstractViewer
     goToScreen(recIndex, screenIndex, pageIndex)
     {
         this.currentRec = this.data['recs'][recIndex]
+        this.nextRec = this.data['recs'][recIndex + 1]
         viewer.goToPage(pageIndex)
     }
 
@@ -265,7 +266,13 @@ class infoViewer extends AbstractViewer
             }
         } else
         {
-            newSrc = "../" + data['down_ver'] + "/" + page.srcImageObjSrc
+            if (this.nextRec)
+            {
+                if (viewer.figma)
+                    newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageObjSrc
+                else
+                    newSrc = "../" + data['down_ver'] + "/" + page.srcImageObjSrc
+            }
         }
 
 
