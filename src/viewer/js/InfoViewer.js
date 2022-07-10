@@ -337,7 +337,7 @@ class infoViewer extends AbstractViewer
     _loadFigmaData()
     {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "../data.json", true);
+        xhr.open("GET", `../data.json?${story.docVersion}`, true);
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.onreadystatechange = getVersionInfoRequest;
         xhr.send(null);
