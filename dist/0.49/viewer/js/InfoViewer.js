@@ -305,7 +305,7 @@ class infoViewer extends AbstractViewer
 
         data['recs'].forEach(function (rec, index)
         {
-            alert(rec)
+            console.log(rec)
             var authorHTML = undefined != rec['email'] ? `<div class="tooltip" > by ${rec['author']} <span class="tooltiptext">${rec['email']}</span></div > ` : rec['author']
             info += `
                 <div class="record" >
