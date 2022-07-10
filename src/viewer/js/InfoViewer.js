@@ -219,7 +219,6 @@ class infoViewer extends AbstractViewer
             if (viewer.figma)
             {
                 info += `<img src="images-diff/${screen['image_name']}" border="0" width="360px"/>`
-                alert(info)
             }
             else
             {
@@ -280,13 +279,13 @@ class infoViewer extends AbstractViewer
 
         if (story.ownerEmail != '')
         {
-            info += `< div class="head" style = "font-weight:bold;" > <div class="tooltip">Owner: ${story.ownerName}<span class="tooltiptext">${story.ownerEmail}</span></div></div > `
+            info += `<div class="head" style = "font-weight:bold;" > <div class="tooltip">Owner: ${story.ownerName}<span class="tooltiptext">${story.ownerEmail}</span></div></div > `
         } else
         {
             // Owner is uknown
             info += ""
         }
-        info += `< div id = "info_viewer_content_dynamic" /> `
+        info += `<div id = "info_viewer_content_dynamic" /> `
 
         $("#info_viewer_content").html(info)
     }
@@ -295,13 +294,13 @@ class infoViewer extends AbstractViewer
     {
         var info = ""
 
-        info += `< div id = "title" style = "font-weight:bold;" > Changes</div > `
+        info += `<div id = "title" style = "font-weight:bold;" > Changes</div > `
 
         data['recs'].forEach(function (rec, index)
         {
-            var authorHTML = undefined != rec['email'] ? `< div class="tooltip" > by ${rec['author']} <span class="tooltiptext">${rec['email']}</span></div > ` : rec['author']
+            var authorHTML = undefined != rec['email'] ? `<div class="tooltip" > by ${rec['author']} <span class="tooltiptext">${rec['email']}</span></div > ` : rec['author']
             info += `
-                < div class="record" >
+                <div class="record" >
                 <div class="ver"><a href="#" onclick="viewer.infoViewer.goToVersion(${index})">#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}</div>
                 <div class="message">${rec['message'].replaceAll('--NOTELE', '')}</div>
                 <div class="info">
