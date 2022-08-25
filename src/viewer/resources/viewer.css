@@ -1101,15 +1101,15 @@ body {
 }
 
 .item.sub:active {
-  background: var(--color-hover);
+    background: var(--color-hover);
 }
 
-.item.sub:hover + div {
-  display: flex;
+.item.sub:hover+div {
+    display: flex;
 }
 
 .item.sub:hover .submenu {
-  display: flex;
+    display: flex;
 }
 
 .item svg {
@@ -1122,16 +1122,16 @@ body {
 }
 
 .submenu {
-  align-self: flex-start;
-  position: absolute;
-  transform: translateX(212px);
-  margin-top: -12px;
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  padding: 12px 0;
-  background: var(--color-background);
-  display: none;
-  box-shadow: var(--shadow1);
+    align-self: flex-start;
+    position: absolute;
+    transform: translateX(212px);
+    margin-top: -12px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    padding: 12px 0;
+    background: var(--color-background);
+    display: none;
+    box-shadow: var(--shadow1);
 }
 
 .menu .tips {
@@ -1141,9 +1141,9 @@ body {
 }
 
 .menu .tips svg {
-  margin-right: -6px;
-  /* fill: var(--color-secondary); */
-  width: 18px;
+    margin-right: -6px;
+    /* fill: var(--color-secondary); */
+    width: 18px;
 }
 
 hr {
@@ -1324,6 +1324,11 @@ area {
 
 @media (prefers-color-scheme: light) {
     /* Light styles go here! */
+}
+
+
+.panelVSCroll {
+    padding-right: 8px;
 }
 
 /* custom scrollbar */
