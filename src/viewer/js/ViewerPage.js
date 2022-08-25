@@ -600,11 +600,15 @@ class ViewerPage
         // Show overlay on the new position
         const div = this.imageDiv
 
-        this.inFixedPanel = linkParentFixed && this.overlayAlsoFixed
-        if (!this.parentPage || this.parentPage.id != newParentPage.id || div.hasClass('hidden'))
+        this.inFixedPanel = linkParentFixed && (this.overlayAlsoFixed || link.panel.isVertScroll)
+        if (!this.garentPage || this.parentPage.id != newParentPage.id || div.hasClass('hidden'))
         {
-
-            if (this.inFixedPanel)
+            if (link.panel.isVertScroll)
+            {
+                div.removeClass('fixedPanelFloat')
+                div.addClass('divPanel')
+            }
+            else if (this.inFixedPanel)
             {
                 div.removeClass('divPanel')
                 div.addClass('fixedPanelFloat')
@@ -658,11 +662,20 @@ class ViewerPage
                 {// OLD_ARTBOARD_OVERLAY_ALIGN_HOTSPOT_TOP_LEFT
                     posX -= this.overlayShadowX
                 }
+                if (link.panel.isVertScroll)
+                {
+                    posY -= link.panel.y
+                    //if(orgPage.type==="modal") posY+=orgPage.
+                }
 
                 this.currentX = posX
                 this.currentY = posY
 
-                if ("modal" == orgPage.type) newParentPage.imageDiv.append(div)
+                if (link.panel.isVertScroll)
+                {
+                    link.panel.imageDiv.append(div)
+                } else if ("modal" == orgPage.type)
+                    newParentPage.imageDiv.append(div)
                 div.css('top', posY + "px")
                 div.css('margin-left', posX + "px")
             }
@@ -962,6 +975,7 @@ class ViewerPage
 
         for (var link of panel.links)
         {
+            link.panel = panel
             let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
             let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
 
@@ -1081,7 +1095,11 @@ function handleLinkEvent(event)
                 x: customData ? customData.x : parseInt($(this).attr("lpx")),
                 y: customData ? customData.y : parseInt($(this).attr("lpy")),
                 width: link.rect.width,
-                height: link.rect.height
+                height: link.rect.height,
+            }
+            if (orgLink.fixedPanelIndex >= 0)
+            {
+                orgLink.panel = currentPage.fixedPanels[orgLink.fixedPanelIndex]
             }
 
             // check if link in fixed panel aligned to bottom
