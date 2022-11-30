@@ -2,8 +2,10 @@ const GALLERY_TOP_MARGIN = 80
 const GALLERY_LEFTRIGH_MARGIN = 40
 
 
-class GalleryViewerMapLink {
-    constructor(index, link, spage, dpage) {
+class GalleryViewerMapLink
+{
+    constructor(index, link, spage, dpage)
+    {
         this.index = index
         this.link = link
         this.spage = spage
@@ -16,7 +18,8 @@ class GalleryViewerMapLink {
         //
     }
 
-    buildCode(zoom, visible) {
+    buildCode(zoom, visible)
+    {
         const page = this.spage
         const dpage = this.dpage
         const l = this.link
@@ -30,22 +33,26 @@ class GalleryViewerMapLink {
         var ldy0 = dpage.finalTop
         var ldx = 0, ldy = 0, dc = 0
         // find the best target edge to connect with
-        if (ldx0 > lsx) {
+        if (ldx0 > lsx)
+        {
             ldx = ldx0
             ldy = ldy0 + dpage.height / 2
             lsx += l.rect.width / 2 // place start to hotspot right edge
             dc = 50
-        } else if (lsx > ldx1) {
+        } else if (lsx > ldx1)
+        {
             ldx = ldx1
             ldy = ldy0 + dpage.height / 2
             lsx -= l.rect.width / 2 // place start to hotspot left edge
             dc = 50
-        } else if (ldy0 > lsy) {
+        } else if (ldy0 > lsy)
+        {
             lsy += l.rect.height / 2
             ldx = ldx0 + dpage.width / 2
             ldy = ldy0
             dc = 0
-        } else {
+        } else
+        {
             lsy -= l.rect.height / 2
             ldx = ldx0 + dpage.width / 2
             ldy = ldy0 + dpage.height
@@ -70,8 +77,10 @@ class GalleryViewerMapLink {
     }
 }
 
-class GalleryViewer extends AbstractViewer {
-    constructor() {
+class GalleryViewer extends AbstractViewer
+{
+    constructor()
+    {
         super()
         this.isSidebarChild = false
         this.blockMainNavigation = true
@@ -96,22 +105,28 @@ class GalleryViewer extends AbstractViewer {
         this._initPages()
     }
 
-    _initPages() {
+    _initPages()
+    {
         this.pages = this.isMapMode ? viewer.visStoryPages : viewer.userStoryPages
     }
 
-    initialize(force = false, skipZoomUpdate = false) {
+    initialize(force = false, skipZoomUpdate = false)
+    {
         if (!force && this.inited) return
 
         // Load page comment counters
-        if (viewer.commentsViewer) {
+        if (viewer.commentsViewer)
+        {
             var formData = new FormData();
-            viewer.commentsViewer.askCommentCounters(function () {
+            viewer.commentsViewer.askCommentCounters(function ()
+            {
                 var result = JSON.parse(this.responseText);
                 //
-                if ("ok" == result.status) {
+                if ("ok" == result.status)
+                {
                     viewer.galleryViewer._updateCommentCounters(result.data)
-                } else {
+                } else
+                {
                     console.log(result.message);
                 }
                 return
@@ -119,9 +134,11 @@ class GalleryViewer extends AbstractViewer {
         }
 
         // adjust main container for current mode
-        if (this.isMapMode) {
+        if (this.isMapMode)
+        {
             $("#gallery").removeClass("gallery-grid")
-        } else {
+        } else
+        {
             $("#gallery").addClass("gallery-grid")
         }
 
@@ -133,24 +150,30 @@ class GalleryViewer extends AbstractViewer {
 
         // Adjust map zoom
         const zoomContainter = $("#map-controls")
-        if (this.isMapMode) {
-            if (!skipZoomUpdate) {
+        if (this.isMapMode)
+        {
+            if (!skipZoomUpdate)
+            {
                 const zoomControl = $(".mapZoom")
                 zoomControl.val(this.mapZoom * 100)
             }
             zoomContainter.show();
-        } else {
+        } else
+        {
             zoomContainter.hide()
         }
 
         this.inited = true
     }
 
-    _updateCommentCounters(pagesInfo) {
-        this.pages.forEach(function (page) {
+    _updateCommentCounters(pagesInfo)
+    {
+        this.pages.forEach(function (page)
+        {
             const pageID = page.getHash()
             const pageInfo = pagesInfo[pageID]
-            if (!pageInfo) {
+            if (!pageInfo)
+            {
                 console.log("Can't find page info for " + pageID);
                 return
             }
@@ -158,30 +181,39 @@ class GalleryViewer extends AbstractViewer {
             let text = ""
             if (pageInfo['commentsTotal'] != 0) text = "  (" + pageInfo['commentsTotal'] + ")"
             //
-            if (this.isMapMode) {
+            if (this.isMapMode)
+            {
                 $("#gallery #grid #t" + page.index + " #comm").text(text)
-            } else {
+            } else
+            {
                 $("#gallery #grid #" + page.index + " #comm").text(text)
             }
 
         }, this);
     }
 
-    handleKeyDown(jevent) {
+    handleKeyDown(jevent)
+    {
         const event = jevent.originalEvent
 
-        if (27 == event.which) { // esc
+        if (27 == event.which)
+        { // esc
             this.toggle()
-        } else if (!this.searchInputFocused && 71 == event.which && !event.metaKey) { // key "g"
+        } else if (!this.searchInputFocused && 71 == event.which && !event.metaKey)
+        { // key "g"
             // Key "G" activates/deactivates Symbol Viewer
             this.toggle()
-        } else if (this.searchInputFocused) {
+        } else if (this.searchInputFocused)
+        {
             return true
-        } else if (76 == event.which) { // key "l"
+        } else if (76 == event.which)
+        { // key "l"
             $("#galleryShowMapLinks").click()
-        } else if (77 == event.which) { // key "m"
+        } else if (77 == event.which)
+        { // key "m"
             $("#galleryShowMap").click()
-        } else {
+        } else
+        {
             return super.handleKeyDown(jevent)
         }
 
@@ -189,24 +221,29 @@ class GalleryViewer extends AbstractViewer {
         return true
     }
 
-    mapZoomChanged(zoomValue) {
+    mapZoomChanged(zoomValue)
+    {
         this.mapZoom = zoomValue / 200
         this.isCustomMapZoom = true
         this.initialize(true, true)
     }
 
-    viewerResized() {
+    viewerResized()
+    {
         if (!this.isMapMode) return
         this.initialize(true)
     }
 
-    handleKeyDownWhileInactive(jevent) {
+    handleKeyDownWhileInactive(jevent)
+    {
         const event = jevent.originalEvent
 
-        if (71 == event.which && !event.metaKey) { // g
+        if (71 == event.which && !event.metaKey)
+        { // g
             // Key "G" activates Symbol Viewer
             this.toggle()
-        } else {
+        } else
+        {
             return super.handleKeyDownWhileInactive(jevent)
         }
 
@@ -215,16 +252,19 @@ class GalleryViewer extends AbstractViewer {
     }
 
     /// calling from parent
-    handleURLParam(paramValue) {
+    handleURLParam(paramValue)
+    {
         const enableMap = "m" == paramValue
-        if (enableMap != this.isMapMode) {
+        if (enableMap != this.isMapMode)
+        {
             this.enableMapMode(enableMap)
             $("#galleryShowMap").prop('checked', enableMap);
         }
     }
 
     // Calling from UI
-    enableMapMode(enabled) {
+    enableMapMode(enabled)
+    {
         window.localStorage.setItem("galleryIsModeAbs", enabled)
         this.isMapMode = enabled
         this._initPages()
@@ -233,27 +273,32 @@ class GalleryViewer extends AbstractViewer {
     }
 
     // Calling from UI
-    showMapLinks(visible) {
+    showMapLinks(visible)
+    {
         window.localStorage.setItem("galleryIsLinkVisible", visible)
         this.isMapLinksVisible = visible
         this._showHideMapLinks(visible ? null : false)
     }
 
     // Calling from UI
-    resetMapZoom() {
+    resetMapZoom()
+    {
         this.isCustomMapZoom = false
         this.initialize(true)
     }
 
-    _showSelf() {
+    _showSelf()
+    {
         if (!this.inited || this.currentFullWidth != viewer.fullWidth) this.initialize(true)
 
         $('#gallery-modal').removeClass('hidden');
 
-        $('#searchInput').focusin(function () {
+        $('#searchInput').focusin(function ()
+        {
             viewer.galleryViewer.searchInputFocused = true
         })
-        $('#searchInput').focusout(function () {
+        $('#searchInput').focusout(function ()
+        {
             viewer.galleryViewer.searchInputFocused = false
         })
         $('#searchInput').focus()
@@ -266,7 +311,8 @@ class GalleryViewer extends AbstractViewer {
         viewer.refresh_url(viewer.currentPage, "", false)
     }
 
-    _hideSelf() {
+    _hideSelf()
+    {
         $('#gallery-modal').addClass('hidden');
         super._hideSelf()
         viewer.refresh_url(viewer.currentPage, "", false)
@@ -274,27 +320,32 @@ class GalleryViewer extends AbstractViewer {
 
 
 
-    loadPages() {
+    loadPages()
+    {
         if (this.isMapMode) return this.loadPagesAbs()
-        this.pages.forEach(function (page) {
+        this.pages.forEach(function (page)
+        {
             this.loadOnePage(page);
         }, this);
     }
 
-    loadPagesAbs() {
+    loadPagesAbs()
+    {
         let groupSpace = 80
 
         // find maximum width of Sketch page with artoards
         let maxGroupWidth = null
 
-        story.groups.forEach(function (group) {
+        story.groups.forEach(function (group)
+        {
             // find group pages
             const pages = this.pages.filter(s => s.groupID == group.id)
             group.pages = pages // save for below
             if (pages.length == 0) return
             ///
             let left = null, right = null, top = null, bottom = null
-            pages.forEach(function (page) {
+            pages.forEach(function (page)
+            {
                 page.group = group
                 page.slinks = []
                 page.dlinks = []
@@ -315,7 +366,8 @@ class GalleryViewer extends AbstractViewer {
         }, this);
 
         // Calculate zoom to fit max width
-        if (!this.isCustomMapZoom) {
+        if (!this.isCustomMapZoom)
+        {
             this.mapZoom = (viewer.fullWidth - GALLERY_LEFTRIGH_MARGIN * 2) / maxGroupWidth
             if (this.mapZoom > 0.6) this.mapZoom = 0.6
         }
@@ -325,7 +377,8 @@ class GalleryViewer extends AbstractViewer {
         let deltaY = 0
         let fullHeight = 0
         const groupTitleHeight = 40 / this.mapZoom
-        story.groups.forEach(function (group) {
+        story.groups.forEach(function (group)
+        {
             if (group.pages.length == 0) return
             ///
             let top = deltaY - group.top
@@ -335,7 +388,8 @@ class GalleryViewer extends AbstractViewer {
             //// show group title
             this.addMapPageGroupTitle(group)
             //// show pages
-            group.pages.forEach(function (page) {                //
+            group.pages.forEach(function (page)
+            {                //
                 this.loadOnePageAbs(page, left, top);
             }, this);
             //
@@ -350,7 +404,8 @@ class GalleryViewer extends AbstractViewer {
     }
 
 
-    addMapPageGroupTitle(group) {
+    addMapPageGroupTitle(group)
+    {
         let style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
 
         var div = $('<div/>', {
@@ -364,12 +419,14 @@ class GalleryViewer extends AbstractViewer {
     }
 
 
-    selectPage(index) {
+    selectPage(index)
+    {
         this.hide()
         viewer.goToPage(index, this.actualSearchText)
     }
 
-    mouseEnterPage(index) {
+    mouseEnterPage(index)
+    {
         if (this.isMapLinksVisible) return
         //
         if (this.mapFocusedPage) this.mapFocusedPage.showHideGalleryLinks(false)
@@ -379,7 +436,8 @@ class GalleryViewer extends AbstractViewer {
     }
 
 
-    loadOnePage(page) {
+    loadOnePage(page)
+    {
         var imageURI = page.image
 
         var div = $('<div/>', {
@@ -393,7 +451,8 @@ class GalleryViewer extends AbstractViewer {
         var divMain = $('<div/>', {
             class: "grid-cell-main"
         });
-        div.click(function (e) {
+        div.click(function (e)
+        {
             viewer.galleryViewer.selectPage(parseInt(this.id));
         });
         div.appendTo($('#gallery #grid'));
@@ -423,7 +482,8 @@ class GalleryViewer extends AbstractViewer {
         });
         title.appendTo(spanTitle);
 
-        if (viewer.commentsViewer) {
+        if (viewer.commentsViewer)
+        {
             var comments = $('<div/>', {
                 id: "comm",
                 text: ""
@@ -434,14 +494,16 @@ class GalleryViewer extends AbstractViewer {
         divTitle.appendTo(divMain);
     }
 
-    loadOnePageAbs(page, pageLeft, pageTop) {
+    loadOnePageAbs(page, pageLeft, pageTop)
+    {
         page.finalTop = pageTop + page.y
         page.finalLeft = page.x - pageLeft
 
         {
             let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", page.finalTop, GALLERY_TOP_MARGIN)
                 + this._valueToStyle("width", page.width) + this._valueToStyle("height", page.height)
-            if (undefined != story.backColor) {
+            if (undefined != story.backColor)
+            {
                 style += "background-color:" + story.backColor + ";"
             }
 
@@ -451,10 +513,12 @@ class GalleryViewer extends AbstractViewer {
                 style: style,
             });
 
-            div.click(function (e) {
-                viewer.galleryViewer.selectPage(parseInt(this.id));
+            div.click(function (e)
+            {
+                viewer.galleryViewer.selectPage(parseInt(this.id))
             });
-            div.mouseenter(function () {
+            div.mouseenter(function ()
+            {
                 viewer.galleryViewer.mouseEnterPage(this.id)
             })
             div.appendTo($('#gallery #grid'));
@@ -463,9 +527,11 @@ class GalleryViewer extends AbstractViewer {
             // Show large image for large width
             const previewWidth = 522
             let src = encodeURIComponent(viewer.files)
-            if (width < previewWidth) {
+            if (width < previewWidth)
+            {
                 src += '/previews/' + encodeURIComponent(page.image)
-            } else {
+            } else
+            {
                 src += '/full/' + encodeURIComponent(page.image)
             }
 
@@ -498,18 +564,22 @@ class GalleryViewer extends AbstractViewer {
 
     }
 
-    _valueToStyle(styleName, v, absDelta = 0) {
+    _valueToStyle(styleName, v, absDelta = 0)
+    {
         return styleName + ": " + Math.round(v * this.mapZoom + absDelta) + "px;"
     }
 
-    _showHideMapLinks(show) {
-        this.pages.forEach(function (page) {
+    _showHideMapLinks(show)
+    {
+        this.pages.forEach(function (page)
+        {
             page.showHideGalleryLinks(show)
         });
     }
 
 
-    _buildMapLinks(finalWidth, finalHeight) {
+    _buildMapLinks(finalWidth, finalHeight)
+    {
 
         // build scene
         let svg = "<svg"
@@ -529,9 +599,11 @@ class GalleryViewer extends AbstractViewer {
         let indexCounter = 0
         this.mapLinks = []
         //
-        this.pages.forEach(function (page) {
+        this.pages.forEach(function (page)
+        {
             /// Show links to other pages
-            page.links.forEach(function (l) {
+            page.links.forEach(function (l)
+            {
                 // valide destination page
                 if (l.page == page.index) return
                 const dpage = story.pages[l.page]
@@ -548,13 +620,15 @@ class GalleryViewer extends AbstractViewer {
     }
 
     //Search page in gallery by page name
-    onSearchInputChange() {
+    onSearchInputChange()
+    {
         var keyword = $("#searchInput").val().toLowerCase().trim()
         if (undefined == this.actualSearchText && "" == keyword) return
 
         var foundScreenAmount = 0;
 
-        this.pages.forEach(function (page) {
+        this.pages.forEach(function (page)
+        {
             const title = page.title.toLowerCase().trim()
             const div = $("#gallery #grid #" + page.index)
             let visible = keyword == ''
@@ -564,12 +638,14 @@ class GalleryViewer extends AbstractViewer {
             div.find(".searchFocusedResultDiv,.searchResultDiv").remove()
 
             // Search in artboard title and image name            
-            if (keyword != '') {
+            if (keyword != '')
+            {
                 visible = title.includes(keyword) || page.image.includes(keyword)
 
                 // Search in text layers                
                 page.findTextLayersByText(keyword, foundTextLayers)
-                if (foundTextLayers.length > 0) {
+                if (foundTextLayers.length > 0)
+                {
                     visible = true
                 }
                 //
@@ -577,14 +653,18 @@ class GalleryViewer extends AbstractViewer {
 
             if (visible) foundScreenAmount++
             page.visibleInGallery = visible
-            if (visible) {
+            if (visible)
+            {
                 div.removeClass("galleryArtboardAbsHidden")
-                if (visible) {
-                    foundTextLayers.forEach(function (l) {
+                if (visible)
+                {
+                    foundTextLayers.forEach(function (l)
+                    {
                         viewer.galleryViewer._findTextShowElement(page, l, div)
                     })
                 }
-            } else {
+            } else
+            {
                 div.addClass("galleryArtboardAbsHidden")
             }
         });
@@ -597,7 +677,8 @@ class GalleryViewer extends AbstractViewer {
         $("#screensamount").html(foundScreenAmount + " screens")
     }
 
-    _findTextShowElement(page, l, div) {
+    _findTextShowElement(page, l, div)
+    {
         const isFocused = true
         const padding = isFocused ? 2 : 0
         const divWidth = div.innerWidth()

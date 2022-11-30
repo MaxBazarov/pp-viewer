@@ -404,7 +404,7 @@ class Viewer
             v.share()
         } else if (73 == event.which)
         { // i
-            v.openFulImage()
+            v.openFullImage()
         } else if (allowNavigation && 76 == event.which)
         { // l
             v.toogleLayout();
@@ -587,11 +587,11 @@ class Viewer
     }
 
 
-    openFulImage()
+    openFullImage()
     {
         let page = this.currentPage
         let url = this._getPageFullURL(page)
-        url = url.substring(0, url.lastIndexOf("/")) + "/images/full/" + page['image']
+        url = url.substring(0, url.lastIndexOf("/")) + "/images/" + page['imageFull']
 
         window.open(url, "_blank")
     }

@@ -365,7 +365,7 @@ function buildMainHTML(options)
             ID: "", items: [
                 { ID: "symbols", label: "Handoff", icon: "icElementInspector", key: "M", onclick: "viewer.symbolViewer.toggle();", on: options.loadLayers },
                 { ID: "embed", label: "Embed code", icon: "icEmbed", key: "E", onclick: "viewer.share();" },
-                { ID: "img", label: "Full page image", icon: "icImage2", key: "I", onclick: "viewer.openFulImage();" },
+                { ID: "img", label: "Full page image", icon: "icImage2", key: "I", onclick: "viewer.openFullImage();" },
                 { ID: "menu_comments_viewer", label: "Comments", icon: "icAnnotation", key: "C", onclick: "viewer.commentsViewer.toggle();", hidden: true },
                 { ID: "figma", label: "Source in Figma", icon: "icAnnotation", key: "", onclick: "viewer.openFigma();", hidden: true },
             ]
