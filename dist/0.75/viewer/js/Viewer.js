@@ -183,7 +183,7 @@ class Viewer
         this.presenterViewer = null
         this.expViewer = null
 
-        this.defSidebarWidth = 400
+        this.defSidebarWidth = 240
 
         this.transQueue = []
     }
