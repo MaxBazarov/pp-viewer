@@ -405,7 +405,8 @@ class SymbolViewer extends AbstractViewer
             info += sv._showLayerDimensions(layer)
             info += sv._showLayerSymbol(layer, symName, siLayer)
             info += sv._showLayerComment(layer, siLayer)
-            info += sv._showLayerStyle(layer, siLayer)
+            info += sv._showLayerText(layer, siLayer)
+            info += sv._showLayerFrame(layer, siLayer)
 
             // if layer has CSS classes described
             if (layer.pr != undefined)
@@ -427,16 +428,9 @@ class SymbolViewer extends AbstractViewer
                 const decRes = sv._decorateCSS(layer, tokens, layer.b ? layer : siLayer)
                 info += decRes.css
 
-                if ("Text" == layer.tp)
-                {
-                    info += sv._showLayerTextContent(layer, decRes)
-                }
             } else
             {
-                if ("Text" == layer.tp)
-                {
-                    info += sv._showLayerTextContent(layer, null)
-                }
+
             }
 
             // Process image layar
@@ -486,38 +480,7 @@ class SymbolViewer extends AbstractViewer
             return list1
     }
 
-    // Show Text layer content with Copy button
-    _showLayerTextContent(layer, decRes)
-    {
-        if (layer.tx == undefined || layer.tx == "") return ""
-        let info = ""
 
-        info += `
-                <hr>
-                <div class="block">
-                <div class='label'>Text&nbsp;<button onclick = "copyToBuffer('sv_content')">Copy</button>`
-        let afterContent = ""
-        let cssClass = ""
-        if (decRes && decRes.styles["font-family"].startsWith("Font Awesome 5"))
-        {
-            cssClass += "icon "
-            if (decRes.styles["font-weight"] != "400") cssClass += "solid "
-            const codeText = layer.tx.codePointAt(0).toString(16)
-            afterContent = "Unicode: " + codeText
-            info += `<button onclick = "showFAIconInfo('` + codeText + `')">Info</button>`
-        } else
-        {
-            cssClass += "code value"
-        }
-        info += `</div ><div id='sv_content' class="` + cssClass + `">` + layer.tx + "</div>"
-        if (afterContent != "")
-        {
-            info += "<div  class='code value'>" + afterContent + "</div>"
-        }
-        info += "</div>"
-
-        return info
-    }
 
     _showLayerSymbol(layer, symName, siLayer)
     {
@@ -533,7 +496,7 @@ class SymbolViewer extends AbstractViewer
         }
         //
         let info = "<hr>" +
-            "<div class='panel'>" +
+            "<div class='block'>" +
             "<div class='label'>" + categoryName + "</div>" +
             "<div class='value'>" + symName + "</div>"
         const libName = layer.b != undefined ? (layer.b + " (external)") :
@@ -606,7 +569,7 @@ class SymbolViewer extends AbstractViewer
         const url = layer.iu
         info += `
                 <hr>
-                <div class="panel">
+                <div class='block'>
                 <div class='label'>Image Content&nbsp;<a class="svlink" href="`+ url + `">Download</a>`
         let cssClass = "code value"
         const width = "100%" //viewer.defSidebarWidth - 40
@@ -615,8 +578,64 @@ class SymbolViewer extends AbstractViewer
     }
 
     // siLayer: parent symbol 
-    _showLayerStyle(layer, siLayer)
+    _showLayerText(layer, siLayer)
     {
+        if (layer.tp !== "Text") return ""
+
+        let info = `
+        <hr>
+        <div class="panel">
+            <div class="label">Text</div>
+        `
+        // Show text style
+        if (layer.l != "")
+        {
+            let styleName = layer.l
+            const libName = layer.b != undefined ? (layer.b + " (external)") :
+                (siLayer ? siLayer.b + " (external)" : "Document")
+
+            info += `            
+            <div class="fieldset">
+                <span class="label">Style</span>                
+                <span class="value">${styleName}</span>
+            </div>                                        
+            `
+            //<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>
+        }
+
+        // Show text content
+        if (layer.tx !== "")
+        {
+            info += `
+            <div class="fieldset">        
+                <span class="label">Content</span>
+                <span class="value"><button style="width:60px;" onclick = "copyToBuffer('sv_content')">Copy</button></span>
+            </div>
+            <div class="fieldset"> 
+                <span class="text" id="sv_content">
+                    ${layer.tx}
+                </spane>
+            </div>
+            `
+        }
+
+        info += `
+        </div>
+        `
+        return info
+        //return this._showExtDocRef(layer, styleName, siLayer) + info
+    }
+
+
+
+    // siLayer: parent symbol 
+    _showLayerFrame(layer, siLayer)
+    {
+        return ""
+
+        const showText = layer.tx !== ""
+
+
         if (undefined == layer.l) return ""
 
         let info = ""
@@ -625,11 +644,14 @@ class SymbolViewer extends AbstractViewer
             (siLayer ? siLayer.b + " (external)" : "Document")
 
         info = `<hr>
-                <div class="panel">
-                    <div class='label'>Figma Style</div>
-                    <div class='value'>${styleName}</div>
-                    <div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>
-                </div>`
+            <div class='panel'>
+                <div class='label'>Text</div>
+                <div class="field">
+                    <!--<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>-->
+                    <span class="label" >Local style</span>
+                    <span class='value'>${styleName}</span>
+                </div>
+            </div>`
 
         return this._showExtDocRef(layer, styleName, siLayer) + info
     }
@@ -645,22 +667,22 @@ class SymbolViewer extends AbstractViewer
         const PADDING = 20;
 
         info += `
-            <hr/>
-            <div class="panel" style="position:relative;height:70px">
-                <div class="label">Frame</div>
-                <div class="field" style="position:absolute;top:30px;left:0px;">
-                    <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
+                <hr/>
+                <div class="panel" style="position:relative;height:64px">
+                    <div class="label">Frame</div>
+                    <div class="field" style="position:absolute;top:30px;left:0px;">
+                        <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:30px;left:120px;">
+                        <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:54px;left:0px;">
+                        <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:54px;left:120px;">
+                        <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
+                    </div>
                 </div>
-                <div class="field" style="position:absolute;top:30px;left:120px;">
-                    <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
-                </div>
-                <div class="field" style="position:absolute;top:60px;left:0px;">
-                    <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
-                </div>
-                <div class="field" style="position:absolute;top:60px;left:120px;">
-                    <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
-                </div>                 
-            </div>
         `
         return info
     }

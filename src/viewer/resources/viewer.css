@@ -313,7 +313,7 @@ select:focus {
     position: fixed;
     box-sizing: border-box;
     width: 400px;
-    padding: 0 20px;
+    padding: 0 12px;
     background: var(--color-background);
     font-weight: var(--font-weight-bold);
     border-bottom: solid 1px var(--color-border);
@@ -321,30 +321,58 @@ select:focus {
 }
 
 #comments_viewer_content {
-    padding: 72px 20px 0 20px;
+    padding: 72px 12px 0 12px;
 }
 
 #symbol_viewer_content .panel {
-    margin: 20px;
+    margin: 12px;
 }
 
 #symbol_viewer_content .panel .panelRow {
     padding-bottom: 16px;
 }
 
+#symbol_viewer_content .field {
+    margin-bottom: 4px;
+}
+
+
 #symbol_viewer_content .field .label {
     color: var(--color-secondary);
+    font-weight: 400;
     margin-right: 10px;
 }
 
+
 #symbol_viewer_content .field .value {
-    color: var(--color-secondary);
+    color: var(--color-primary);
 }
 
-/*
-#symbol_viewer_content .block {
-    padding: 16px 20px 0 20px;
-}*/
+
+#symbol_viewer_content .fieldset {
+    margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: 72px auto;
+}
+
+#symbol_viewer_content .fieldset .label {
+    color: var(--color-secondary);
+    font-weight: 400;
+    display: grid;
+    margin-bottom: 0px;
+}
+
+#symbol_viewer_content .fieldset .value {
+    color: var(--color-primary);
+    display: grid;
+    padding-top: 0px;
+}
+
+#symbol_viewer_content .fieldset .text {
+    color: var(--color-primary);
+    display: grid;
+}
+
 
 #symbol_viewer_content .twoColumn {
     display: flex;
@@ -368,6 +396,7 @@ select:focus {
 #symbol_viewer_content .label {
     color: var(--color-primary);
     font-weight: 600;
+    margin-bottom: 8px;
 }
 
 #symbol_viewer_content .value {
@@ -396,12 +425,6 @@ select:focus {
     font-weight: 900;
 }
 
-#sv_content {
-    font-size: 20px;
-    line-height: 18px;
-}
-
-
 #exp_viewer .pages .page {
     padding-bottom: 10px;
     color: var(--color-accent);
@@ -421,7 +444,7 @@ select:focus {
 }
 
 #exp_viewer .widgets .page {
-    margin-left: 20px;
+    margin-left: 12x;
     color: var(--color-accent);
     font-size: 12px;
     cursor: pointer;
