@@ -494,7 +494,7 @@ class SymbolViewer extends AbstractViewer
 
         info += `
                 <hr>
-                <div class='block'>
+                <div class="block">
                 <div class='label'>Text&nbsp;<button onclick = "copyToBuffer('sv_content')">Copy</button>`
         let afterContent = ""
         let cssClass = ""
@@ -533,7 +533,7 @@ class SymbolViewer extends AbstractViewer
         }
         //
         let info = "<hr>" +
-            "<div class='block'>" +
+            "<div class='panel'>" +
             "<div class='label'>" + categoryName + "</div>" +
             "<div class='value'>" + symName + "</div>"
         const libName = layer.b != undefined ? (layer.b + " (external)") :
@@ -606,7 +606,7 @@ class SymbolViewer extends AbstractViewer
         const url = layer.iu
         info += `
                 <hr>
-                <div class='block'>
+                <div class="panel">
                 <div class='label'>Image Content&nbsp;<a class="svlink" href="`+ url + `">Download</a>`
         let cssClass = "code value"
         const width = "100%" //viewer.defSidebarWidth - 40
@@ -625,7 +625,7 @@ class SymbolViewer extends AbstractViewer
             (siLayer ? siLayer.b + " (external)" : "Document")
 
         info = `<hr>
-                <div class='block'>
+                <div class="panel">
                     <div class='label'>Figma Style</div>
                     <div class='value'>${styleName}</div>
                     <div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>
