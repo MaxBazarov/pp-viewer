@@ -352,7 +352,7 @@ select:focus {
 #symbol_viewer_content .fieldset {
     margin-bottom: 4px;
     display: grid;
-    grid-template-columns: 72px auto;
+    grid-template-columns: 80px auto;
 }
 
 #symbol_viewer_content .fieldset .label {

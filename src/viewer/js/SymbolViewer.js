@@ -402,18 +402,12 @@ class SymbolViewer extends AbstractViewer
             // layer.tp : layer type: SI, Text, ShapePath or Image
             // siLayer : symbol master, owner of the layer            
 
-            info += sv._showLayerDimensions(layer)
-            info += sv._showLayerSymbol(layer, symName, siLayer)
-            info += sv._showLayerComment(layer, siLayer)
-            info += sv._showLayerText(layer, siLayer)
-            info += sv._showLayerFrame(layer, siLayer)
-
             // if layer has CSS classes described
+            let decRes = undefined
             if (layer.pr != undefined)
             {
                 let tokens = null
-                if (styleInfo)
-                    tokens = styleInfo.style.tokens
+                if (styleInfo) tokens = styleInfo.style.tokens
                 if (symInfo)
                 {
                     const foundLayer = symInfo.symbol.layers[layer.n]
@@ -425,13 +419,17 @@ class SymbolViewer extends AbstractViewer
                             tokens = sv._mergeTokens(tokens, foundLayer.tokens)
                     }
                 }
-                const decRes = sv._decorateCSS(layer, tokens, layer.b ? layer : siLayer)
-                info += decRes.css
-
-            } else
-            {
-
+                decRes = sv._decorateCSS(layer, tokens, layer.b ? layer : siLayer)
             }
+
+            info += sv._showLayerDimensions(layer)
+            info += sv._showLayerSymbol(layer, symName, siLayer)
+            info += sv._showLayerComment(layer, siLayer)
+            info += sv._showLayerText(layer, siLayer, decRes)
+            info += sv._showLayerFrame(layer, siLayer)
+
+            // if layer has CSS classes described
+            if (decRes) info += decRes.css
 
             // Process image layar
             if ("Image" == layer.tp)
@@ -578,15 +576,34 @@ class SymbolViewer extends AbstractViewer
     }
 
     // siLayer: parent symbol 
-    _showLayerText(layer, siLayer)
+    _showLayerText(layer, siLayer, cssInfo)
     {
         if (layer.tp !== "Text") return ""
+
+        function fieldHtml(label, value)
+        {
+            if (label === undefined || value === undefined) return ""
+            return `            
+            <div class="fieldset">
+                <span class="label">${label}</span>                
+                <span class="value">${value}</span>
+            </div>                                        
+            `
+        }
 
         let info = `
         <hr>
         <div class="panel">
             <div class="label">Text</div>
         `
+
+        if (cssInfo)
+        {
+            info += fieldHtml("Font", cssInfo.styles["font-family"])
+            info += fieldHtml("Weight", cssInfo.styles["font-weight"])
+            info += fieldHtml("Size", cssInfo.styles["font-size"])
+        }
+
         // Show text style
         if (layer.l !== undefined && layer.l !== "")
         {
@@ -594,12 +611,7 @@ class SymbolViewer extends AbstractViewer
             const libName = layer.b != undefined ? (layer.b + " (external)") :
                 (siLayer ? siLayer.b + " (external)" : "Document")
 
-            info += `            
-            <div class="fieldset">
-                <span class="label">Style</span>                
-                <span class="value">${styleName}</span>
-            </div>                                        
-            `
+            info += fieldHtml("Figma style", styleName)
             //<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>
         }
 
@@ -607,21 +619,21 @@ class SymbolViewer extends AbstractViewer
         if (layer.tx !== "")
         {
             info += `
-            <div class="fieldset">        
+                <div class= "fieldset">        
                 <span class="label">Content</span>
                 <span class="value"><button style="width:60px;" onclick = "copyToBuffer('sv_content')">Copy</button></span>
             </div>
-            <div class="fieldset"> 
-                <span class="text" id="sv_content">
-                    ${layer.tx}
-                </spane>
-            </div>
+                <div class="fieldset">
+                    <span class="text" id="sv_content">
+                        ${layer.tx}
+                    </spane>
+                </div>
             `
         }
 
         info += `
-        </div>
-        `
+        </div >
+                `
         return info
         //return this._showExtDocRef(layer, styleName, siLayer) + info
     }
@@ -644,14 +656,14 @@ class SymbolViewer extends AbstractViewer
             (siLayer ? siLayer.b + " (external)" : "Document")
 
         info = `<hr>
-            <div class='panel'>
-                <div class='label'>Text</div>
-                <div class="field">
-                    <!--<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>-->
-                    <span class="label" >Local style</span>
-                    <span class='value'>${styleName}</span>
-                </div>
-            </div>`
+                <div class='panel'>
+                    <div class='label'>Text</div>
+                    <div class="field">
+                        <!--<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>-->
+                        <span class="label" >Local style</span>
+                        <span class='value'>${styleName}</span>
+                    </div>
+                </div>`
 
         return this._showExtDocRef(layer, styleName, siLayer) + info
     }
@@ -668,21 +680,21 @@ class SymbolViewer extends AbstractViewer
 
         info += `
                 <hr/>
-                <div class="panel" style="position:relative;height:64px">
-                    <div class="label">Frame</div>
-                    <div class="field" style="position:absolute;top:30px;left:0px;">
-                        <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:30px;left:120px;">
-                        <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:54px;left:0px;">
-                        <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:54px;left:120px;">
-                        <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
-                    </div>
+            <div class="panel" style="position:relative;height:64px">
+                <div class="label">Frame</div>
+                <div class="field" style="position:absolute;top:30px;left:0px;">
+                    <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
                 </div>
+                <div class="field" style="position:absolute;top:30px;left:120px;">
+                    <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
+                </div>
+                <div class="field" style="position:absolute;top:54px;left:0px;">
+                    <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
+                </div>
+                <div class="field" style="position:absolute;top:54px;left:120px;">
+                    <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
+                </div>
+            </div>
         `
         return info
     }
@@ -1005,11 +1017,11 @@ class SymbolViewer extends AbstractViewer
         let styles = {}
 
         result += `
-            <hr/>
-            <div class="panel">
-                <div class="label">CSS Styles</div>
-                <div class="value code">
-                    `
+                <hr/>
+                <div class="panel">
+                    <div class="label">CSS Styles</div>
+                    <div class="value code">
+                        `
 
         // Decorate styles already described in CSS 
         css.split("\n").forEach(line =>
