@@ -1197,7 +1197,7 @@ function handleLinkEvent(event)
                     } else if (pinPage && Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER == destPage.overlayPinPage)
                     {
                         pageX = parseInt(currentPage.width / 2) - parseInt(destPage.width / 2)
-                        pageY = padX
+                        pageY = padY
                     } else if (pinPage && Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_RIGHT == destPage.overlayPinPage)
                     {
                         pageX = currentPage.width - destPage.width
