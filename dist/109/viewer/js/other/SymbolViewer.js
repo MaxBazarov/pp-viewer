@@ -763,65 +763,51 @@ class SymbolViewer extends AbstractViewer
                 <span class="value">${value}${unit}</span>
             </div> 
         `}
-        function fieldPadding(icon, value, unit = "")
-        {
-            if (icon === undefined || value === undefined) return ""
-            return `
-            <div class="segmentedCntrol">                           
-                <div class='svIconContainer'>
-                    <svg class="uiIcon">
-                        <use xlink:href="#${icon}"></use > 
-                    </svg>                                                            
-                </div>
-                <span class="value">${value}${unit}</span>
-            </div >
-                `}
         function fieldHtml(label, value, unit = "")
         {
             if (label === undefined || value === undefined) return ""
             return `
-                <div class="fieldset">
+            <div class="fieldset">
                 <span class="label">${label}</span>
                 <span class="value">${value}${unit}</span>
-            </div >
-                `}
+            </div> 
+        `}
 
         const al = layer.al
         const vert = al.m === "VERTICAL"
         let info = `
-                <hr>
-                <div class="panel">
-                    <div class="label">Auto layout</div>
-                    ${fieldType(al.m)}
-                    ${fieldItemsSpace(al.m, al.is, "px")
+        <hr>
+        <div class="panel">
+            <div class="label">Auto layout</div>   
+            ${fieldType(al.m)}
+            ${fieldItemsSpace(al.m, al.is, "px")
             }
-                    `
-
-        if (al.pl === al.pr && al.pt === al.pb)
+        `
+        if (al.pl === al.pr && al.pl === al.pt && al.pl == al.pb)
         {
-            info += `
-            <div class="row3">
-                ${fieldPadding("PaddingH", al.pl, "px")}
-                ${fieldPadding("PaddingV", al.pt, "px")}            
-            </div >
-                `
+            info += fieldHtml("Padding", al.pl, "px")
         } else
         {
-            info += `
-            <div class="row3">
-                ${fieldHtml("PaddingHL", al.pl, "px")}
-                ${fieldHtml("PaddingVT", al.pt, "px")}
-            </div >
-            <div class="row3">
-                ${fieldHtml("PaddingHR", al.pr, "px")}
-                ${fieldHtml("PaddingVB", al.pb, "px")}
-            </div >
-            `
+            if (al.pl === al.pr)
+            {
+                info += fieldHtml("H padding ", al.pl, "px")
+            } else
+            {
+                info += fieldHtml("Left padding", al.pl, "px")
+                info += fieldHtml("Right padding", al.pr, "px")
+            }
+            if (al.pt === al.pb)
+            {
+                info += fieldHtml("V padding ", al.pt, "px")
+            } else
+            {
+                info += fieldHtml("Top padding", al.pt, "px")
+                info += fieldHtml("Bottom padding", al.pb, "px")
+            }
         }
-
         info += `
-                </div >
-                `
+        </div >
+    `
         return info
     }
 
@@ -1143,11 +1129,11 @@ class SymbolViewer extends AbstractViewer
         let styles = {}
 
         result += `
-                <hr/>
-                <div class="panel">
-                    <div class="label">CSS Styles</div>
-                    <div class="value code">
-                        `
+    <hr/>
+    <div class="panel">
+        <div class="label">CSS Styles</div>
+        <div class="value code">
+            `
 
         // Decorate styles already described in CSS 
         css.split("\n").forEach(line =>
