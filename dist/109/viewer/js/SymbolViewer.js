@@ -809,12 +809,12 @@ class SymbolViewer extends AbstractViewer
         {
             info += `
             <div class="row3">
-                ${fieldHtml("PaddingHL", al.pl, "px")}
-                ${fieldHtml("PaddingVT", al.pt, "px")}
+                ${fieldPadding("PaddingHL", al.pl, "px")}
+                ${fieldPadding("PaddingVT", al.pt, "px")}
             </div >
             <div class="row3">
-                ${fieldHtml("PaddingHR", al.pr, "px")}
-                ${fieldHtml("PaddingVB", al.pb, "px")}
+                ${fieldPadding("PaddingHR", al.pr, "px")}
+                ${fieldPadding("PaddingVB", al.pb, "px")}
             </div >
             `
         }
