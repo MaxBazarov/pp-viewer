@@ -659,7 +659,7 @@ class SymbolViewer extends AbstractViewer
         if (cssInfo === undefined || cssInfo === "") return ""
         let info = ""
 
-        function colorHtml(value)
+        function colorHtml(value, styleIndex = undefined)
         {
             if (value === undefined) return ""
             if (Array.isArray(value))
@@ -668,32 +668,36 @@ class SymbolViewer extends AbstractViewer
                 value.forEach(s => res += colorHtml(s))
                 return res
             }
+            const styleInfo = styleIndex !== undefined ? STYLES[styleIndex] : null
             return `            
             <div class="colorset">
                 <span class="color" style="background-color:${value}">&nbsp;</span>                
-                <span class="value">${value}</span>
-            </div>                                        
+                <span class="value">
+                    ${styleInfo != null ? (styleInfo.name + " / ") : ""}
+                    ${value}
+                </span>
+            </div>
             `
         }
 
         if (cssInfo.styles["background-color"] !== undefined)
         {
             info += `
-            <hr>
-            <div class="panel">
-                <div class="label">${layer.tp !== "Text" ? "Backgrounds" : "Colors"}</div>
-                ${colorHtml(cssInfo.styles["background-color"])}        
-            </div>
-        `}
+                <hr/>
+                <div class="panel">
+                    <div class="label">${layer.tp !== "Text" ? "Backgrounds" : "Colors"}</div>
+                    ${colorHtml(cssInfo.styles["background-color"], layer.fsi)}
+                </div>
+            `}
         if (cssInfo.styles["border-color"] !== undefined)
         {
             info += `
-            <hr>
-            <div class="panel">
-                <div class="label">Borders</div>
-                ${colorHtml(cssInfo.styles["border-color"])}        
-            </div>
-        `}
+                <hr/>
+                <div class="panel">
+                    <div class="label">Borders</div>
+                    ${colorHtml(cssInfo.styles["border-color"], layer.ssi)}
+                </div>
+            `}
         return info
     }
 
@@ -709,22 +713,22 @@ class SymbolViewer extends AbstractViewer
 
         info += `
                 <hr/>
-            <div class="panel" style="position:relative;height:64px">
-                <div class="label">Frame</div>
-                <div class="field" style="position:absolute;top:30px;left:0px;">
-                    <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
+                <div class="panel" style="position:relative;height:64px">
+                    <div class="label">Frame</div>
+                    <div class="field" style="position:absolute;top:30px;left:0px;">
+                        <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:30px;left:120px;">
+                        <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:54px;left:0px;">
+                        <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
+                    </div>
+                    <div class="field" style="position:absolute;top:54px;left:120px;">
+                        <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
+                    </div>
                 </div>
-                <div class="field" style="position:absolute;top:30px;left:120px;">
-                    <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
-                </div>
-                <div class="field" style="position:absolute;top:54px;left:0px;">
-                    <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
-                </div>
-                <div class="field" style="position:absolute;top:54px;left:120px;">
-                    <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
-                </div>
-            </div>
-        `
+            `
         return info
     }
 
@@ -736,7 +740,7 @@ class SymbolViewer extends AbstractViewer
         {
             if (value === undefined) return ""
             return `
-            <div class="segmentedCntrol">            
+                < div class="segmentedCntrol" >            
                 <div class='svIconContainer${value == "VERTICAL" ? " selected" : ""}'>
                     <svg class='uiIcon'>
                         <use xlink:href="#svDown"></use> 
@@ -747,27 +751,27 @@ class SymbolViewer extends AbstractViewer
                         <use xlink:href="#svRight"></use> 
                     </svg>
                 </div>
-            </div> 
-            `
+            </div >
+                `
         }
         function fieldItemsSpace(autoLayoutType, value, unit = "")
         {
             if (autoLayoutType === undefined || value === undefined) return ""
             return `
-            <div class="segmentedCntrol">                           
-                <div class='svIconContainer'>
-                    <svg class="uiIcon">
-                        <use xlink:href="#svItemsSpace${autoLayoutType === "VERTICAL" ? "V" : "H"}"></use> 
+                < div class="segmentedCntrol" >
+                    <div class='svIconContainer'>
+                        <svg class="uiIcon">
+                            <use xlink:href="#svItemsSpace${autoLayoutType === " VERTICAL" ? "V" : "H"}"></use>
                     </svg>                                                            
-                </div>
+                </div >
                 <span class="value">${value}${unit}</span>
-            </div> 
-        `}
+            </div >
+                `}
         function fieldPadding(icon, value, unit = "")
         {
             if (icon === undefined || value === undefined) return ""
             return `
-            <div class="segmentedCntrol">                           
+                < div class="segmentedCntrol" >                           
                 <div class='svIconContainer'>
                     <svg class="uiIcon">
                         <use xlink:href="#${icon}"></use > 
@@ -780,7 +784,7 @@ class SymbolViewer extends AbstractViewer
         {
             if (label === undefined || value === undefined) return ""
             return `
-                <div class="fieldset">
+                < div class="fieldset" >
                 <span class="label">${label}</span>
                 <span class="value">${value}${unit}</span>
             </div >
@@ -789,7 +793,7 @@ class SymbolViewer extends AbstractViewer
         const al = layer.al
         const vert = al.m === "VERTICAL"
         let info = `
-                <hr>
+                <hr/>
                 <div class="panel">
                     <div class="label">Auto layout</div>
                     ${fieldType(al.m)}
@@ -821,7 +825,7 @@ class SymbolViewer extends AbstractViewer
 
         info += `
                 </div >
-                `
+            `
         return info
     }
 
