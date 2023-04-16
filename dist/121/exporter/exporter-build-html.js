@@ -89,18 +89,18 @@ function buildMainHTML_NavigationIcons(options)
             </symbol>
             <!-- VERTICAL MAX -->           
             <symbol ID="sv-AL-VERTICAL-MAXMIN" viewBox="0 0 56 56" fill="none">
-                <rect width="2" height="2" transform="translate(11 11)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(27 11)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(43 11)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(11 27)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(27 27)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(43 27)" fill="#D9D9D9" />
-                <rect width="2" height="6" transform="matrix(0 1 -1 0 10 39)" fill="#007BE5" />
-                <rect width="2" height="10" transform="matrix(0 1 -1 0 14 43)" fill="#007BE5" />
-                <rect width="2" height="4" transform="matrix(0 1 -1 0 8 47)" fill="#007BE5" />
-                <rect width="2" height="2" transform="translate(27 43)" fill="#D9D9D9" />
-                <rect width="2" height="2" transform="translate(43 43)" fill="#D9D9D9" />
-                <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6" />
+                <rect width="2" height="2" transform="translate(11 11)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(27 11)" fill="#D9D9D9"/>
+                <rect width="2" height="6" transform="matrix(0 1 -1 0 52 7)" fill="#007BE5"/>
+                <rect width="2" height="10" transform="matrix(0 1 -1 0 52 11)" fill="#007BE5"/>
+                <rect width="2" height="4" transform="matrix(0 1 -1 0 52 15)" fill="#007BE5"/>
+                <rect width="2" height="2" transform="translate(11 27)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(27 27)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(43 27)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(11 43)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(27 43)" fill="#D9D9D9"/>
+                <rect width="2" height="2" transform="translate(43 43)" fill="#D9D9D9"/>
+                <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6"/>
             </symbol>
             <symbol ID="sv-AL-VERTICAL-MAXCENTER" viewBox="0 0 56 56" fill="none">
                 <rect width="2" height="2" transform="translate(11 11)" fill="#D9D9D9"/>
@@ -181,15 +181,15 @@ function buildMainHTML_NavigationIcons(options)
                 <rect width="2" height="2" transform="translate(11 27)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(27 27)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 27)" fill="#D9D9D9"/>
-                <rect width="2" height="6" transform="translate(7 46)" fill="#007BE5"/>
-                <rect width="2" height="10" transform="translate(11 42)" fill="#007BE5"/>
-                <rect width="2" height="4" transform="translate(15 48)" fill="#007BE5"/>
+                <rect width="2" height="6" transform="matrix(0 1 -1 0 10 39)" fill="#007BE5"/>
+                <rect width="2" height="10" transform="matrix(0 1 -1 0 14 43)" fill="#007BE5"/>
+                <rect width="2" height="4" transform="matrix(0 1 -1 0 8 47)" fill="#007BE5"/>
                 <rect width="2" height="2" transform="translate(27 43)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 43)" fill="#D9D9D9"/>
                 <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6"/>
             </symbol>
             <symbol ID="sv-AL-VERTICAL-MINMIN" viewBox="0 0 56 56" fill="none">
-                <rect width="2" height="4" transform="matrix(0 -1 1 0 4 17)" fill="#007BE5"/>
+                <<rect width="2" height="4" transform="matrix(0 -1 1 0 4 17)" fill="#007BE5"/>
                 <rect width="2" height="10" transform="matrix(0 -1 1 0 4 13)" fill="#007BE5"/>
                 <rect width="2" height="6" transform="matrix(0 -1 1 0 4 9)" fill="#007BE5"/>
                 <rect width="2" height="2" transform="translate(27 11)" fill="#D9D9D9"/>
@@ -248,13 +248,13 @@ function buildMainHTML_NavigationIcons(options)
             <symbol ID="sv-AL-HORIZONTAL-MAXMIN" viewBox="0 0 56 56" fill="none">
                 <rect width="2" height="2" transform="translate(11 11)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(27 11)" fill="#D9D9D9"/>
-                <rect width="2" height="6" transform="matrix(0 1 -1 0 52 7)" fill="#007BE5"/>
-                <rect width="2" height="10" transform="matrix(0 1 -1 0 52 11)" fill="#007BE5"/>
-                <rect width="2" height="4" transform="matrix(0 1 -1 0 52 15)" fill="#007BE5"/>
+                <rect width="2" height="2" transform="translate(43 11)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(11 27)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(27 27)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 27)" fill="#D9D9D9"/>
-                <rect width="2" height="2" transform="translate(11 43)" fill="#D9D9D9"/>
+                <rect width="2" height="6" transform="translate(7 46)" fill="#007BE5"/>
+                <rect width="2" height="10" transform="translate(11 42)" fill="#007BE5"/>
+                <rect width="2" height="4" transform="translate(15 48)" fill="#007BE5"/>
                 <rect width="2" height="2" transform="translate(27 43)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 43)" fill="#D9D9D9"/>
                 <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6"/>
@@ -302,9 +302,9 @@ function buildMainHTML_NavigationIcons(options)
                 <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6" />
             </symbol>
             <symbol ID="sv-AL-HORIZONTAL-MINMIN" viewBox="0 0 56 56" fill="none">
-                <rect width="2" height="4" transform="matrix(0 -1 1 0 4 17)" fill="#007BE5"/>
-                <rect width="2" height="10" transform="matrix(0 -1 1 0 4 13)" fill="#007BE5"/>
-                <rect width="2" height="6" transform="matrix(0 -1 1 0 4 9)" fill="#007BE5"/>
+                <rect width="2" height="6" transform="translate(7 4)" fill="#007BE5"/>
+                <rect width="2" height="10" transform="translate(11 4)" fill="#007BE5"/>
+                <rect width="2" height="4" transform="translate(15 4)" fill="#007BE5"/>
                 <rect width="2" height="2" transform="translate(27 11)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 11)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(11 27)" fill="#D9D9D9"/>
@@ -313,7 +313,7 @@ function buildMainHTML_NavigationIcons(options)
                 <rect width="2" height="2" transform="translate(11 43)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(27 43)" fill="#D9D9D9"/>
                 <rect width="2" height="2" transform="translate(43 43)" fill="#D9D9D9"/>
-                <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6"/>
+                <rect x="0.5" y="0.5" width="55" height="55" stroke="#E6E6E6"/>            
             </symbol>
             <symbol ID="sv-AL-HORIZONTAL-MINMAX" viewBox="0 0 56 56" fill="none">
                 <rect width="2" height="2" transform="translate(11 11)" fill="#D9D9D9" />
