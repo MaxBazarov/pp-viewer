@@ -951,7 +951,7 @@ class ViewerPage
 
     _loadSingleImage(sizeSrc, idPrefix)
     {
-        var unCachePostfix = 000000000 == story.docVersion ? "" : ("?" + story.docVersion)
+        var unCachePostfix = 100000001 == story.docVersion ? "" : ("?" + story.docVersion)
 
         var img = $('<img/>', {
             id: idPrefix + this.index,

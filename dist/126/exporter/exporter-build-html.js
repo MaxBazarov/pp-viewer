@@ -1,6 +1,6 @@
 const ExporterConstants = {
     DOCUMENT_VERSION: "docVersion",
-    DOCUMENT_VERSION_PLACEHOLDER: "000000000"
+    DOCUMENT_VERSION_PLACEHOLDER: "100000001"
 }
 
 function buildMainHTML_NavigationIcons(options)

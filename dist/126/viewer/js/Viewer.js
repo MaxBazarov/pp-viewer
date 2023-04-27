@@ -906,7 +906,7 @@ class Viewer
     }
     refresh_update_navbar(page)
     {
-        var VERSION_INJECT = story.docVersion != 000000000 ? (" (v" + story.docVersion + ")") : "";
+        var VERSION_INJECT = story.docVersion != 100000001 ? (" (v" + story.docVersion + ")") : "";
 
         var prevPage = this.getPreviousUserPage(page)
         var nextPage = this.getNextUserPage(page)

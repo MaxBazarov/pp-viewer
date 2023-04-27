@@ -34,7 +34,7 @@ class infoViewer extends AbstractViewer
 
         this.screenDiffs = []
         this.mode = 'diff'
-        this.published = story.docVersion != 000000000
+        this.published = story.docVersion != 100000001
         this.currentRec = null
 
         this.dataLoaded = false
