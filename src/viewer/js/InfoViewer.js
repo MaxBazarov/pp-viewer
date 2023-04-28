@@ -68,7 +68,7 @@ class infoViewer extends AbstractViewer
         xhr.send(null);
     }
 
-    goToVersion(recIndex)
+    goToVersionByRecIndex(recIndex)
     {
         const rec = this.data['recs'][recIndex]
         const newURL = "../" + rec['ver'] + '?' + encodeURIComponent(viewer.currentPage.getHash())
@@ -305,7 +305,7 @@ class infoViewer extends AbstractViewer
             var authorHTML = undefined != rec['email'] ? `<div class="tooltip"> by ${rec['author']} <span class="tooltiptext">${rec['email']}</span></div> ` : rec['author']
             info += `
                 <div class="record">
-                <div class="ver"><a href="#" onclick="viewer.infoViewer.goToVersion(${index})">#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}</div>
+                <div class="ver"><a href="#" onclick="viewer.infoViewer.goToVersionByRecIndex(${index})">#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}</div>
                 <div class="message">${rec['message'].replaceAll('--NOTELE', '')}</div>
                 <div class="info">
             `
