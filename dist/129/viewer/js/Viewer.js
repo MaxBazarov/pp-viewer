@@ -27,7 +27,7 @@ function handleDecreaseVersion()
     if (currentVerIndex === null) return
     if ((currentVerIndex + 1) === data['recs'].length) return this.showMessage(`The current #${story.docVersion} version is first version`)
     //
-    this.infoViewer.goToVersionByRecIndex(currentVerIndex + 1)
+    viewer.infoViewer.goToVersionByRecIndex(currentVerIndex + 1)
 }
 
 function handleIncreaseVersion()
@@ -39,7 +39,7 @@ function handleIncreaseVersion()
     if (currentVerIndex === null) return
     if (currentVerIndex === 0) return this.showMessage(`The current #${story.docVersion} version is first version`)
     //
-    this.infoViewer.goToVersionByRecIndex(currentVerIndex - 1)
+    viewer.infoViewer.goToVersionByRecIndex(currentVerIndex - 1)
 }
 
 function doTransNext()
