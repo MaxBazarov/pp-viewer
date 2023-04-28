@@ -68,11 +68,15 @@ class infoViewer extends AbstractViewer
         xhr.send(null);
     }
 
-    goToVersionByRecIndex(recIndex)
+    goToVersionByRec(rec)
     {
-        const rec = this.data['recs'][recIndex]
         const newURL = "../" + rec['ver'] + '?' + encodeURIComponent(viewer.currentPage.getHash())
         window.open(newURL, "_self");
+    }
+
+    goToVersionByRecIndex(recIndex)
+    {
+        this.goToVersionByRec(this.data['recs'][recIndex])
     }
 
 
