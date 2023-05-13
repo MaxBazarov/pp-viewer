@@ -241,7 +241,7 @@ class infoViewer extends AbstractViewer
             info += "<div>";
             info += pageName;
             info += "</div><div>";
-            info += `<img src="../${rec['ver']}/images-diff/${screen['image_name']}" border="0" width="216px"/>`
+            info += `<img src="../${rec['ver']}/images${screen['is_new'] ? "" : "-diff"}/${screen['image_name']}" border="0" width="216px"/>`
             info += "</div>";
             info += "</div>";
         }
