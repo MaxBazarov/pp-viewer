@@ -17,7 +17,8 @@
     padding: 10px 10px;
     border-radius: 4px;
 
-    /* Position the tooltip text - see examples below! */
+    right: 0px;
+    top: 110px;
     position: absolute;
     z-index: 1;
 }
