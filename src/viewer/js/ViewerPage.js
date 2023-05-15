@@ -516,8 +516,8 @@ class ViewerPage
         var _hideSelf = false
         while (true)//Constants.TRIGGER_ON_CLICK == this.overlayByEvent)
         {
-            var localX = Math.round(x / viewer.currentZoom) - this.currentLeft
-            var localY = Math.round(y / viewer.currentZoom) - this.currentTop
+            var localX = (x / viewer.currentZoom) - this.currentLeft
+            var localY = (y / viewer.currentZoom) - this.currentTop
             //alert(" localX:"+localX+" localY:"+localY+" linkX:"+this.currentLink.x+" linkY:"+this.currentLink.y);
 
 
