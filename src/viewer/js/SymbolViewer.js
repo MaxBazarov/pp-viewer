@@ -446,15 +446,16 @@ class SymbolViewer extends AbstractViewer
 
         a.prependTo(l.parentPanel.linksDiv)
 
-        var style = "left: " + l.finalX + "px; top:" + l.finalY + "px; "
-        style += "width: " + l.w + "px; height:" + l.h + "px; "
+        ///
         const highlight = siLayer && siLayer.s && (
             (this.highlightWidgetName === null && siLayer.s.includes("EXPERIMENTAL")) ||
             (this.highlightWidgetName !== null && siLayer.s.includes(this.highlightWidgetName))
         )
-        var symbolDiv = $("<div>", {
-            class: "symbolDiv" + (highlight ? " exp" : ""),
-        }).attr('style', style)
+
+        const div = new StageDiv(l.finalX, l.finalY, l.w, l.h, "symbolDiv")
+        if (highlight) div.class += " exp"
+        const symbolDiv = div.createJQ_Obj()
+
         symbolDiv.mouseenter(function ()
         {
             viewer.symbolViewer.mouseEnterLayerDiv($(this))
@@ -462,6 +463,8 @@ class SymbolViewer extends AbstractViewer
 
         symbolDiv.appendTo(a)
     }
+
+
 
     _mergeTokens(list1, list2)
     {
@@ -1146,9 +1149,8 @@ class SymbolViewer extends AbstractViewer
 
     _drawMarginLine(currentPanel, x, y, width, height, className)
     {
-        var style = "left: " + x + "px; top:" + y + "px; "
-        style += "width: " + width + "px; height:" + height + "px; "
-        var div = $("<div>", { class: className }).attr('style', style)
+        const sd = new StageDiv(x, y, width, height, className)
+        const div = sd.createJQ_Obj()
         div.appendTo(currentPanel.linksDiv)
         return div
     }

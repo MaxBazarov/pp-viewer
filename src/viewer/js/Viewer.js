@@ -1,3 +1,26 @@
+class StageDiv
+{
+    constructor(x = 0, y = 0, w = 0, h = 0, _class = "")
+    {
+        this.x = x
+        this.y = y
+        this.w = w
+        this.h = h
+        this.class = _class
+    }
+
+    coordsToCSS()
+    {
+        return `left:${this.x}px;top:${this.y}px;width:${this.w}px;height:${this.h}px;`
+    }
+    createJQ_Obj()
+    {
+        const style = this.coordsToCSS()
+        const jqDiv = $("<div>", { class: this.class, }).attr('style', style)
+        return jqDiv
+    }
+}
+
 // =============================== PRELOAD IMAGES =========================
 var pagerLoadingTotal = 0
 
