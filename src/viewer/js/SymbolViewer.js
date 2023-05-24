@@ -454,7 +454,7 @@ class SymbolViewer extends AbstractViewer
 
         const div = new StageDiv(l.finalX, l.finalY, l.w, l.h, "symbolDiv")
         if (highlight) div.class += " exp"
-        const symbolDiv = div.createJQ_Obj()
+        const symbolDiv = div.jqDiv()
 
         symbolDiv.mouseenter(function ()
         {
@@ -1150,7 +1150,7 @@ class SymbolViewer extends AbstractViewer
     _drawMarginLine(currentPanel, x, y, width, height, className)
     {
         const sd = new StageDiv(x, y, width, height, className)
-        const div = sd.createJQ_Obj()
+        const div = sd.jqDiv()
         div.appendTo(currentPanel.linksDiv)
         return div
     }
@@ -1158,13 +1158,10 @@ class SymbolViewer extends AbstractViewer
     {
         const valueHeight = 20
         const valueWidth = 30
-        var style = "left: " + (x - valueWidth / 2) + "px; top:" + (y - valueHeight / 2) + "px; "
-        //style += "width: " + valueWidth + "px; height:" + valueHeight + "px; "
-        var div = $("<div>", {
-            class: "svMarginValueDiv",
-        }).attr('style', style)
+        const sd = new StageDiv(x - valueWidth / 2, y - valueHeight / 2, null, null, "svMarginValueDiv")
+        const div = sd.jqDiv()
         //
-        div.html(" " + Number.parseFloat(value).toFixed(0) + " ")
+        div.html(Number.parseFloat(value).toFixed(0))
         //
         div.appendTo(currentPanel.linksDiv)
         return div

@@ -13,7 +13,7 @@ class StageDiv
     {
         return `left:${this.x}px;top:${this.y}px;width:${this.w}px;height:${this.h}px;`
     }
-    createJQ_Obj()
+    jqDiv()
     {
         const style = this.coordsToCSS()
         const jqDiv = $("<div>", { class: this.class, }).attr('style', style)
