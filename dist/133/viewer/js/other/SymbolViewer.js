@@ -201,10 +201,12 @@ class SymbolViewer extends AbstractViewer
 
     _showEmptyContent()
     {
-        $("#symbol_viewer_content").html(story.experimentalExisting ?
+        $("#symbol_viewer_content").html("")
+        $('#symbol_viewer #empty').html(story.experimentalExisting ?
             "Click any element to inspect.<br/>EXPERIMENTAL widgets are in <span style='color:orange'>orange</span>." :
             "Click any element to inspect"
         );
+        $('#symbol_viewer #empty').removeClass("hidden")
     }
 
 
@@ -423,7 +425,6 @@ class SymbolViewer extends AbstractViewer
             info += sv._showLayerDimensions(layer)
             info += sv._showLayerAutoLayout(layer)
             info += sv._showLayerSymbol(layer, symName, siLayer)
-            info += sv._showLayerComment(layer, siLayer)
             info += sv._showLayerText(layer, siLayer, decRes)
             info += sv._showLayerFrame(layer, siLayer, decRes)
 
@@ -446,16 +447,15 @@ class SymbolViewer extends AbstractViewer
 
         a.prependTo(l.parentPanel.linksDiv)
 
-        ///
+        var style = "left: " + l.finalX + "px; top:" + l.finalY + "px; "
+        style += "width: " + l.w + "px; height:" + l.h + "px; "
         const highlight = siLayer && siLayer.s && (
             (this.highlightWidgetName === null && siLayer.s.includes("EXPERIMENTAL")) ||
             (this.highlightWidgetName !== null && siLayer.s.includes(this.highlightWidgetName))
         )
-
-        const div = new StageDiv(l.finalX, l.finalY, l.w, l.h, "symbolDiv")
-        if (highlight) div.class += " exp"
-        const symbolDiv = div.jqDiv()
-
+        var symbolDiv = $("<div>", {
+            class: "symbolDiv" + (highlight ? " exp" : ""),
+        }).attr('style', style)
         symbolDiv.mouseenter(function ()
         {
             viewer.symbolViewer.mouseEnterLayerDiv($(this))
@@ -463,8 +463,6 @@ class SymbolViewer extends AbstractViewer
 
         symbolDiv.appendTo(a)
     }
-
-
 
     _mergeTokens(list1, list2)
     {
@@ -562,19 +560,6 @@ class SymbolViewer extends AbstractViewer
                 </div>`
     }
 
-    _showLayerComment(layer, siLayer)
-    {
-        var comment = layer.comment
-        if (comment === undefined && siLayer != undefined) comment = siLayer.comment
-        if (comment === undefined) return ""
-
-        return `
-                <hr>
-                <div class="panel">
-                    <div class="label">Comment</div>
-                    <div style="value">${comment}</div>
-                </div>`
-    }
 
     _showLayerImage(layer)
     {
@@ -586,7 +571,7 @@ class SymbolViewer extends AbstractViewer
                 <div class='label'>Image Content&nbsp;<a class="svlink" href="`+ url + `">Download</a>`
         let cssClass = "code value"
         const width = "100%" //viewer.defSidebarWidth - 40
-        info += `</div><div id='sv_content' class="` + cssClass + `"><img ` + `width="` + width + `" src="` + url + `"/></div>`
+        info += `</div ><div id='sv_content' class="` + cssClass + `"><img ` + `width="` + width + `" src="` + url + `"/></div>`
         return info
     }
 
@@ -612,17 +597,6 @@ class SymbolViewer extends AbstractViewer
             <div class="label">Text</div>
         `
 
-        // Show text style
-        if (layer.tsi !== undefined && layer.tsi !== "")
-        {
-            const styleInfo = STYLES[layer.tsi]
-            if (styleInfo)
-            {
-                let styleName = styleInfo.name
-                info += fieldHtml("Style", styleName)
-            }
-        }
-
         if (cssInfo)
         {
             info += fieldHtml("Font", cssInfo.styles["font-family"])
@@ -631,6 +605,16 @@ class SymbolViewer extends AbstractViewer
             info += fieldHtml("Letter", cssInfo.styles["letter-spacing"])
         }
 
+        // Show text style
+        if (layer.l !== undefined && layer.l !== "")
+        {
+            let styleName = layer.l
+            const libName = layer.b != undefined ? (layer.b + " (external)") :
+                (siLayer ? siLayer.b + " (external)" : "Document")
+
+            info += fieldHtml("Figma style", styleName)
+            //<div style='font-size:12px; color:var(--color-secondary)'>${libName}</div>
+        }
 
         // Show text content
         if (layer.tx !== "")
@@ -647,7 +631,7 @@ class SymbolViewer extends AbstractViewer
         }
 
         info += `
-        </div>
+        </div >
                 `
         return info
         //return this._showExtDocRef(layer, styleName, siLayer) + info
@@ -661,7 +645,7 @@ class SymbolViewer extends AbstractViewer
         if (cssInfo === undefined || cssInfo === "") return ""
         let info = ""
 
-        function colorHtml(value, styleIndex = undefined)
+        function colorHtml(value)
         {
             if (value === undefined) return ""
             if (Array.isArray(value))
@@ -670,36 +654,36 @@ class SymbolViewer extends AbstractViewer
                 value.forEach(s => res += colorHtml(s))
                 return res
             }
-            const styleInfo = styleIndex !== undefined ? STYLES[styleIndex] : null
+            const styleInfo = layer.fsi !== undefined ? STYLES[layer.fsi] : null
             return `            
             <div class="colorset">
                 <span class="color" style="background-color:${value}">&nbsp;</span>                
                 <span class="value">
-                    ${styleInfo != null ? (styleInfo.name + " / ") : ""}
+                    ${styleInfo != null ? (styleInfo.name + "<br/>") : ""}
                     ${value}
                 </span>
-            </div>
+            </div>                                        
             `
         }
 
         if (cssInfo.styles["background-color"] !== undefined)
         {
             info += `
-                <hr/>
-                <div class="panel">
-                    <div class="label">${layer.tp !== "Text" ? "Backgrounds" : "Colors"}</div>
-                    ${colorHtml(cssInfo.styles["background-color"], layer.fsi)}
-                </div>
-            `}
+            <hr>
+            <div class="panel">
+                <div class="label">${layer.tp !== "Text" ? "Backgrounds" : "Colors"}</div>
+                ${colorHtml(cssInfo.styles["background-color"])}        
+            </div>
+        `}
         if (cssInfo.styles["border-color"] !== undefined)
         {
             info += `
-                <hr/>
-                <div class="panel">
-                    <div class="label">Borders</div>
-                    ${colorHtml(cssInfo.styles["border-color"], layer.ssi)}
-                </div>
-            `}
+            <hr>
+            <div class="panel">
+                <div class="label">Borders</div>
+                ${colorHtml(cssInfo.styles["border-color"])}        
+            </div>
+        `}
         return info
     }
 
@@ -715,22 +699,22 @@ class SymbolViewer extends AbstractViewer
 
         info += `
                 <hr/>
-                <div class="panel" style="position:relative;height:64px">
-                    <div class="label">Frame</div>
-                    <div class="field" style="position:absolute;top:30px;left:0px;">
-                        <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:30px;left:120px;">
-                        <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:54px;left:0px;">
-                        <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
-                    </div>
-                    <div class="field" style="position:absolute;top:54px;left:120px;">
-                        <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
-                    </div>
+            <div class="panel" style="position:relative;height:64px">
+                <div class="label">Frame</div>
+                <div class="field" style="position:absolute;top:30px;left:0px;">
+                    <span class="label">X</span><span class="value">${Math.round(frameX)}</span>
                 </div>
-            `
+                <div class="field" style="position:absolute;top:30px;left:120px;">
+                    <span class="label">Y</span><span class="value">${Math.round(frameY)}</span>
+                </div>
+                <div class="field" style="position:absolute;top:54px;left:0px;">
+                    <span class="label">W</span><span class="value">${Math.round(frameWidth)}</span>
+                </div>
+                <div class="field" style="position:absolute;top:54px;left:120px;">
+                    <span class="label">H</span><span class="value">${Math.round(frameHeight)}</span>
+                </div>
+            </div>
+        `
         return info
     }
 
@@ -742,7 +726,7 @@ class SymbolViewer extends AbstractViewer
         {
             if (value === undefined) return ""
             return `
-                <div class="segmentedCntrol" >            
+            <div class="segmentedCntrol">            
                 <div class='svIconContainer${value == "VERTICAL" ? " selected" : ""}'>
                     <svg class='uiIcon'>
                         <use xlink:href="#svDown"></use> 
@@ -753,110 +737,67 @@ class SymbolViewer extends AbstractViewer
                         <use xlink:href="#svRight"></use> 
                     </svg>
                 </div>
-            </div>
-                `
+            </div> 
+            `
         }
         function fieldItemsSpace(autoLayoutType, value, unit = "")
         {
             if (autoLayoutType === undefined || value === undefined) return ""
             return `
-                <div class="segmentedCntrol" >
-                    <div class='svIconContainer'>
-                        <svg class="uiIcon">
-                            <use xlink:href="#svItemsSpace${autoLayoutType === " VERTICAL" ? "V" : "H"}"></use>
-                    </svg>                                                            
-                </div>
-                <span class="value">${value}${unit}</span>
-            </div>
-                `}
-        function fieldPadding(icon, value, unit = "")
-        {
-            if (icon === undefined || value === undefined) return ""
-            return `
-                <div class="segmentedCntrol" >                           
+            <div class="segmentedCntrol">                           
                 <div class='svIconContainer'>
                     <svg class="uiIcon">
-                        <use xlink:href="#${icon}"></use > 
+                        <use xlink:href="#svItemsSpace${autoLayoutType === "VERTICAL" ? "V" : "H"}"></use> 
                     </svg>                                                            
                 </div>
                 <span class="value">${value}${unit}</span>
-            </div>
-                `}
+            </div> 
+        `}
         function fieldHtml(label, value, unit = "")
         {
             if (label === undefined || value === undefined) return ""
             return `
-                <div class="fieldset" >
+            <div class="fieldset">
                 <span class="label">${label}</span>
                 <span class="value">${value}${unit}</span>
-            </div>
+            </div> 
         `}
-        function fieldGrid(al)
-        {
-            //
-            let icon = "#sv-AL-"
-            if (al.paai === "SPACE_BETWEEN")
-            {
-                icon += "AUTO-" + al.m + "-" + al.caai
-            } else
-            {
-                icon += al.m + "-" + al.caai + al.paai
-            }
-            //
-            let s = `
-            <div class=''>
-                 <svg class="uiIcon64">
-                    <use xlink:href="${icon}"></use>
-                </svg> 
-            </div>
-            `
-            //s += "</div>"
-            return s
-        }
 
         const al = layer.al
         const vert = al.m === "VERTICAL"
-        const sizeAuto = al.paai === "SPACE_BETWEEN"
         let info = `
-                <hr/>
-                <div class="panel">
-                    <div class="label">Auto layout</div>
-                    <div class="fieldset" >
-                        <div class="label">
-                            ${fieldType(al.m)}
-                            ${fieldItemsSpace(al.m, sizeAuto ? "Auto" : al.is, sizeAuto ? "" : "px")}
-                        </div>            
-                        <div class="value">
-                            ${fieldGrid(al)}
-                        </div>
-                    </div>
-                `
-
-        if (al.pl === al.pr && al.pt === al.pb)
+        <hr>
+        <div class="panel">
+            <div class="label">Auto layout</div>   
+            ${fieldType(al.m)}
+            ${fieldItemsSpace(al.m, al.is, "px")
+            }
+        `
+        if (al.pl === al.pr && al.pl === al.pt && al.pl == al.pb)
         {
-            info += `
-            <div class="row3">
-                ${fieldPadding("PaddingH", al.pl, "px")}
-                ${fieldPadding("PaddingV", al.pt, "px")}            
-            </div>
-                `
+            info += fieldHtml("Padding", al.pl, "px")
         } else
         {
-            info += `
-            <div class="row3">
-                ${fieldPadding("PaddingHL", al.pl, "px")}
-                ${fieldPadding("PaddingVT", al.pt, "px")}
-            </div>
-            <div class="row3">
-                ${fieldPadding("PaddingHR", al.pr, "px")}
-                ${fieldPadding("PaddingVB", al.pb, "px")}
-            </div>
-            `
+            if (al.pl === al.pr)
+            {
+                info += fieldHtml("H padding ", al.pl, "px")
+            } else
+            {
+                info += fieldHtml("Left padding", al.pl, "px")
+                info += fieldHtml("Right padding", al.pr, "px")
+            }
+            if (al.pt === al.pb)
+            {
+                info += fieldHtml("V padding ", al.pt, "px")
+            } else
+            {
+                info += fieldHtml("Top padding", al.pt, "px")
+                info += fieldHtml("Bottom padding", al.pb, "px")
+            }
         }
-
         info += `
-                </div>
-            `
+        </div >
+    `
         return info
     }
 
@@ -1149,8 +1090,9 @@ class SymbolViewer extends AbstractViewer
 
     _drawMarginLine(currentPanel, x, y, width, height, className)
     {
-        const sd = new StageDiv(x, y, width, height, className)
-        const div = sd.jqDiv()
+        var style = "left: " + x + "px; top:" + y + "px; "
+        style += "width: " + width + "px; height:" + height + "px; "
+        var div = $("<div>", { class: className }).attr('style', style)
         div.appendTo(currentPanel.linksDiv)
         return div
     }
@@ -1158,10 +1100,13 @@ class SymbolViewer extends AbstractViewer
     {
         const valueHeight = 20
         const valueWidth = 30
-        const sd = new StageDiv(x - valueWidth / 2, y - valueHeight / 2, null, null, "svMarginValueDiv")
-        const div = sd.jqDiv()
+        var style = "left: " + (x - valueWidth / 2) + "px; top:" + (y - valueHeight / 2) + "px; "
+        //style += "width: " + valueWidth + "px; height:" + valueHeight + "px; "
+        var div = $("<div>", {
+            class: "svMarginValueDiv",
+        }).attr('style', style)
         //
-        div.html(Number.parseFloat(value).toFixed(0))
+        div.html(" " + Number.parseFloat(value).toFixed(0) + " ")
         //
         div.appendTo(currentPanel.linksDiv)
         return div
@@ -1174,11 +1119,11 @@ class SymbolViewer extends AbstractViewer
         let styles = {}
 
         result += `
-                <hr/>
-                <div class="panel">
-                    <div class="label">CSS Styles</div>
-                    <div class="value code">
-                        `
+    <hr/>
+    <div class="panel">
+        <div class="label">CSS Styles</div>
+        <div class="value code">
+            `
 
         // Decorate styles already described in CSS 
         css.split("\n").forEach(line =>
