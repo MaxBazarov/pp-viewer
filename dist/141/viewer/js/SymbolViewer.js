@@ -64,7 +64,7 @@ class SymbolViewer extends AbstractViewer
     // return null or ref to unserialized handoff.json
     getData()
     {
-        if (story.cloud) return symbolData
+        if (!story.cloud) return symbolData
         //
         if (this.loaded) return this.data
         this.loaded = true
