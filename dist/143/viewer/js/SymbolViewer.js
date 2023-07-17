@@ -712,7 +712,7 @@ class SymbolViewer extends AbstractViewer
                 return res
             }
             //
-            const data = symbolViewer.getData()
+            const data = viewer.symbolViewer.getData()
             if (data === null) return
             //
             const styleInfo = styleIndex !== undefined ? data.styles[styleIndex] : null
