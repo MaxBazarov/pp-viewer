@@ -527,7 +527,7 @@ class GalleryViewer extends AbstractViewer
         {
             let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", page.finalTop, GALLERY_TOP_MARGIN)
                 + this._valueToStyle("width", page.width) + this._valueToStyle("height", page.height)
-            if (undefined != story.backColor)
+            if (page.isFrame && story.backColor !== undefined)
             {
                 style += "background-color:" + story.backColor + ";"
             }
@@ -570,11 +570,14 @@ class GalleryViewer extends AbstractViewer
             img.appendTo(div);
 
             /// add title
-            var labelDiv = $('<div/>', {
-                class: "label",
-            });
-            labelDiv.text(page.title)
-            labelDiv.appendTo(div)
+            if (page.isFrame)
+            {
+                var labelDiv = $('<div/>', {
+                    class: "label",
+                });
+                labelDiv.text(page.title)
+                labelDiv.appendTo(div)
+            }
         }
 
     }
