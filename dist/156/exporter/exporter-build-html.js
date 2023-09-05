@@ -786,8 +786,8 @@ function buildMainHTML(options, es)
     menu.forEach(function (group, index)
     {
         //
-        if (group.on != null && !group.on) return
-        const liveItems = group.items.filter(i => i.on == null || i.on)
+        if (group.on != undefined && !group.on) return
+        const liveItems = group.items.filter(i => i.on == undefined || i.on)
         if (!liveItems.length) return
         //
         if (index > 0 && (menu[index - 1].label === undefined || group.label === undefined)) s += "<hr>\n"
@@ -813,7 +813,7 @@ function buildMainHTML(options, es)
         }
         liveItems.forEach(function (item)
         {
-            if (item.on != null && !item.on) return
+            if (item.on != undefined && !item.on) return
             if (group.switchers)
             {
                 s += `
