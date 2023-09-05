@@ -744,7 +744,7 @@ function buildMainHTML(options, es)
                 { ID: "symbols", label: "Handoff", icon: "icElementInspector", key: "M", onclick: "viewer.symbolViewer.toggle();", on: options.loadLayers && es.menuHandoffEnabled },
                 { ID: "embed", label: "Embed code", icon: "icEmbed", key: "E", onclick: "viewer.share();", on: es.menuEmbedCodeEnabled },
                 { ID: "img", label: "Full page image", icon: "icImage2", key: "I", onclick: "viewer.openFullImage();", on: es.menuFullPageImageEnabled },
-                { ID: "menu_comments_viewer", label: "Comments", icon: "icAnnotation", key: "C", onclick: "viewer.commentsViewer.toggle();", on: options.upoading && es.enableComments && es.menuCommentsEnabled },
+                { ID: "menu_comments_viewer", label: "Comments", icon: "icAnnotation", key: "C", onclick: "viewer.commentsViewer.toggle();", on: options.upoading && es.enableComments === true && es.menuCommentsEnabled },
                 { ID: "figma", label: "Source in Figma", icon: "icAnnotation", key: "", onclick: "viewer.openFigma();", hidden: true, on: es.menuFullPageImageEnabled },
             ]
         },
@@ -769,7 +769,7 @@ function buildMainHTML(options, es)
                 { ID: "", label: "Down version", icon: "icDecreaseVersion", key: "⇧ ↓", onclick: "viewer.decreaseVersion();", on: options.enableVersions },
                 { ID: "menu_info_viewer", label: "Changes history", icon: "icList", key: "V", onclick: "viewer.infoViewer.toggle();", on: options.enableVersions },
             ],
-            on: options.upoading && es.menuVersionsEnabled && es.useCloudVersions,
+            on: options.upoading && es.menuVersionsEnabled === true && es.useCloudVersions === true,
         },
         {
             ID: "", items: [
