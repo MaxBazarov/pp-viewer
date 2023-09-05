@@ -779,6 +779,7 @@ function buildMainHTML(options, es)
             ]
         }
     )
+    console.log(menu)
     // render menu
     s += `
             <div ID="menu" class="menu">
