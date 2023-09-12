@@ -1169,19 +1169,6 @@ class Viewer
 
         var page = story.pages[pageIndex];
 
-        // check if this redirect overlay
-        let overlayRedirectInfo = null
-        if (undefined != page.overlayRedirectTargetPage)
-        {
-            overlayRedirectInfo = page._getSrcPageAndLink()
-            if (overlayRedirectInfo)
-            {
-                pageIndex = overlayRedirectInfo.page.index
-                page = overlayRedirectInfo.page
-            }
-
-        }
-
         if (initial)
             page.isDefault = true
         else
