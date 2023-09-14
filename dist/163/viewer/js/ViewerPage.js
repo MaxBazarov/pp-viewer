@@ -707,14 +707,8 @@ class ViewerPage
             this.currentLink = link
 
             // Change URL
-            if (undefined != this.overlayRedirectTargetPage)
-            {
-                viewer.refresh_url(this)
-            } else
-            {
-                var extURL = 'o=' + link.index
-                viewer.refresh_url(newParentPage, extURL)
-            }
+            var extURL = 'o=' + link.index
+            viewer.refresh_url(newParentPage, extURL)
 
 
         } else if (Constants.TRIGGER_ON_CLICK == this.overlayByEvent && posX == this.currentX && posY == this.currentY)
@@ -1093,15 +1087,6 @@ function handleLinkEvent(event)
         if (!destPage) return
 
 
-        if (('overlay' == destPage.type || 'modal' == destPage.type) && destPage.overlayRedirectTargetPage != undefined)
-        {
-
-            // Change base page
-            viewer.goTo(destPage.overlayRedirectTargetPage, false, link)
-            currentPage = viewer.currentPage
-            orgPage = viewer.currentPage
-        }
-
         if ('overlay' == destPage.type)
         {
 
@@ -1291,8 +1276,8 @@ function _calcOverlayPos(currentPage, destPage, overlayPinPage)
 {
     let pageX = 0, pageY = 0
     //////////////////////////////// PIN TO PAGE ////////////////////////////////
-    const padX = destPage.overlayRedirectPadX | 0 // padding from left or right border
-    const padY = destPage.overlayRedirectPadY | 0 // padding from top or bottom border
+    const padX = 0
+    const padY = 0
     if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_LEFT == overlayPinPage)
     {
         pageX = padX
@@ -1330,7 +1315,7 @@ function handleLinkEvent_Final(link, orgPage)
     // Check do we need to show some overlay after action exectuted?
     if (link.name != "" && orgPage)
     {
-        const overlayName = orgPage.title + "-" + link.name + "-Ntf"
+        const overlayName = orgPage.title.split("--")[0] + "-" + link.name + "-Ntf"
         const overlayToShow = story.pages.filter(p => p.type === "overlay" && p.title === overlayName)
         overlayToShow.forEach(function (p)
         {

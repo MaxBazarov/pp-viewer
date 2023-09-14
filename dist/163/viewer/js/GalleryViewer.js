@@ -1,4 +1,6 @@
 const GALLERY_TOP_MARGIN = 80
+const GALLERY_FRAME_LABEL_HEIGHT = 32
+const GALLERY_GROUP_VMARGIN = 40
 const GALLERY_LEFTRIGH_MARGIN = 40
 
 
@@ -353,7 +355,6 @@ class GalleryViewer extends AbstractViewer
 
     loadPagesAbs()
     {
-        let groupSpace = 80
 
         // find maximum width of page with frames
         let maxGroupWidth = null
@@ -366,16 +367,19 @@ class GalleryViewer extends AbstractViewer
             if (pages.length == 0) return
             ///
             let left = null, right = null, top = null, bottom = null
+            //
             pages.forEach(function (page)
             {
                 page.group = group
                 page.slinks = []
                 page.dlinks = []
+                // add label height to page height
+                const pageFullHeight = page.height + GALLERY_FRAME_LABEL_HEIGHT
                 //
                 if (null == top || page.y < top) top = page.y
                 if (null == left || page.x < left) left = page.x
                 if (null == right || (page.x + page.width) > right) right = page.x + page.width
-                if (null == bottom || (page.y + page.height) > bottom) bottom = page.y + page.height
+                if (null == bottom || (page.y + pageFullHeight) > bottom) bottom = page.y + pageFullHeight
             }, this);
             const groupWidth = right - left
             if (null == maxGroupWidth || groupWidth > maxGroupWidth) maxGroupWidth = groupWidth
@@ -384,7 +388,7 @@ class GalleryViewer extends AbstractViewer
             group.bottom = bottom
             group.left = left
             group.right = right
-            group.height = bottom - top
+            group.height = bottom - top + GALLERY_GROUP_VMARGIN * 2
         }, this);
 
         // Calculate zoom to fit max width
@@ -398,38 +402,50 @@ class GalleryViewer extends AbstractViewer
         // show pages using their coordinates and current zoom
         let deltaY = 0
         let fullHeight = 0
-        const groupTitleHeight = 40 / this.mapZoom
+        //const groupTitleHeight = 40 / this.mapZoom
         story.groups.forEach(function (group)
         {
             if (group.pages.length == 0) return
             ///
             let top = deltaY - group.top
-            const left = group.left
             group.finalTop = deltaY
-            top += groupTitleHeight
-            //// show group title
-            this.addMapPageGroupTitle(group)
+            //top += groupTitleHeight
+            //// show group container
+            const groupDiv = this.addMapPageGroupDiv(group)
             //// show pages
             group.pages.forEach(function (page)
             {                //
-                this.loadOnePageAbs(page, left, top);
+                this.loadOnePageAbs(page, group.left, top);
             }, this);
             //
             fullHeight += group.height
             //
-            deltaY += group.height + groupSpace + groupTitleHeight + 30
+            deltaY += group.height // + groupSpace + groupTitleHeight + 30
         }, this);
-        fullHeight = deltaY //+= groupSpace * (story.groups.length - 1)
+        fullHeight = deltaY
 
         //
         this._buildMapLinks(maxGroupWidth, fullHeight)
     }
 
 
-    addMapPageGroupTitle(group)
+    addMapPageGroupDiv(group)
     {
-        let style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
+        let style = `background:${group.backColor};`
+            + this._valueToStyle("left", 0) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
+            + "width:100%;" + this._valueToStyle("height", group.height)
 
+        var div = $('<div/>', {
+            id: "g" + group.id,
+            class: "galleryGroupAbs",
+            style: style,
+        });
+        //div.html()
+        div.appendTo($('#gallery #grid'));
+
+        /*
+        let style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
+    
         var div = $('<div/>', {
             id: "g" + group.id,
             class: "groupTitle",
@@ -437,7 +453,8 @@ class GalleryViewer extends AbstractViewer
         });
         div.html(group.name)
         div.appendTo($('#gallery #grid'));
-
+        */
+        return div
     }
 
 
@@ -524,29 +541,53 @@ class GalleryViewer extends AbstractViewer
         page.finalTop = pageTop + page.y
         page.finalLeft = page.x - pageLeft
 
+        let y = page.finalTop + GALLERY_GROUP_VMARGIN
+
+        /// add title
+        if (page.isFrame)
         {
-            let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", page.finalTop, GALLERY_TOP_MARGIN)
+            let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN)
+                + this._valueToStyle("top", y, GALLERY_TOP_MARGIN)
+                + this._valueToStyle("width", page.width) + this._valueToStyle("height", GALLERY_FRAME_LABEL_HEIGHT)
+                + this._valueToStyle("font-size", 20)
+
+            var labelDiv = $('<div/>', {
+                class: "label",
+                style: style,
+                class: "galleryAbsFrameLabel"
+            });
+            labelDiv.text(page.title)
+            labelDiv.appendTo($('#gallery #grid'));
+            //
+            y += GALLERY_FRAME_LABEL_HEIGHT
+        }
+        // Show frame itself
+        {
+            let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN)
+                + this._valueToStyle("top", y, GALLERY_TOP_MARGIN)
                 + this._valueToStyle("width", page.width) + this._valueToStyle("height", page.height)
-            if (page.isFrame && story.backColor !== undefined)
-            {
-                style += "background-color:" + story.backColor + ";"
-            }
 
             var div = $('<div/>', {
                 id: page.index,
                 style: style,
-                class: "galleryArtboardAbs"
+                class: page.isFrame ? "galleryArtboardAbs" : "galleryItemAbs"
             });
 
-            div.click(function (e)
+
+
+            if (page.isFrame)
             {
-                viewer.galleryViewer.selectPage(parseInt(this.id))
-            });
-            div.mouseenter(function ()
-            {
-                viewer.galleryViewer.mouseEnterPage(this.id)
-            })
+                div.click(function (e)
+                {
+                    viewer.galleryViewer.selectPage(parseInt(this.id))
+                });
+                div.mouseenter(function ()
+                {
+                    viewer.galleryViewer.mouseEnterPage(this.id)
+                })
+            }
             div.appendTo($('#gallery #grid'));
+
 
             const width = Math.round(this.mapZoom * page.width)
             // Show large image for large width
@@ -569,15 +610,6 @@ class GalleryViewer extends AbstractViewer
             });
             img.appendTo(div);
 
-            /// add title
-            if (page.isFrame)
-            {
-                var labelDiv = $('<div/>', {
-                    class: "label",
-                });
-                labelDiv.text(page.title)
-                labelDiv.appendTo(div)
-            }
         }
 
     }

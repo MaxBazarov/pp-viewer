@@ -750,6 +750,18 @@ select:focus {
     padding-bottom: 40px;
 }
 
+.galleryGroupAbs {
+    position: absolute;
+    background: none;
+}
+
+.galleryAbsFrameLabel {
+    position: absolute;
+    background: none;
+    text-align: left;
+}
+
+
 .galleryArtboardAbs {
     position: absolute;
     border-radius: 5px;
@@ -757,6 +769,11 @@ select:focus {
     box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform .24s, box-shadow .24s;
+}
+
+.galleryItemAbs {
+    position: absolute;
+    background: none;
 }
 
 .galleryArtboardAbs.active,

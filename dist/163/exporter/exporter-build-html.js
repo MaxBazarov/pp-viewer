@@ -594,28 +594,11 @@ function buildMainHTML(options, es)
             document.execCommand("copy");
             $temp.remove();
         }
-    function showFAIconInfo(code) {
-        window.open("https://fontawesome.com/icons?d=gallery&q=" + code, "_blank")
-    }
         </script>
         <!--HEAD_INJECT-->
     </head>
-    <style>
-        /* Safari syntax */
-        :-webkit-full-screen {
-            background-color: ${options.backColor};
-        }
-        /* IE11 */
-        :-ms-fullscreen {
-            background-color: ${options.backColor};
-        }
-        /* Standard syntax */
-        :fullscreen {
-            background-color: ${options.backColor};
-        }
 
-    </style>
-    <body class="screen" style="background:${options.backColor}" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
+    <body class="screen" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
             `
     if (options.googleCode != '')
     {
