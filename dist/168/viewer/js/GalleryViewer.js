@@ -3,8 +3,6 @@ const GALLERY_FRAME_LABEL_HEIGHT = 32
 const GALLERY_GROUP_VMARGIN = 40
 const GALLERY_LEFTRIGH_MARGIN = 40
 
-const ZOOM_MODE_OPT = "opt"
-
 
 class GalleryViewerLink
 {
@@ -97,9 +95,8 @@ class GalleryViewer extends AbstractViewer
         if (window.localStorage.getItem("galleryIsLinkVisible") == "true") this.isLinksVisible = true
         $("#controls #galleryShowLinks").prop('checked', this.isLinksVisible);
         //
-        this.zoom = 1
-        this.zoomMode = ZOOM_MODE_OPT
-        this.zoomShowFrameLabel = true
+        this.zoom = 0.2
+        this.isCustomzoom = false
         this.currentFullWidth = null
         this.searchInputFocused = false
         //
@@ -160,7 +157,7 @@ class GalleryViewer extends AbstractViewer
             const pageInfo = pagesInfo[pageID]
             if (!pageInfo)
             {
-                //console.log("Can't find page info for " + pageID);
+                console.log("Can't find page info for " + pageID);
                 return
             }
             //
@@ -199,16 +196,11 @@ class GalleryViewer extends AbstractViewer
 
     zoomChanged(zoomValue)
     {
-        if (zoomValue === ZOOM_MODE_OPT)
-        {
+        if (zoomValue === "opt")
             this.zoom = this._calcOptZoom()
-            this.zoomMode = zoomValue
-        } else
-        {
+        else
             this.zoom = zoomValue / 100
-            this.zoomMode = ""
-        }
-        this.zoomShowFrameLabel = this.zoom >= 0.4
+        this.isCustomzoom = true
         this.initialize(true, true)
     }
 
@@ -242,6 +234,12 @@ class GalleryViewer extends AbstractViewer
         this._showHideLinks(visible ? null : false)
     }
 
+    // Calling from UI
+    resetzoom()
+    {
+        this.isCustomzoom = false
+        this.initialize(true)
+    }
 
     _showSelf()
     {
@@ -257,7 +255,7 @@ class GalleryViewer extends AbstractViewer
         {
             viewer.galleryViewer.searchInputFocused = false
         })
-        //$('#searchInput').focus()
+        $('#searchInput').focus()
 
 
         super._showSelf()
@@ -318,7 +316,7 @@ class GalleryViewer extends AbstractViewer
                 page.slinks = []
                 page.dlinks = []
                 // add label height to page height
-                const pageFullHeight = page.height + this.zoomShowFrameLabel ? GALLERY_FRAME_LABEL_HEIGHT : 0
+                const pageFullHeight = page.height + GALLERY_FRAME_LABEL_HEIGHT
                 //
                 if (null == top || page.y < top) top = page.y
                 if (null == left || page.x < left) left = page.x
@@ -336,7 +334,7 @@ class GalleryViewer extends AbstractViewer
         }, this);
 
         // Calculate zoom to fit max width
-        if (this.zoomMode == ZOOM_MODE_OPT)
+        if (!this.isCustomzoom)
         {
             this.zoom = this._calcOptZoom()
         }
@@ -392,9 +390,9 @@ class GalleryViewer extends AbstractViewer
         //div.html()
         div.appendTo($('#gallery #grid'));
 
-
-        /*style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
-
+        /*
+        let style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
+    
         var div = $('<div/>', {
             id: "g" + group.id,
             class: "groupTitle",
@@ -403,7 +401,6 @@ class GalleryViewer extends AbstractViewer
         div.html(group.name)
         div.appendTo($('#gallery #grid'));
         */
-
         return div
     }
 
@@ -434,7 +431,7 @@ class GalleryViewer extends AbstractViewer
         let y = page.finalTop + GALLERY_GROUP_VMARGIN
 
         /// add title
-        if (this.zoomShowFrameLabel && page.isFrame)
+        if (page.isFrame)
         {
             let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN)
                 + this._valueToStyle("top", y, GALLERY_TOP_MARGIN)

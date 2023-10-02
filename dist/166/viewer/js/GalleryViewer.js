@@ -3,10 +3,8 @@ const GALLERY_FRAME_LABEL_HEIGHT = 32
 const GALLERY_GROUP_VMARGIN = 40
 const GALLERY_LEFTRIGH_MARGIN = 40
 
-const ZOOM_MODE_OPT = "opt"
 
-
-class GalleryViewerLink
+class GalleryViewerMapLink
 {
     constructor(index, link, spage, dpage)
     {
@@ -89,17 +87,21 @@ class GalleryViewer extends AbstractViewer
         this.isSidebarChild = false
         this.blockMainNavigation = true
         this.enableTopNavigation = true
-        this.links = null
-        this.focusedPage = null
+        this.mapLinks = null
+        this.mapFocusedPage = null
+        this.isMapMode = true
         this.lastCurrentPage = null
         //
-        this.isLinksVisible = false
-        if (window.localStorage.getItem("galleryIsLinkVisible") == "true") this.isLinksVisible = true
-        $("#controls #galleryShowLinks").prop('checked', this.isLinksVisible);
+        const restoredMode = window.localStorage.getItem("galleryIsModeAbs") == "true"
+        if (null != restoredMode) this.isMapMode = restoredMode
+        $("#gallery-header-container #right #galleryShowMap").prop('checked', this.isMapMode);
         //
-        this.zoom = 1
-        this.zoomMode = ZOOM_MODE_OPT
-        this.zoomShowFrameLabel = true
+        this.isMapLinksVisible = false
+        if (window.localStorage.getItem("galleryIsLinkVisible") == "true") this.isMapLinksVisible = true
+        $("#map-controls #galleryShowMapLinks").prop('checked', this.isMapLinksVisible);
+        //
+        this.mapZoom = 0.2
+        this.isCustomMapZoom = false
         this.currentFullWidth = null
         this.searchInputFocused = false
         //
@@ -108,7 +110,7 @@ class GalleryViewer extends AbstractViewer
 
     _initPages()
     {
-        this.pages = story.pages
+        this.pages = this.isMapMode ? story.pages : viewer.userStoryPages
     }
 
     initialize(force = false, skipZoomUpdate = false)
@@ -134,20 +136,35 @@ class GalleryViewer extends AbstractViewer
             })
         }
 
+        // adjust main container for current mode
+        if (this.isMapMode)
+        {
+            $("#gallery").removeClass("gallery-grid")
+        } else
+        {
+            $("#gallery").addClass("gallery-grid")
+        }
+
         $('#gallery #grid').empty()
         this.loadPages();
 
         //load amount of pages to gallery title
         document.getElementById("screensamount").innerHTML = this.pages.length + " screens";
 
-        // Adjust zoom
-        const zoomContainter = $("#controls")
-        if (!skipZoomUpdate)
+        // Adjust map zoom
+        const zoomContainter = $("#map-controls")
+        if (this.isMapMode)
         {
-            const zoomControl = $(".zoom")
-            zoomControl.val(this.zoom * 100)
+            if (!skipZoomUpdate)
+            {
+                const zoomControl = $(".mapZoom")
+                zoomControl.val(this.mapZoom * 100)
+            }
+            zoomContainter.show();
+        } else
+        {
+            zoomContainter.hide()
         }
-        zoomContainter.show();
 
         this.inited = true
     }
@@ -160,14 +177,21 @@ class GalleryViewer extends AbstractViewer
             const pageInfo = pagesInfo[pageID]
             if (!pageInfo)
             {
-                //console.log("Can't find page info for " + pageID);
+                console.log("Can't find page info for " + pageID);
                 return
             }
             //
             let text = ""
             if (pageInfo['commentsTotal'] != 0) text = "  (" + pageInfo['commentsTotal'] + ")"
             //
-            $("#gallery #grid #t" + page.index + " #comm").text(text)
+            if (this.isMapMode)
+            {
+                $("#gallery #grid #t" + page.index + " #comm").text(text)
+            } else
+            {
+                $("#gallery #grid #" + page.index + " #comm").text(text)
+            }
+
         }, this);
     }
 
@@ -187,8 +211,11 @@ class GalleryViewer extends AbstractViewer
             return true
         } else if (76 == event.which)
         { // key "l"
-            $("#galleryShowLinks").click()
-        } else if (77 == event.which)        
+            $("#galleryShowMapLinks").click()
+        } else if (77 == event.which)
+        { // key "m"
+            $("#galleryShowMap").click()
+        } else
         {
             return super.handleKeyDown(jevent)
         }
@@ -197,23 +224,19 @@ class GalleryViewer extends AbstractViewer
         return true
     }
 
-    zoomChanged(zoomValue)
+    mapZoomChanged(zoomValue)
     {
-        if (zoomValue === ZOOM_MODE_OPT)
-        {
-            this.zoom = this._calcOptZoom()
-            this.zoomMode = zoomValue
-        } else
-        {
-            this.zoom = zoomValue / 100
-            this.zoomMode = ""
-        }
-        this.zoomShowFrameLabel = this.zoom >= 0.4
+        if (zoomValue === "opt")
+            this.mapZoom = this._calcOptZoom()
+        else
+            this.mapZoom = zoomValue / 100
+        this.isCustomMapZoom = true
         this.initialize(true, true)
     }
 
     viewerResized()
     {
+        if (!this.isMapMode) return
         this.initialize(true)
     }
 
@@ -234,14 +257,41 @@ class GalleryViewer extends AbstractViewer
         return true
     }
 
-    // Calling from UI
-    showLinks(visible)
+    /// calling from parent
+    handleURLParam(paramValue)
     {
-        window.localStorage.setItem("galleryIsLinkVisible", visible)
-        this.isLinksVisible = visible
-        this._showHideLinks(visible ? null : false)
+        const enableMap = "m" == paramValue
+        if (enableMap != this.isMapMode)
+        {
+            this.enableMapMode(enableMap)
+            $("#galleryShowMap").prop('checked', enableMap);
+        }
     }
 
+    // Calling from UI
+    enableMapMode(enabled)
+    {
+        window.localStorage.setItem("galleryIsModeAbs", enabled)
+        this.isMapMode = enabled
+        this._initPages()
+        this.initialize(true)
+        viewer.refresh_url(viewer.currentPage, "", false)
+    }
+
+    // Calling from UI
+    showMapLinks(visible)
+    {
+        window.localStorage.setItem("galleryIsLinkVisible", visible)
+        this.isMapLinksVisible = visible
+        this._showHideMapLinks(visible ? null : false)
+    }
+
+    // Calling from UI
+    resetMapZoom()
+    {
+        this.isCustomMapZoom = false
+        this.initialize(true)
+    }
 
     _showSelf()
     {
@@ -257,7 +307,7 @@ class GalleryViewer extends AbstractViewer
         {
             viewer.galleryViewer.searchInputFocused = false
         })
-        //$('#searchInput').focus()
+        $('#searchInput').focus()
 
 
         super._showSelf()
@@ -293,7 +343,16 @@ class GalleryViewer extends AbstractViewer
 
     loadPages()
     {
-        this.loadPagesAbs()
+        if (this.isMapMode)
+        {
+            this.loadPagesAbs()
+        } else
+        {
+            this.pages.forEach(function (page)
+            {
+                this.loadOnePage(page);
+            }, this);
+        }
         this._markCurrentPage()
     }
 
@@ -318,7 +377,7 @@ class GalleryViewer extends AbstractViewer
                 page.slinks = []
                 page.dlinks = []
                 // add label height to page height
-                const pageFullHeight = page.height + this.zoomShowFrameLabel ? GALLERY_FRAME_LABEL_HEIGHT : 0
+                const pageFullHeight = page.height + GALLERY_FRAME_LABEL_HEIGHT
                 //
                 if (null == top || page.y < top) top = page.y
                 if (null == left || page.x < left) left = page.x
@@ -336,16 +395,16 @@ class GalleryViewer extends AbstractViewer
         }, this);
 
         // Calculate zoom to fit max width
-        if (this.zoomMode == ZOOM_MODE_OPT)
+        if (!this.isCustomMapZoom)
         {
-            this.zoom = this._calcOptZoom()
+            this.mapZoom = this._calcOptZoom()
         }
         this.currentFullWidth = viewer.fullWidth
 
         // show pages using their coordinates and current zoom
         let deltaY = 0
         let fullHeight = 0
-        //const groupTitleHeight = 40 / this.zoom
+        //const groupTitleHeight = 40 / this.mapZoom
         story.groups.forEach(function (group)
         {
             if (group.pages.length == 0) return
@@ -354,7 +413,7 @@ class GalleryViewer extends AbstractViewer
             group.finalTop = deltaY
             //top += groupTitleHeight
             //// show group container
-            const groupDiv = this.addPageGroupDiv(group)
+            const groupDiv = this.addMapPageGroupDiv(group)
             //// show pages
             group.pages.forEach(function (page)
             {                //
@@ -368,17 +427,17 @@ class GalleryViewer extends AbstractViewer
         fullHeight = deltaY
 
         //
-        this._buildLinks(this.maxGroupWidth, fullHeight)
+        this._buildMapLinks(this.maxGroupWidth, fullHeight)
     }
 
     _calcOptZoom()
     {
-        let zoom = (viewer.fullWidth - GALLERY_LEFTRIGH_MARGIN * 2) / this.maxGroupWidth
-        if (zoom > 0.6) zoom = 0.6
-        return zoom
+        let mapZoom = (viewer.fullWidth - GALLERY_LEFTRIGH_MARGIN * 2) / this.maxGroupWidth
+        if (mapZoom > 0.6) mapZoom = 0.6
+        return mapZoom
     }
 
-    addPageGroupDiv(group)
+    addMapPageGroupDiv(group)
     {
         let style = `background:${group.backColor};`
             + this._valueToStyle("left", 0) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
@@ -392,9 +451,9 @@ class GalleryViewer extends AbstractViewer
         //div.html()
         div.appendTo($('#gallery #grid'));
 
-
-        /*style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
-
+        /*
+        let style = this._valueToStyle("left", 0, GALLERY_LEFTRIGH_MARGIN) + this._valueToStyle("top", group.finalTop, GALLERY_TOP_MARGIN)
+    
         var div = $('<div/>', {
             id: "g" + group.id,
             class: "groupTitle",
@@ -403,7 +462,6 @@ class GalleryViewer extends AbstractViewer
         div.html(group.name)
         div.appendTo($('#gallery #grid'));
         */
-
         return div
     }
 
@@ -416,15 +474,75 @@ class GalleryViewer extends AbstractViewer
 
     mouseEnterPage(index)
     {
-        if (this.isLinksVisible) return
+        if (this.isMapLinksVisible) return
         //
-        if (this.focusedPage) this.focusedPage.showHideGalleryLinks(false)
+        if (this.mapFocusedPage) this.mapFocusedPage.showHideGalleryLinks(false)
         const page = story.pages[index]
         page.showHideGalleryLinks(true)
-        this.focusedPage = page
+        this.mapFocusedPage = page
     }
 
 
+    loadOnePage(page)
+    {
+        var imageURI = page.image
+
+        var div = $('<div/>', {
+            id: page.index,
+            class: "grid-cell",
+        });
+
+        var divWrapper = $('<div/>', {
+            class: "grid-cell-wrapper"
+        });
+        var divMain = $('<div/>', {
+            class: "grid-cell-main"
+        });
+        div.click(function (e)
+        {
+            viewer.galleryViewer.selectPage(parseInt(this.id));
+        });
+        div.appendTo($('#gallery #grid'));
+
+        var img = $('<img/>', {
+            class: "gallery-image",
+            alt: page.title,
+            src: encodeURIComponent(viewer.files) + '/previews/' + encodeURIComponent(imageURI),
+        });
+
+        img.appendTo(divMain);
+        divMain.appendTo(divWrapper);
+        divWrapper.appendTo(div);
+
+        if (page.isFrame)
+        {
+            var divTitle = $('<div/>', {
+                class: "div-page-title"
+            });
+
+            var spanTitle = $('<span/>', {
+                id: "page-title",
+                alt: page.title,
+            });
+            spanTitle.appendTo(divTitle);
+
+            var title = $('<div/>', {
+                text: page.title
+            });
+            title.appendTo(spanTitle);
+
+            if (viewer.commentsViewer)
+            {
+                var comments = $('<div/>', {
+                    id: "comm",
+                    text: ""
+                });
+                comments.appendTo(spanTitle);
+            }
+
+            divTitle.appendTo(divMain);
+        }
+    }
 
     loadOnePageAbs(page, pageLeft, pageTop)
     {
@@ -434,7 +552,7 @@ class GalleryViewer extends AbstractViewer
         let y = page.finalTop + GALLERY_GROUP_VMARGIN
 
         /// add title
-        if (this.zoomShowFrameLabel && page.isFrame)
+        if (page.isFrame)
         {
             let style = this._valueToStyle("left", page.finalLeft, GALLERY_LEFTRIGH_MARGIN)
                 + this._valueToStyle("top", y, GALLERY_TOP_MARGIN)
@@ -479,7 +597,7 @@ class GalleryViewer extends AbstractViewer
             div.appendTo($('#gallery #grid'));
 
 
-            const width = Math.round(this.zoom * page.width)
+            const width = Math.round(this.mapZoom * page.width)
             // Show large image for large width
             const previewWidth = 522
             let src = encodeURIComponent(viewer.files)
@@ -492,10 +610,10 @@ class GalleryViewer extends AbstractViewer
             }
 
             var img = $('<img/>', {
-                class: "gallery-image",
+                class: "gallery-map-image",
                 alt: page.title,
                 width: width,
-                height: Math.round(this.zoom * page.height) + "px",
+                height: Math.round(this.mapZoom * page.height) + "px",
                 src: src
             });
             img.appendTo(div);
@@ -506,10 +624,10 @@ class GalleryViewer extends AbstractViewer
 
     _valueToStyle(styleName, v, absDelta = 0)
     {
-        return styleName + ": " + Math.round(v * this.zoom + absDelta) + "px;"
+        return styleName + ": " + Math.round(v * this.mapZoom + absDelta) + "px;"
     }
 
-    _showHideLinks(show)
+    _showHideMapLinks(show)
     {
         this.pages.forEach(function (page)
         {
@@ -518,13 +636,13 @@ class GalleryViewer extends AbstractViewer
     }
 
 
-    _buildLinks(finalWidth, finalHeight)
+    _buildMapLinks(finalWidth, finalHeight)
     {
 
         // build scene
         let svg = "<svg"
-            + " height='" + Math.abs(Math.round(finalHeight * this.zoom)) + "'"
-            + " width='" + Math.abs(Math.round(finalWidth * this.zoom)) + "'"
+            + " height='" + Math.abs(Math.round(finalHeight * this.mapZoom)) + "'"
+            + " width='" + Math.abs(Math.round(finalWidth * this.mapZoom)) + "'"
             + " >"
         svg += `
             <defs>
@@ -537,7 +655,7 @@ class GalleryViewer extends AbstractViewer
         `
         //
         let indexCounter = 0
-        this.links = []
+        this.mapLinks = []
         //
         this.pages.forEach(function (page)
         {
@@ -549,9 +667,9 @@ class GalleryViewer extends AbstractViewer
                 const dpage = story.pages[l.page]
                 if (!dpage || "external" == dpage.type) return
                 // build SVG coode for the link
-                const link = new GalleryViewerLink(indexCounter++, l, page, dpage)
-                svg += link.buildCode(this.zoom, this.isLinksVisible)
-                this.links.push(link)
+                const link = new GalleryViewerMapLink(indexCounter++, l, page, dpage)
+                svg += link.buildCode(this.mapZoom, this.isMapLinksVisible)
+                this.mapLinks.push(link)
             }, this)
         }, this)
 
@@ -611,7 +729,7 @@ class GalleryViewer extends AbstractViewer
 
         // Final procedures
         this.actualSearchText = keyword != '' ? keyword : undefined
-        viewer.galleryViewer._showHideLinks()
+        viewer.galleryViewer._showHideMapLinks()
 
         //load amount of pages to gallery title
         $("#screensamount").html(foundScreenAmount + " screens")
