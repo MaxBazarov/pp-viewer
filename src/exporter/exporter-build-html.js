@@ -690,7 +690,7 @@ function buildMainHTML(options, es)
         <div ID="gallery-header">
             <div ID="gallery-header-container">
                 <div id="info">
-                    <div id="label>Test</div>
+                    <div id="title">Test</div>
                     <div id="frames"></div>
                 </div>
                 <div ID="search"><input type="text" placeholder="Search screen..." ID="searchInput" onkeyup="viewer.galleryViewer.onSearchInputChange()"></div>
