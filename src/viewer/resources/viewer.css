@@ -631,11 +631,11 @@ select:focus {
     margin: 0 40px;
 }
 
-#gallery-header-container #title {
+#gallery-header-container #info {
     text-align: left;
 }
 
-#gallery-header-container #title div {
+#gallery-header-container #info div {
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
@@ -643,7 +643,7 @@ select:focus {
     -webkit-box-orient: vertical;
 }
 
-#gallery-header-container #screensamount {
+#gallery-header-container #info #frames {
     font-size: var(--font-regular);
     line-height: 20px;
     font-weight: 300;
@@ -686,7 +686,7 @@ select:focus {
     justify-content: flex-end;
 }
 
-#gallery-header #title {
+#gallery-header #info {
     width: 40%;
 }
 
