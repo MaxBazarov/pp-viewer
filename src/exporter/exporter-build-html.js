@@ -689,7 +689,7 @@ function buildMainHTML(options, es)
     <div ID="gallery-modal" class="hidden">
         <div ID="gallery-header">
             <div ID="gallery-header-container">
-                <div idPrefix="title">
+                <div id="title">
                     <div id="label>Test</div>
                     <div id="screensamount"></div>
                 </div>
