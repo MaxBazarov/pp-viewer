@@ -716,7 +716,7 @@ function buildMainHTML(options, es)
             </div>
         </div>
         <div ID = "gallery">
-            <canvas ID="canvas"></canvas>
+            <div ID="grid"></div>
         </div>               
     </div>
     </div>
