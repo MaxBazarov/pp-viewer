@@ -6,7 +6,7 @@ const GALLERY_FRAME_LABEL_HEIGHT = 32
 const GALLERY_FRAME_LABEL_MINZOOM = 0.3
 
 const GALLERY_MIN_ZOOM = 0.05
-const GALLERY_MAX_ZOOM = 3
+const GALLERY_MAX_ZOOM = 10
 
 const ZOOM_MODE_OPT = "opt"
 
@@ -171,15 +171,31 @@ class GalleryViewerLink
     }
 }
 
+function makeSVGElement(tag, attrs)
+{
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs)
+    {
+        if (k == "xlink:href")
+        {
+            el.setAttributeNS('http://www.w3.org/1999/xlink', 'href', attrs[k]);
+        } else
+        {
+            el.setAttribute(k, attrs[k]);
+        }
+    }
+    return el
+}
+
 function handleWheel(e)
 {
     if (e.ctrlKey)
     {
         e.preventDefault();
         //
-        let newZoom = viewer.galleryViewer.zoom - e.deltaY / 1000
+        let newZoom = viewer.galleryViewer.zoom - e.deltaY / 500
         viewer.galleryViewer.zoomChanged(newZoom)
-
+        return
         //
         // Adjust zoom
         const zoomSelect = document.querySelector("#gallery-modal #controls #zoomSelector")
@@ -343,7 +359,7 @@ class GalleryViewer extends AbstractViewer
             if (prevTime != undefined)
             {
                 //console.log(now - prevTime)
-                if ((now - prevTime) < 40) return
+                if ((now - prevTime) < 10) return
                 console.log(this.zoom)
                 this.time = now
             } else
@@ -351,7 +367,8 @@ class GalleryViewer extends AbstractViewer
                 this.time = now
                 console.log("start")
             }
-            this.reShow()
+            this.svgG.setAttribute("transform", `scale(${this.zoom})`)
+            //this.reShow()
         }
     }
 
@@ -453,6 +470,14 @@ class GalleryViewer extends AbstractViewer
 
     buildContent()
     {
+        let svg = `<svg id="scene_svg" x="0" y="${GALLERY_TOP_MARGIN}"></svg>`
+        this.divGrid.innerHTML = svg
+        this.sceneSvg = document.getElementById("scene_svg")
+
+        const svgG = makeSVGElement("g", {})
+        this.sceneSvg.appendChild(svgG)
+        this.svgG = svgG
+
         story.groups.forEach(function (group)
         {
             this.buildContent_Group(group)
@@ -463,16 +488,15 @@ class GalleryViewer extends AbstractViewer
 
     buildContent_Group(group)
     {
-        let background = story.galleryPageColorsEnabled ? `background:${group.backColor};` : ""
-        var divGroup = $('<div/>', {
-            id: "g" + group.id,
-            class: "galleryGroupAbs",
-            style: `${background}left:0px;top:0px;width:200%;height:0px;`,
-        });
-        group.jdiv = divGroup
-        group.div = divGroup.get(0)
+        const backgroundStyle = story.galleryPageColorsEnabled ? `background: ${group.backColor}; ` : ""
 
-        this.divGrid.append(group.div)
+        const svgRect = makeSVGElement("rect", {
+            x: 0, y: 0,
+            width: 0, y: 0,
+            style: backgroundStyle
+        })
+        this.svgG.appendChild(svgRect)
+        group.svgRect = svgRect
 
         // find group pages
         const pages = this.pages.filter(s => s.groupID == group.id)
@@ -484,9 +508,9 @@ class GalleryViewer extends AbstractViewer
         let y = page.globalTop
 
         /// build frame label
-        if (page.isFrame)
+        if (false && page.isFrame)
         {
-            let style = `left:0px; top:0px; width:0px; height: 0px; font-size:12px;color:${invertColor(group.backColor)}`
+            let style = `left: 0px; top: 0px; width: 0px; height: 0px; font - size: 12px; color:${invertColor(group.backColor)} `
             var labelDiv = $('<div/>', {
                 class: "label",
                 style: style,
@@ -504,14 +528,16 @@ class GalleryViewer extends AbstractViewer
 
         // Show frame itself
         {
-            let style = "left:0px; top:0px; width:0px; height: 0px;"
+            const src = encodeURIComponent(viewer.files) + "/previews/" + page.image
+            const svgImage = makeSVGElement("image", {
+                x: 0, y: 0,
+                width: 100, y: 100,
+                'xlink:href': src
+            })
+            this.svgG.appendChild(svgImage)
+            page.svgImage = svgImage
 
-            var div = $('<div/>', {
-                id: page.index,
-                style: style,
-                class: page.isFrame ? "galleryArtboardAbs" : "galleryItemAbs"
-            });
-
+            /*
             if (page.isFrame)
             {
                 div.click(function (e)
@@ -529,7 +555,7 @@ class GalleryViewer extends AbstractViewer
             }
             div.appendTo($('#gallery #grid'));
             page.jdiv = div
-            page.div = div.get(0)
+            page.div = div.get(0)*/
             // Sbow image
             /*
             let src = encodeURIComponent(viewer.files)
@@ -541,12 +567,6 @@ class GalleryViewer extends AbstractViewer
                 height: "100%",
                 src: src
             });*/
-            const img = page.previewImageObj[0].cloneNode()
-            img.style.width = "100%"
-            img.style.height = "100%"
-            div[0].appendChild(img)
-            page.img_div = img
-
         }
 
     }
@@ -630,6 +650,9 @@ class GalleryViewer extends AbstractViewer
 
     positionContent()
     {
+        this.sceneSvg.setAttribute("width", this.maxGroupWidth)
+        this.sceneSvg.setAttribute("height", this.fullHeight)
+        ///
         story.groups.forEach(function (group)
         {
             this.positionContent_Group(group)
@@ -640,25 +663,27 @@ class GalleryViewer extends AbstractViewer
 
     positionContent_Group(group)
     {
-        group.div.style.top = this._posToStyleValue(group.globTop, GALLERY_TOP_MARGIN)
-        group.div.style.height = this._posToStyleValue(group.height)
+        group.svgRect.setAttribute("y", this._zoomPos(group.globTop))
+        group.svgRect.setAttribute("width", this.maxGroupWidth)
+        group.svgRect.setAttribute("height", this._zoomPos(group.height))
+
     }
 
     positionContent_Page(page)
     {
         // position frame label
-        if (page.label_jdiv)
+        if (false && page.label_jdiv)
         {
             let top = page.globalTop - (this.zoom < 0.5 ? (GALLERY_FRAME_LABEL_HEIGHT / this.zoom * 0.6) : GALLERY_FRAME_LABEL_HEIGHT)
-            page.label_div.style.top = this._posToStyleValue(top, GALLERY_TOP_MARGIN)
+            page.label_div.style.top = this._posToStyleValue(top)
             page.label_div.style.left = this._posToStyleValue(page.globalLeft, GALLERY_LEFTRIGH_MARGIN)
             page.label_div.style.display = this.zoom < GALLERY_FRAME_LABEL_MINZOOM ? "none" : "block"
         }
         // position frame itself
-        page.div.style.left = this._posToStyleValue(page.globalLeft, GALLERY_LEFTRIGH_MARGIN)
-        page.div.style.top = this._posToStyleValue(page.globalTop, GALLERY_TOP_MARGIN)
-        page.div.style.width = this._posToStyleValue(page.width)
-        page.div.style.height = this._posToStyleValue(page.height)
+        page.svgImage.setAttribute("x", this._zoomPos(page.globalLeft, GALLERY_LEFTRIGH_MARGIN))
+        page.svgImage.setAttribute("y", this._zoomPos(page.globalTop))
+        page.svgImage.setAttribute("width", this._zoomPos(page.width))
+        page.svgImage.setAttribute("height", this._zoomPos(page.height))
 
         /// position image
         //page.img_div.style.width = this._posToStyleValue(page.width)
@@ -698,6 +723,10 @@ class GalleryViewer extends AbstractViewer
     {
         return Math.round(pos * this.zoom + absDelta) + "px"
     }
+    _zoomPos(pos, absDelta = 0)
+    {
+        return Math.round(pos * this.zoom + absDelta)
+    }
 
     _showHideLinks(show)
     {
@@ -719,14 +748,14 @@ class GalleryViewer extends AbstractViewer
             + " width='" + Math.abs(Math.round(finalWidth * this.zoom)) + "'"
             + " >"
         svg += `
-            <defs>
-             <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
-                markerWidth="6" markerHeight="6" fill="#F89000"
-                orient="auto">
-                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#F89000"/>
-             </marker>
-            </defs>
-        `
+                < defs >
+                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+                    markerWidth="6" markerHeight="6" fill="#F89000"
+                    orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#F89000" />
+                </marker>
+            </defs >
+                `
         //
         let indexCounter = 0
         this.links = []
