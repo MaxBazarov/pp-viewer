@@ -2,10 +2,10 @@ class StageDiv
 {
     constructor(x = 0, y = 0, w = 0, h = 0, _class = "")
     {
-        this.x = x
-        this.y = y
-        this.w = w
-        this.h = h
+        this.x = x + "px"
+        this.y = y + "px"
+        this.w = w + "px"
+        this.h = h + "px"
         this.class = _class
     }
 
@@ -18,6 +18,14 @@ class StageDiv
         const style = this.coordsToCSS()
         const jqDiv = $("<div>", { class: this.class, }).attr('style', style + customStyle + ";")
         return jqDiv
+    }
+    elDiv()
+    {
+        const el = document.createElement("div");
+        el.style.left = this.x; el.style.top = this.y;
+        el.style.width = this.w; el.style.height = this.h;
+        el.setAttribute('class', this.class)
+        return el
     }
 }
 

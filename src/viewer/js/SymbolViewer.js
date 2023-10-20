@@ -483,15 +483,21 @@ class SymbolViewer extends AbstractViewer
 
         const div = new StageDiv(l.finalX, l.finalY, l.w, l.h, "symbolDiv")
         if (highlight) div.class += " exp"
-        const symbolDiv = div.jqDiv()
-        //const symbolDiv = div.jqDiv(`z-index:${this.pageInfo.layerArray.length - l.infoIndex};`)
+        const symbolDiv = div.elDiv()
 
+        symbolDiv.addEventListener(
+            "mouseenter", function ()
+        {
+            viewer.symbolViewer.mouseEnterLayerDiv(symbolDiv)
+        }
+        );
+        /*
         symbolDiv.mouseenter(function ()
         {
-            viewer.symbolViewer.mouseEnterLayerDiv($(this))
-        })
-
-        symbolDiv.appendTo(a)
+            viewer.symbolViewer.mouseEnterLayerDiv(symbolDiv)
+        })*/
+        a[0].appendChild(symbolDiv)
+        //symbolDiv.appendTo(a)
     }
 
 
@@ -1003,10 +1009,10 @@ class SymbolViewer extends AbstractViewer
     mouseEnterLayerDiv(div)
     {
         // get a layer under mouse 
-        const a = div.parent()
+        const a = div.parentElement
         const sv = viewer.symbolViewer
-        const pageIndex = a.attr("pi")
-        const layerIndex = a.attr("li")
+        const pageIndex = a.getAttribute("pi")
+        const layerIndex = a.getAttribute("li")
         const layer = sv.createdPages[pageIndex].layerArray[layerIndex]
         if (!layer) return
         // get a currently selected layer
@@ -1190,8 +1196,8 @@ class SymbolViewer extends AbstractViewer
     _drawMarginLine(currentPanel, x, y, width, height, className)
     {
         const sd = new StageDiv(x, y, width, height, className)
-        const div = sd.jqDiv()
-        div.appendTo(currentPanel.linksDiv)
+        const div = sd.elDiv()
+        currentPanel.linksDiv[0].appendChild(div)
         return div
     }
     _drawMarginValue(currentPanel, x, y, value)
@@ -1199,11 +1205,11 @@ class SymbolViewer extends AbstractViewer
         const valueHeight = 20
         const valueWidth = 30
         const sd = new StageDiv(x - valueWidth / 2, y - valueHeight / 2, null, null, "svMarginValueDiv")
-        const div = sd.jqDiv()
+        const div = sd.elDiv()
         //
-        div.html(Number.parseFloat(value).toFixed(0))
+        div.innerHTML = Number.parseFloat(value).toFixed(0)
         //
-        div.appendTo(currentPanel.linksDiv)
+        currentPanel.linksDiv[0].appendChild(div)
         return div
     }
 
