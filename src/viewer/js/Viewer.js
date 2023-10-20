@@ -13,12 +13,6 @@ class StageDiv
     {
         return `left:${this.x}px;top:${this.y}px;width:${this.w}px;height:${this.h}px;`
     }
-    jqDiv(customStyle = "")
-    {
-        const style = this.coordsToCSS()
-        const jqDiv = $("<div>", { class: this.class, }).attr('style', style + customStyle + ";")
-        return jqDiv
-    }
     elDiv()
     {
         const el = document.createElement("div");
@@ -91,25 +85,6 @@ function doTransNext()
     viewer.transQueue.shift()
 }
 
-$.fn.preload = function (callback)
-{
-    var length = this.length;
-    var iterator = 0;
-
-    return this.each(function ()
-    {
-        var self = this;
-        var tmp = new Image();
-
-        if (callback) tmp.onload = function ()
-        {
-            callback.call(self, 100 * ++iterator / length, iterator === length);
-            pagerMarkImageAsLoaded()
-        };
-        tmp.src = this.src;
-    });
-};
-
 function pagerMarkImageAsLoaded()
 {
     console.log(pagerLoadingTotal);
@@ -126,7 +101,7 @@ async function preloadAllPageImages()
     var pages = story.pages;
     for (var page of story.pages)
     {
-        if (page.imageObj == undefined)
+        if (page.elImage == undefined)
         {
             page.loadImages()
             page.imageDiv.addClass("hidden")
@@ -138,12 +113,12 @@ function reloadAllPageImages()
 {
     for (var page of story.pages)
     {
-        page.imageObj.parent().remove();
-        page.imageObj = undefined
+        page.elImage.parent.remove();
+        page.elImage = undefined
         for (var p of page.fixedPanels)
         {
-            p.imageObj.parent().remove();
-            p.imageObj = undefined
+            p.elImage.parent.remove();
+            p.elImage = undefined
         }
     }
     preloadAllPageImages()

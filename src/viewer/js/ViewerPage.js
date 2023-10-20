@@ -85,7 +85,7 @@ class ViewerPage
         this.visible = false
         this.image = undefined
         this.imageDiv = undefined
-        this.imageObj = undefined
+        this.elImage = undefined
 
         this.currentLeft = undefined
         this.currentTop = undefined
@@ -205,7 +205,7 @@ class ViewerPage
 
     show(disableAnim = false)
     {
-        if (!this.imageObj) this.loadImages(true)
+        if (!this.elImage) this.loadImages(true)
 
         this.updatePosition()
 
@@ -737,7 +737,7 @@ class ViewerPage
     loadImages(force = false)
     {
         /// check if already loaded images for this page
-        if (!force && this.imageObj != undefined)
+        if (!force && this.elImage != undefined)
         {
             return pagerMarkImageAsLoaded()
         }
@@ -855,9 +855,9 @@ class ViewerPage
             this._createLinks(panel)
 
             // add image itself
-            panel.imageObj = this._loadSingleImage(panel.isFloat || panel.isVertScroll ? panel : this, 'img_' + panel.index + "_")
-            panel.imageObj.appendTo(panelDiv);
-            if (!this.isDefault) panel.imageObj.css("webkit-transform", "translate3d(0,0,0)")
+            panel.elImage = this._loadSingleImage(panel.isFloat || panel.isVertScroll ? panel : this, 'img_' + panel.index + "_");
+            panelDiv[0].appendChild(panel.elImage);
+            if (!this.isDefault) panel.panel.elImage.style.webkitTransform = "translate3d(0,0,0)"
         }
 
         // create main content image      
@@ -881,9 +881,8 @@ class ViewerPage
             }
         }
         var img = this._loadSingleImage(this, 'img_')
-        this.imageObj = img
-        img.appendTo(imageDiv)
-        //this.previewImageObj = this._loadSingleImage(this, 'img_', "previews/")
+        this.elImage = img
+        imageDiv[0].appendChild(img)
     }
 
     showLayout()
@@ -981,15 +980,16 @@ class ViewerPage
     {
         var unCachePostfix = 100000001 == story.docVersion ? "" : ("?" + story.docVersion)
 
-        var img = $('<img/>', {
-            id: idPrefix + this.index,
-            class: "pageImage",
-            src: encodeURIComponent(viewer.files) + '/' + namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image)) + unCachePostfix,
-        }).attr('width', sizeSrc.width).attr('height', sizeSrc.height);
-        img.preload(function (perc, done)
+        const img = document.createElement('img');
+        img.id = idPrefix + this.index;
+        img.setAttribute("class", "pageImage");
+        img.style.width = sizeSrc.width + "px";
+        img.style.height = sizeSrc.height + "px";
+        img.onload = function ()
         {
-            //console.log(perc, done);
-        });
+            pagerMarkImageAsLoaded()
+        };
+        img.src = encodeURIComponent(viewer.files) + '/' + namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image)) + unCachePostfix;
         return img;
     }
 

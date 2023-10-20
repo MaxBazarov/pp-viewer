@@ -546,9 +546,6 @@ class GalleryViewer extends AbstractViewer
                 height: "100%",
                 src: src
             });*/
-            /*const img = page.previewImageObj[0].cloneNode()
-            img.style.width = "100%"
-            img.style.height = "100%"*/
             div[0].appendChild(img)
             page.img_div = img
 
