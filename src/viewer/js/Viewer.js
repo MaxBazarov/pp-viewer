@@ -90,13 +90,13 @@ function pagerMarkImageAsLoaded()
     console.log(pagerLoadingTotal);
     if (--pagerLoadingTotal == 0)
     {
-        $("#nav #loading").addClass("hidden")
+        addClass(document.querySelector("#nav #loading"), "hidden")
     }
 }
 
 async function preloadAllPageImages()
 {
-    $("#nav #loading").removeClass("hidden")
+    removeClass(document.querySelector("#nav #loading"), "hidden")
     pagerLoadingTotal = story.totalImages
     var pages = story.pages;
     for (var page of story.pages)
@@ -104,7 +104,7 @@ async function preloadAllPageImages()
         if (page.elImage == undefined)
         {
             page.loadImages()
-            page.imageDiv.addClass("hidden")
+            addClass(page.imageDiv[0], "hidden")
         }
     }
 }
@@ -201,7 +201,7 @@ class Viewer
         }
 
         /// Init UI            
-        $("#menu #zoom").prop('checked', this.zoomEnabled);
+        document.querySelector("#menu #zoom").checked = this.zoomEnabled
 
         /// Init Viewers
         if (!story.hideGallery)
@@ -220,15 +220,15 @@ class Viewer
         if (story.enableComments)
         {
             this.commentsViewer = new CommentsViewer()
-            $("#nav #pageComments").removeClass("hidden")
+            removeClass(document.querySelector("#nav #pageComments"), "hidden")
         }
 
         if (story.experimentalExisting)
         {
-            $("#nav #experimental").removeClass("hidden")
+            removeClass(document.querySelector("#nav #experimental"), "hidden")
         }
 
-        if (story.fileKey) $("#nav #figma").removeClass("hidden")
+        if (story.fileKey) removeClass(document.querySelector("#nav #experimefigmantal"), "hidden")
 
     }
 
@@ -294,12 +294,12 @@ class Viewer
         {
             this.isEmbed = true
             // hide image preload indicator
-            $('#nav loading').hide()
+            addClass(document.querySelector("#nav #loading"), "hidden")
             // hide Navigation
-            $('.navCenter').hide()
-            $('.navPreviewNext').hide()
-            $('#btnMenu').hide()
-            $('#btnOpenNew').show()
+            addClass(document.querySelector(".navCenter"), "hidden")
+            addClass(document.querySelector(".navPreviewNext"), "hidden")
+            addClass(document.querySelector("#btnMenu"), "hidden")
+            removeClass(document.querySelector("#btnOpenNew"), "hidden")
         }
     }
     initializeHighDensitySupport()
@@ -321,13 +321,8 @@ class Viewer
     }
     buildUserStory()
     {
-        //
-        let opages = []
-        story.pages.forEach(function (page)
-        {
-            opages.push($.extend(new ViewerPage(), page))
-        })
-        story.pages = opages
+        // convert array to object list
+        story.pages = story.pages.map(page => new ViewerPage(page))
         //
         this.userStoryPages = []
         this.visStoryPages = []
@@ -1410,9 +1405,7 @@ class Viewer
 
 function addRemoveClass(mode, el, cls)
 {
-
     var el;
-
     switch (mode)
     {
         case 'class':
@@ -1423,15 +1416,21 @@ function addRemoveClass(mode, el, cls)
             el = document.getElementById(el);
             break;
     }
-
     if (el.classList.contains(cls))
-    {
-        el.classList.remove(cls)
-    } else
-    {
+        el.classList.remove(cls);
+    else
         el.classList.add(cls);
-    }
 }
+
+function addClass(el, className)
+{
+    if (!el.classList.contains(className)) el.classList.add(className);
+}
+function removeClass(el, className)
+{
+    if (el.classList.contains(className)) el.classList.remove(className);
+}
+
 
 function handleStateChanges(e)
 {

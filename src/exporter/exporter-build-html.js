@@ -847,7 +847,7 @@ function buildMainHTML(options, es)
                     <svg class='svgIcon'><use xlink:href="#icMenu"></use></svg>
         </div>
         <!--Button to embed mode-->
-        <div ID="btnOpenNew" style='display:none' class="btnMenu" onclick="viewer.openNewWindow();return false;">
+        <div ID="btnOpenNew" class="btnMenu hidden" onclick="viewer.openNewWindow();return false;">
             <svg class='svgIcon'><use xlink:href="#icResize"></use></svg>
         </div>
         <!--Next / Back button-->

@@ -77,7 +77,7 @@ function handleAnimationEndOnShow(el)
 class ViewerPage
 {
 
-    constructor()
+    constructor(storyPage)
     {
         this.currentOverlays = []
         this.parentPage = undefined
@@ -99,6 +99,12 @@ class ViewerPage
         this.tmpSrcOverlayByEvent = undefined
 
         this.visibleInGallery = true
+
+        //
+        Object.keys(storyPage).forEach(key =>
+        {
+            this[key] = storyPage[key]
+        }, this)
     }
 
     showHideGalleryLinks(show = null)
