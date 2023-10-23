@@ -578,7 +578,7 @@ class Viewer
     _hideSidebar()
     {
         this.sidebarVisible = false
-        addClass(byId("#sidebar"), "hidden")
+        addClass(byId("sidebar"), "hidden")
         this.zoomContent()
     }
 
@@ -1017,8 +1017,8 @@ class Viewer
         const prevPageWasModal = this.prevPage && this.prevPage.type === "modal"
         if (prevPageWasModal)
         {
-            addClass(byId('#content-shadow'), 'hidden');
-            addClass(byId('#content-modal'), 'hidden');
+            addClass(byId('content-shadow'), 'hidden');
+            addClass(byId('content-modal'), 'hidden');
         }
     }
 
@@ -1170,8 +1170,8 @@ class Viewer
         const page = this.currentPage;
         const isModal = page && page.type === "modal";
 
-        addClass(byId('#content-shadow'), 'hidden');
-        addClass(byId('#content-shadow', 'hidden');
+        addClass(byId('content-shadow'), 'hidden');
+        addClass(byId('content-shadow'), 'hidden');
 
         // hide last regular page
         if (this.lastRegularPage)
@@ -1184,7 +1184,7 @@ class Viewer
         }
         // hide current modal
         if (isModal)
-            if (byId("'#img_' + this.currentPage.index")) this.currentPage.hide();
+            if (byId('img_' + this.currentPage.index)) this.currentPage.hide();
     }
 
     clear_context()
@@ -1284,7 +1284,7 @@ class Viewer
     {
         this.showLayout = newState != undefined ? newState : !this.showLayout
         if (updateToogler) $("#menu #pagegrid").prop('checked', this.showLayout);
-        const div = jdivGrid('#content');
+        const div = byId('content');
 
         if (this.showLayout)
         {
