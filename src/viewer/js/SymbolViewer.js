@@ -178,38 +178,33 @@ class SymbolViewer extends AbstractViewer
         return true
     }
 
-    handleKeyDown(jevent)
+    handleKeyDown(event)
     {
-
-        const event = jevent.originalEvent
-
         if (77 == event.which)
         { // m
             // Key "M" eactivates Symbol Viewer
             this.toggle()
         } else
         {
-            return super.handleKeyDown(jevent)
+            return super.handleKeyDown(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
-    handleKeyDownWhileInactive(jevent)
+    handleKeyDownWhileInactive(event)
     {
-        const event = jevent.originalEvent
-
         if (77 == event.which)
         { // m
             // Key "M" activates Symbol Viewer
             this.toggle()
         } else
         {
-            return super.handleKeyDownWhileInactive(jevent)
+            return super.handleKeyDownWhileInactive(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 

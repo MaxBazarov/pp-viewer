@@ -284,9 +284,8 @@ class GalleryViewer extends AbstractViewer
         }, this);
     }
 
-    handleKeyDown(jevent)
+    handleKeyDown(event)
     {
-        const event = jevent.originalEvent
 
         // Key "ESC"
         if (27 == event.which)
@@ -310,10 +309,10 @@ class GalleryViewer extends AbstractViewer
             $("#galleryShowLinks").click()
         } else if (77 == event.which)        
         {
-            return super.handleKeyDown(jevent)
+            return super.handleKeyDown(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
@@ -360,9 +359,8 @@ class GalleryViewer extends AbstractViewer
         this.reShow()
     }
 
-    handleKeyDownWhileInactive(jevent)
+    handleKeyDownWhileInactive(event)
     {
-        const event = jevent.originalEvent
 
         if (71 == event.which && !event.metaKey)
         { // g
@@ -370,10 +368,10 @@ class GalleryViewer extends AbstractViewer
             this.toggle()
         } else
         {
-            return super.handleKeyDownWhileInactive(jevent)
+            return super.handleKeyDownWhileInactive(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 

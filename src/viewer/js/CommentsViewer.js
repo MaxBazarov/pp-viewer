@@ -39,20 +39,18 @@ class CommentsViewer extends AbstractViewer
         this.comments.hideViewer()
     }
 
-    handleKeyDownWhileInactive(jevent)
+    handleKeyDownWhileInactive(event)
     {
-        const event = jevent.originalEvent
-
         if (67 == event.which)
         { // c
             // Key "C" activates self
             this.toggle()
         } else
         {
-            return super.handleKeyDownWhileInactive(jevent)
+            return super.handleKeyDownWhileInactive(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
@@ -69,10 +67,8 @@ class CommentsViewer extends AbstractViewer
 
 
 
-    handleKeyDown(jevent)
+    handleKeyDown(event)
     {
-        const event = jevent.originalEvent
-
         if (27 == event.which)
         { // esc
             this.toggle()
@@ -85,10 +81,10 @@ class CommentsViewer extends AbstractViewer
             return true
         } else
         {
-            return super.handleKeyDown(jevent)
+            return super.handleKeyDown(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
     /////////////////////////////////////////////////

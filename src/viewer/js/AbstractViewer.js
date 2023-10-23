@@ -1,6 +1,8 @@
 
-class AbstractViewer {
-    constructor(divID) {
+class AbstractViewer
+{
+    constructor(divID)
+    {
         this.divID = divID
         // common viewer settings, can be changed in child constructors
         this.isSidebarChild = true
@@ -19,15 +21,19 @@ class AbstractViewer {
     }
 
 
-    initialize(force = false) {
+    initialize(force = false)
+    {
         if (!force && this.inited) return false
         //
-        if (this.preventCustomTextSearch) {
+        if (this.preventCustomTextSearch)
+        {
             const div = $('#' + this.divID)
-            div.mouseenter(function () {
+            div.mouseenter(function ()
+            {
                 this.mouseover = true
             })
-            div.mouseleave(function () {
+            div.mouseleave(function ()
+            {
                 this.mouseover = false
             })
         }
@@ -37,56 +43,69 @@ class AbstractViewer {
     }
 
     // called by Viewer
-    customTextSearchPrevented() {
+    customTextSearchPrevented()
+    {
         return this.preventCustomTextSearch && this.mouseover
     }
 
-    pageChanged() {
+    pageChanged()
+    {
 
     }
 
     // called by viewer
-    viewerResized() {
+    viewerResized()
+    {
 
     }
 
-    hide() {
+    hide()
+    {
         viewer.hideChild()
     }
 
-    show() {
+    show()
+    {
         viewer.showChild(this)
     }
 
-    toggle() {
+    toggle()
+    {
         return this.visible ? this.hide() : this.show()
     }
 
-    handleKeyDown(jevent) {
+    handleKeyDown(event)
+    {
         return false
     }
 
-    handleKeyDownWhileInactive(jevent) {
+    handleKeyDownWhileInactive(event)
+    {
         return false
     }
-    onContentClick() {
+    onContentClick()
+    {
         return false
     }
 
 
-    isVisible() {
+    isVisible()
+    {
         return this.visible
     }
 
-    toggle() {
+    toggle()
+    {
         return this.visible ? this.hide() : this.show()
     }
 
-    _showSelf() {
+    _showSelf()
+    {
         this.visible = true
     }
 
-    _hideSelf() {
+    _hideSelf()
+    {
         this.visible = false
         this.mouseover = false
     }

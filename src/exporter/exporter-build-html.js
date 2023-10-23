@@ -618,8 +618,7 @@ function buildMainHTML(options, es)
         <div class="shaft4"></div><div class="shaft5"></div><div class="shaft6"></div><div class="shaft7"></div>
     </div>
    <!--/load indicator-->
-        <div ID = "container">
-        <div ID="marker"></div>
+        <div ID = "container">        
         <div ID="content" onclick="viewer.onContentClick()"></div>
         <div ID="sidebar" class="hidden">
             <div ID="symbol_viewer" class="hidden viewer">

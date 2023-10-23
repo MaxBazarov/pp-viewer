@@ -138,10 +138,8 @@ class infoViewer extends AbstractViewer
     }
 
 
-    handleKeyDownWhileInactive(jevent)
+    handleKeyDownWhileInactive(event)
     {
-        const event = jevent.originalEvent
-
         if (38 == event.which && event.shiftKey)
         {   // shift + up
             viewer.increaseVersion()
@@ -153,17 +151,16 @@ class infoViewer extends AbstractViewer
             this.toggle()
         } else
         {
-            return super.handleKeyDownWhileInactive(jevent)
+            return super.handleKeyDownWhileInactive(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
 
-    handleKeyDown(jevent)
+    handleKeyDown(event)
     {
-        const event = jevent.originalEvent
         var disabled = !this.screenDiffs[viewer.currentPage.getHash()]
 
         if (86 == event.which)
@@ -179,10 +176,10 @@ class infoViewer extends AbstractViewer
         {  //shift
         } else
         {
-            return super.handleKeyDown(jevent)
+            return super.handleKeyDown(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 

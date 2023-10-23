@@ -250,7 +250,7 @@ class Viewer
     initializeLast()
     {
 
-        $("body").keydown(function (event)
+        byTag("body").addEventListener("keydown", function (event)
         {
             viewer.handleKeyDown(event)
         })
@@ -258,7 +258,7 @@ class Viewer
         {
             viewer.onMouseMove(e.pageX, e.pageY)
         });
-        jQuery(window).resize(function () { viewer.zoomContent() });
+        window.addEventListener('resize', function () { viewer.zoomContent() });
 
         // Activate galleryViewer
         const gParam = this.urlParams.get('g')
@@ -352,10 +352,9 @@ class Viewer
         }
     }
 
-    handleKeyDown(jevent)
+    handleKeyDown(event)
     {
         const v = viewer
-        const event = jevent.originalEvent
 
         const allowNavigation = !this.child || !this.child.blockMainNavigation
         const enableTopNavigation = !this.child || this.child.enableTopNavigation
@@ -365,12 +364,12 @@ class Viewer
         {
             for (const child of this.allChilds)
             {
-                if (child.handleKeyDownWhileInactive(jevent)) return true
+                if (child.handleKeyDownWhileInactive(event)) return true
             }
         }
 
         // allow currently active childs to handle global keys
-        if (this.child && this.child.handleKeyDown(jevent)) return true
+        if (this.child && this.child.handleKeyDown(event)) return true
 
         /*if (allowNavigation && 91 == event.which)
         { // cmd
@@ -389,7 +388,7 @@ class Viewer
         } else if (allowNavigation && story.layersExist && event.metaKey && (71 == event.which) && (!this.child || !this.child.customTextSearchPrevented()))
         { // Cmd+G -> Next search
             this.currentPage.findTextNext()
-        } else if (allowNavigation && (16 == event.which) && story.highlightAllHotspots && !jevent.metaKey)
+        } else if (allowNavigation && (16 == event.which) && story.highlightAllHotspots && !event.metaKey)
         { // SHIFT and no CMD to allow user to make a screenshot on macOS
             v.toogleHightlighSpots()
         } else if (event.metaKey || event.altKey || event.ctrlKey)
@@ -428,7 +427,7 @@ class Viewer
         {
             return false
         }
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
@@ -634,7 +633,7 @@ class Viewer
     toggleZoom(newState = undefined, updateToogler = true)
     {
         this.zoomEnabled = newState !== undefined ? newState : !this.zoomEnabled
-        if (updateToogler) $("#menu #zoom").prop('checked', this.zoomEnabled)
+        if (updateToogler) bySel("#menu #zoom").checked = this.zoomEnabled
         this.zoomContent()
     }
 
@@ -650,19 +649,12 @@ class Viewer
         var page = this.lastRegularPage
         if (undefined == page) return
 
-
-        if (undefined == this.marker)
-        {
-            this.marker = $('#marker')
-        }
-        var marker = this.marker
-
         var content = $('#content')
         //var contentShadow = $('#content-shadow')
         var contentModal = $('#content-modal')
         var elems = [content, contentModal] //,contentShadow
 
-        var fullWidth = marker.innerWidth()
+        var fullWidth = byTag("html").clientWidth
         var availableWidth = fullWidth
         var zoom = ""
         var scale = ""
@@ -853,7 +845,7 @@ class Viewer
         if (newPage.type === "modal")
         {
             // hide parent page links hightlighting
-            this._updateLinksState(false, $('#content'))
+            this._updateLinksState(false, byId('content'))
 
             // no any page visible now, need to find something
             if (undefined == currentPage)
@@ -870,8 +862,8 @@ class Viewer
             if (oldcurrentPageModal)
             {
                 // hide modal page links hightlighting
-                this._updateLinksState(false, $('#content-modal'))
-                this._updateLinksState(undefined, $('#content'))
+                this._updateLinksState(false, byId('content-modal'))
+                this._updateLinksState(undefined, byId('content'))
             }
         }
         this.prevPage = currentPage
@@ -1312,12 +1304,12 @@ class Viewer
         if (undefined == showLinks) showLinks = this.highlightAllHotspotsOn
 
         const divs = div ? [div] : (showLinks & this.currentPage.type === 'modal' ?
-            [$('#content-modal')]
-            : [$('#content-modal'), $('#content')])
+            [byId('content-modal')]
+            : [byId('content-modal'), byId('content')])
         if (showLinks)
-            divs.forEach(d => d.addClass("contentLinksVisible"))
+            divs.forEach(d => addClass(d, "contentLinksVisible"))
         else
-            divs.forEach(d => d.removeClass("contentLinksVisible"))
+            divs.forEach(d => removeClass(d, "contentLinksVisible"))
     }
 
     showHints()
@@ -1424,6 +1416,16 @@ function byId(elementID)
     return document.getElementById(elementID);
 }
 
+function byClass(elementID)
+{
+    return document.getElementByClassName(elementID)[0];
+}
+
+function byTag(tag)
+{
+    return document.getElementsByTagName(tag)[0];
+}
+
 function bySel(selector)
 {
     return document.querySelector(selector);
@@ -1440,14 +1442,14 @@ $(document).ready(function ()
     viewer.initialize();
     if (!!('ontouchstart' in window) || !!('onmsgesturechange' in window))
     {
-        $('body').removeClass('screen');
+        removeClass(byTag("body"), 'screen');
     }
 
     viewer.handleNewLocation(true)
     if (!viewer.isEmbed) preloadAllPageImages();
 
-    window.addEventListener('popstate', handleStateChanges);
-    $(window).hashchange(handleStateChanges);
+    window.addEventListener("popstate", handleStateChanges);
+    window.addEventListener("hashchange", handleStateChanges);
 
     viewer.zoomContent()
     viewer.initializeLast()

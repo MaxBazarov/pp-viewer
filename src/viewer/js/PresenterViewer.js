@@ -1,18 +1,22 @@
 let presenterViewer = null;
 const STORAGE_TRANSPERIOD = "presenterViewer.transPeriod"
 
-function doPresenterViewerNext() {
+function doPresenterViewerNext()
+{
     const nextPage = viewer.getNextUserPage()
     // check if we need to stop
-    if ((!nextPage || nextPage.userIndex === 0 && false)) {
+    if ((!nextPage || nextPage.userIndex === 0 && false))
+    {
         presenterViewer.stop()
         return
     }
     presenterViewer.gotoPageWithDelay(nextPage.index)
 }
 
-class PresenterViewer extends AbstractViewer {
-    constructor() {
+class PresenterViewer extends AbstractViewer
+{
+    constructor()
+    {
         super()
 
         this.isSidebarChild = false
@@ -21,7 +25,8 @@ class PresenterViewer extends AbstractViewer {
         presenterViewer = this
     }
 
-    initialize(force = false) {
+    initialize(force = false)
+    {
         if (!force && this.inited) return
         //
         {
@@ -35,18 +40,21 @@ class PresenterViewer extends AbstractViewer {
     ///////////////////////////////////////////////// called by Viewer
 
 
-    _hideSelf() {
+    _hideSelf()
+    {
         super._hideSelf()
         // Hide all UI controls
         viewer.toogleUI(true)
     }
-    _showSelf() {
+    _showSelf()
+    {
         if (!this.inited) this.initialize()
         //
         super._showSelf()
         // Start a presentation from first page    
         const startIndex = viewer.getFirstUserPage()
-        if (startIndex === null) {
+        if (startIndex === null)
+        {
             this._hideSelf()
             return
         }
@@ -56,44 +64,48 @@ class PresenterViewer extends AbstractViewer {
     }
 
 
-    handleKeyDownWhileInactive(jevent) {
-        const event = jevent.originalEvent
-
-        if (80 == event.which && !this.visible) { // p
+    handleKeyDownWhileInactive(event)
+    {
+        if (80 == event.which && !this.visible)
+        { // p
             // Key "P" activates self
             this.play()
-        } else {
-            return super.handleKeyDownWhileInactive(jevent)
+        } else
+        {
+            return super.handleKeyDownWhileInactive(event)
         }
-
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
 
-    handleKeyDown(jevent) {
-        const event = jevent.originalEvent
-
-        if (27 == event.which || 80 == event.which) { // esc or p
+    handleKeyDown(event)
+    {
+        if (27 == event.which || 80 == event.which)
+        { // esc or p
             this.stop()
-        } else if (event.which >= 49 && event.which < 57) { // 1..9
+        } else if (event.which >= 49 && event.which < 57)
+        { // 1..9
             this.transPeriod = 1000 * (event.which - 48)
             window.localStorage.setItem(STORAGE_TRANSPERIOD, this.transPeriod)
-        } else {
-            //return super.handleKeyDown(jevent)
+        } else
+        {
+            //return super.handleKeyDown(event)
         }
 
-        jevent.preventDefault()
+        event.preventDefault()
         return true
     }
 
     ///////////////////////// OWN METHODS
-    play() {
+    play()
+    {
         viewer._enableFullScreen()
         this.show()
     }
 
-    gotoPageWithDelay(pageIndex) {
+    gotoPageWithDelay(pageIndex)
+    {
         // Probalbly we have stopped already
         if (!this.visible) return
         // Show page
@@ -102,10 +114,12 @@ class PresenterViewer extends AbstractViewer {
         setTimeout(doPresenterViewerNext, this.transPeriod)
     }
 
-    stop(exitFullScreen = true) {
+    stop(exitFullScreen = true)
+    {
         if (!this.visible) return
         // Disable full screen
-        if (exitFullScreen) {
+        if (exitFullScreen)
+        {
             viewer._disableFullScreen()
         }
         //        
