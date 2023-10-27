@@ -649,9 +649,8 @@ class Viewer
         var page = this.lastRegularPage
         if (undefined == page) return
 
-        var content = $('#content')
-        //var contentShadow = $('#content-shadow')
-        var contentModal = $('#content-modal')
+        var content = byId('content');
+        var contentModal = byId('content-modal');
         var elems = [content, contentModal] //,contentShadow
 
         var fullWidth = byTag("html").clientWidth
@@ -663,7 +662,7 @@ class Viewer
         var sidebarWidth = 0
         if (this.sidebarVisible)
         {
-            var sidebar = $("#sidebar")
+            var sidebar = byId("sidebar")
 
             sidebarWidth = this.defSidebarWidth
 
@@ -678,10 +677,10 @@ class Viewer
                 availableWidth = fullWidth - sidebarWidth
             }
 
-            sidebar.css("margin-left", (fullWidth - sidebarWidth) + "px")
-            sidebar.css("margin-top", (0) + "px")
-            sidebar.css("width", sidebarWidth + "px")
-            sidebar.css("height", "100%")
+            sidebar.style.marginLeft = (fullWidth - sidebarWidth) + "px";
+            sidebar.style.marginTop = (0) + "px";
+            sidebar.style.width = sidebarWidth + "px";
+            sidebar.style.height = "100%";
         }
 
 
@@ -697,11 +696,11 @@ class Viewer
         {
             for (var el of elems)
             {
-                el.css("zoom", zoom)
-                el.css("-moz-transform", scale)
+                el.style.setProperty("zoom", zoom);
+                el.style.setProperty("-moz-transform", scale);
             }
-            content.css("-moz-transform-origin", "left top")
-            contentModal.css("-moz-transform-origin", "center top")
+            content.style.setProperty("-moz-transform-origin", "left top");
+            contentModal.style.setProperty("-moz-transform-origin", "center top");
 
         }
 
@@ -715,8 +714,8 @@ class Viewer
         if (this.currentMarginLeft < 0) this.currentMarginLeft = 0
 
         // Set content to new left positions
-        content.css("margin-left", this.currentMarginLeft + "px")
-        content.css("margin-top", this.currentMarginTop + "px")
+        content.style.setProperty("margin-left", this.currentMarginLeft + "px")
+        content.style.setProperty("margin-top", this.currentMarginTop + "px")
         this.currentPage.updatePosition()
 
         //
@@ -946,60 +945,36 @@ class Viewer
         var prevPage = this.getPreviousUserPage(page)
         var nextPage = this.getNextUserPage(page)
 
-        $('#nav .title').html((page.userIndex + 1) + '/' + this.userStoryPages.length + ' - ' + page.title + VERSION_INJECT);
-        $('#nav-left-prev').toggleClass('disabled', !prevPage)
-        $('#nav-left-next').toggleClass('disabled', !nextPage)
+        bySel('#nav .title').innerHTML = (page.userIndex + 1) + '/' + this.userStoryPages.length + ' - ' + page.title + VERSION_INJECT;
+        toggleClass(byId('nav-left-prev'), 'disabled', !prevPage);
+        toggleClass(byId('nav-left-next'), 'disabled', !nextPage);
 
-        if (prevPage)
-        {
-            $('#nav-left-prev a').attr('title', prevPage.title);
-        } else
-        {
-            $('#nav-left-prev a').removeAttr('title');
-        }
-
-        if (nextPage)
-        {
-            $('#nav-left-next a').attr('title', nextPage.title);
-        } else
-        {
-            $('#nav-left-next a').removeAttr('title');
-        }
-
-        $('#nav-right-hints').toggleClass('disabled', page.annotations == undefined);
+        byId('nav-left-prev').title = prevPage ? prevPage.title : "";
+        byId('nav-left-next').title = nextPage ? nextPage.title : "";
+        //toggleClass(byId("nav-right-hints"), 'disabled', page.annotations == undefined);
 
         this.refresh_update_links_toggler(page);
     }
     refresh_update_links_toggler(page)
     {
-        $("#menu #links").prop('checked', this.highlightAllHotspotsOn);
+        bySel("#menu #links").checked = this.highlightAllHotspotsOn;
     }
     refresh_hide_last_image(page)
     {
-        var content = $('#content');
-        var contentModal = $('#content-modal');
-        var isModal = page.type === "modal"
-
+        var isModal = page.type === "modal";
         // hide last regular page to show a new regular after modal
         if (!isModal && this.lastRegularPage && this.lastRegularPage.index != page.index)
         {
-            var lastPageImg = $('#img_' + this.lastRegularPage.index);
-            if (lastPageImg.length)
-            {
-                this.lastRegularPage.hide()
-            }
+            var lastPageImg = byId('img_' + this.lastRegularPage.index);
+            if (lastPageImg) this.lastRegularPage.hide();
         }
 
         // hide last modal
         var prevPageWasModal = this.prevPage != null && this.prevPage.type === "modal"
         if (prevPageWasModal)
         {
-            var prevImg = $('#img_' + this.prevPage.index);
-            if (prevImg.length)
-            {
-                this.prevPage.hide()
-                //pagerHideImg(prevImg)
-            }
+            var prevImg = byId('img_' + this.prevPage.index);
+            if (prevImg) this.prevPage.hide();
         }
     }
     refresh_adjust_content_layer(page)
@@ -1050,12 +1025,12 @@ class Viewer
 
     _calcCurrentPageURL(page = null, extURL = null)
     {
-        if (!page) page = this.currentPage
-        this.urlLastIndex = page.index
-        $(document).attr('title', story.title + ': ' + page.title)
+        if (!page) page = this.currentPage;
+        this.urlLastIndex = page.index;
+        document.title = story.title + ': ' + page.title;
 
-        let newPath = this._getPageFullURL(page, extURL)
-        this.fullCurrentPageURL = newPath
+        let newPath = this._getPageFullURL(page, extURL);
+        this.fullCurrentPageURL = newPath;
     }
 
     refresh_url(page, extURL = "", pushHistory = true)
@@ -1168,11 +1143,8 @@ class Viewer
         // hide last regular page
         if (this.lastRegularPage)
         {
-            var lastPageImg = $('#img_' + this.lastRegularPage.index);
-            if (lastPageImg.length)
-            {
-                this.lastRegularPage.hide()
-            }
+            var lastPageImg = byId('img_' + this.lastRegularPage.index);
+            if (lastPageImg) this.lastRegularPage.hide();
         }
         // hide current modal
         if (isModal)
@@ -1203,6 +1175,7 @@ class Viewer
 
 
         const page = this.currentPage
+        if (!page) return false
         // If the current page has search visible then hide it
         if (undefined != page.actualSearchText)
         {
@@ -1275,7 +1248,7 @@ class Viewer
     toogleLayout(newState = undefined, updateToogler = true)
     {
         this.showLayout = newState != undefined ? newState : !this.showLayout
-        if (updateToogler) $("#menu #pagegrid").prop('checked', this.showLayout);
+        if (updateToogler) bySel("#menu #pagegrid").checked = this.showLayout;
         const div = byId('content');
 
         if (this.showLayout)
@@ -1287,8 +1260,8 @@ class Viewer
     }
     toogleFullScreen(newState = undefined, updateToogler = true)
     {
-        this.isFullScreen = newState != undefined ? newState : !this.isFullScreen
-        if (updateToogler) $("#menu #fullScreen").prop('checked', this.isFullScreen);
+        this.isFullScreen = newState != undefined ? newState : !this.isFullScreen;
+        if (updateToogler) bySel("#menu #fullScreen").checked = this.isFullScreen;
         //
         return this.isFullScreen ? this._enableFullScreen() : this._disableFullScreen()
     }
@@ -1400,6 +1373,17 @@ function addRemoveClass(mode, el, cls)
         el.classList.remove(cls);
     else
         el.classList.add(cls);
+}
+
+function toggleClass(el, className, set)
+{
+    if (set)
+    {
+        if (!el.classList.contains(className)) el.classList.add(className);
+    } else
+    {
+        if (el.classList.contains(className)) el.classList.remove(className);
+    }
 }
 
 function addClass(el, className)
