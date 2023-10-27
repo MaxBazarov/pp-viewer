@@ -27,37 +27,38 @@ class SymbolViewer extends AbstractViewer
         if (!super.initialize(force)) return
 
         // populate library select
-        const libSelect = $('#symbol_viewer #lib_selector')
-        libSelect.append($('<option>', {
-            value: "",
-            text: 'Library autoselection'
-        }));
+        const libSelect = bySel('#symbol_viewer #lib_selector');
+
+        const autoOpt = document.createElement("option");
+        autoOpt.text = "Library autoselection";
+        libSelect.add(autoOpt);
+
         for (const libName of Object.keys(this.getDataSymbolsDict))
         {
-            libSelect.append($('<option>', {
-                value: libName,
-                text: libName
-            }));
+            const libOpt = document.createElement("option");
+            libOpt.text = libName;
+            libOpt.value = libName;
+            libSelect.add(libOpt);
         }
-        libSelect.change(function ()
+        libSelect.addEventListener("change", function ()
         {
-            var libName = $(this).children("option:selected").val();
+            var libName = this.options[this.selectedIndex].value;
             viewer.symbolViewer._selectLib(libName)
 
         })
         //
-        const symCheck = $('#symbol_viewer_symbols')
-        symCheck.click(function ()
+        const symCheck = byId('symbol_viewer_symbols');
+        symCheck.addEventListener("click", function ()
         {
-            viewer.symbolViewer._setSymCheck($(this).is(':checked'))
+            viewer.symbolViewer._setSymCheck(this.checked)
 
         })
     }
 
     _setSymCheck(showSymbols)
     {
-        this.showSymbols = showSymbols
-        $('#lib_selector').toggle()
+        this.showSymbols = showSymbols;
+        toggleClass$(byId('lib_selector'));
         this._reShowContent()
 
     }
@@ -219,12 +220,12 @@ class SymbolViewer extends AbstractViewer
         this._buildElementLinks()
 
         var isModal = viewer.currentPage && viewer.currentPage.type === "modal"
-        const contentDiv = isModal ? $('#content-modal') : $('#content')
-        contentDiv.addClass("contentSymbolsVisible")
+        const contentDiv = isModal ? byId("content-modal") : byId("content");
+        addClass(contentDiv, "contentSymbolsVisible");
 
         this._showEmptyContent()
 
-        $('#symbol_viewer').removeClass("hidden")
+        removeClass(byId('symbol_viewer'), "hidden");
 
         super._showSelf()
 
@@ -232,10 +233,9 @@ class SymbolViewer extends AbstractViewer
 
     _showEmptyContent()
     {
-        $("#symbol_viewer_content").html(story.experimentalExisting ?
+        byId("symbol_viewer_content").innerHTML = story.experimentalExisting ?
             "Click any element to inspect.<br/>EXPERIMENTAL widgets are in <span style='color:orange'>orange</span>." :
-            "Click any element to inspect"
-        );
+            "Click any element to inspect";
     }
 
 

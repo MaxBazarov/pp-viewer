@@ -1268,9 +1268,9 @@ class Viewer
     //
     toogleUI(newState = undefined, updateToogler = true)
     {
-        this.showUI = newState != undefined ? newState : !this.showUI
-        if (updateToogler) $("#menu #ui").prop('checked', this.showUI);
-        $('#nav').slideToggle('fast')
+        this.showUI = newState != undefined ? newState : !this.showUI;
+        if (updateToogler) bySel("#menu #ui").checked = this.showUI;
+        toggleClass(byId('nav'), "hidden", !this.showUI)
     }
     _updateLinksState(showLinks = undefined, div = undefined)
     {
@@ -1377,13 +1377,7 @@ function addRemoveClass(mode, el, cls)
 
 function toggleClass(el, className, set)
 {
-    if (set)
-    {
-        if (!el.classList.contains(className)) el.classList.add(className);
-    } else
-    {
-        if (el.classList.contains(className)) el.classList.remove(className);
-    }
+    el.classList.toggle(className)
 }
 
 function addClass(el, className)
@@ -1421,7 +1415,7 @@ function handleStateChanges(e)
     viewer.handleStateChanges(e)
 }
 
-$(document).ready(function ()
+addEventListener("DOMContentLoaded", (event) => 
 {
     viewer.initialize();
     if (!!('ontouchstart' in window) || !!('onmsgesturechange' in window))
