@@ -324,6 +324,11 @@ select:focus {
     padding: 72px 12px 0 12px;
 }
 
+#symbol_viewer_content #empty {
+    position: absolute;
+    top: 54px;
+}
+
 #symbol_viewer_content .panel {
     margin: 12px;
 }

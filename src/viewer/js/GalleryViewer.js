@@ -206,7 +206,7 @@ class GalleryViewer extends AbstractViewer
         //
         this.isLinksVisible = false
         if (window.localStorage.getItem("galleryIsLinkVisible") == "true") this.isLinksVisible = true
-        $("#gallery-header #galleryShowLinks").prop('checked', this.isLinksVisible);
+        bySel("#gallery-header #galleryShowLinks").checked = this.isLinksVisible;
         //
         this.zoom = 1
         this.zoomMode = ZOOM_MODE_OPT
@@ -280,7 +280,7 @@ class GalleryViewer extends AbstractViewer
             let text = ""
             if (pageInfo['commentsTotal'] != 0) text = "  (" + pageInfo['commentsTotal'] + ")"
             //
-            $("#gallery #grid #t" + page.index + " #comm").text(text)
+            bySel("#gallery #grid #t" + page.index + " #comm").innerHTML = text;
         }, this);
     }
 
@@ -306,7 +306,7 @@ class GalleryViewer extends AbstractViewer
         // Key "L"
         else if (76 == event.which)
         {
-            $("#galleryShowLinks").click()
+            byId("galleryShowLinks").click()
         } else if (77 == event.which)        
         {
             return super.handleKeyDown(event)
@@ -388,13 +388,13 @@ class GalleryViewer extends AbstractViewer
     {
         if (!this.inited || this.currentFullWidth != viewer.fullWidth) this.initialize(true)
 
-        $('#gallery-modal').removeClass('hidden');
+        showEl(byId('gallery-modal'));
 
-        $('#searchInput').focusin(function ()
+        byId('#searchInput').addEventListener("focusin", function ()
         {
             viewer.galleryViewer.searchInputFocused = true
         })
-        $('#searchInput').focusout(function ()
+        byId('#searchInput').addEventListener("focusout", function ()
         {
             viewer.galleryViewer.searchInputFocused = false
         })
@@ -422,7 +422,7 @@ class GalleryViewer extends AbstractViewer
     {
         document.removeEventListener("wheel", handleWheel)
         //
-        $('#gallery-modal').addClass('hidden');
+        hideEl(byId("gallery-modal"))
         super._hideSelf()
         viewer.refresh_url(viewer.currentPage, "", false)
     }
@@ -431,13 +431,13 @@ class GalleryViewer extends AbstractViewer
     {
         if (this.lastCurrentPage)
         {
-            const div = $("#gallery #grid #" + this.lastCurrentPage.index)
-            if (div) div.removeClass("active")
+            const div = bySel("#gallery #grid #" + this.lastCurrentPage.index);
+            if (div) removeClass(div, "active");
             //            
         }
         this.lastCurrentPage = viewer.currentPage
-        const div = $("#gallery #grid #" + this.lastCurrentPage.index)
-        if (div) div.addClass("active")
+        const div = bySel("#gallery #grid #" + this.lastCurrentPage.index);
+        if (div) addClass(div, "active");
 
     }
 

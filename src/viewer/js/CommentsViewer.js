@@ -32,10 +32,10 @@ class CommentsViewer extends AbstractViewer
 
     _hideSelf()
     {
-        $('#comments_viewer').addClass("hidden")
+        hideEl(byId("comments_viewer"));
         super._hideSelf()
         viewer.refresh_url(viewer.currentPage, "", false)
-        viewer.currentPage.linksDiv.children("a").show()
+        viewer.currentPage.linksDiv.querySelector("a").forEach(el => showEl(el));
         this.comments.hideViewer()
     }
 
@@ -142,14 +142,14 @@ class CommentsViewer extends AbstractViewer
 
     updateCommentCounter(total)
     {
-        var div = $('#nav #pageComments #counter')
+        var div = bySel('#nav #pageComments #counter')
         if (total > 0)
         {
-            div.html(total);
-            div.show()
+            div.innerHTML = total;
+            showEl(div);
         } else
         {
-            div.hide()
+            hidEl(div);
         }
     }
 
@@ -174,10 +174,10 @@ class CommentsViewer extends AbstractViewer
             //
             if ("ok" == result.status)
             {
-                $('#comments_viewer_content').html(result.data);
+                byId('comments_viewer_content').innerHTML = result.data;
             } else
             {
-                $('#comments_viewer_content').html(result.message);
+                byId('comments_viewer_content').innerHTML = result.message;
             }
             return
 
@@ -189,17 +189,17 @@ class CommentsViewer extends AbstractViewer
     _showSelf()
     {
         if (!this.inited) this.initialize()
-        $('#comments_viewer').removeClass("hidden")
+        shoWEl(byId("comments_viewer"))
         super._showSelf()
         //
         viewer.refresh_url(viewer.currentPage, "", false)
-        viewer.currentPage.linksDiv.children("a").hide()
+        viewer.currentPage.linksDiv.querySelector("a").forEach(el => hideEl(el));
         //
         if (this.comments) this.comments.showViewer()
     }
 
     _showLoadingMessage()
     {
-        $("#comments_viewer_content").html("Loading...")
+        byId("comments_viewer_content").innerHTML = "Loading...";
     }
 }

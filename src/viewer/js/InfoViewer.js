@@ -100,8 +100,7 @@ class infoViewer extends AbstractViewer
 
         modes.forEach(function (mode, pos)
         {
-            var radio = $("#info_viewer_mode_" + mode)
-            radio.prop('checked', pos == posMode)
+            byId("info_viewer_mode_" + mode).checked = pos == posMode;
         }, this)
 
         this.pageChanged()
@@ -114,8 +113,8 @@ class infoViewer extends AbstractViewer
     _hideSelf()
     {
         this._restoreNewImages()
-        $('#info_viewer').addClass("hidden")
-        $('info_viewer_options').addClass("hidden")
+        hideEl(byId("info_viewer"));
+        hideEl(byId("info_viewer_options"));
         if (document.location.search.includes('v'))
         {
             document.location.search = "" // remove ?v
@@ -128,11 +127,12 @@ class infoViewer extends AbstractViewer
 
         var disabled = !this.screenDiffs[viewer.currentPage.getHash()]
 
-        $("#info_viewer_mode_diff").prop('disabled', disabled);
-        $("#info_viewer_mode_new").prop('disabled', disabled);
-        $("#info_viewer_mode_prev").prop('disabled', disabled);
+        byId("info_viewer_mode_diff").disabled = disabled;
+        byId("info_viewer_mode_new").disabled = disabled;
+        byId("info_viewer_mode_prev").disabled = disabled;
         if (disabled) return
-        $('#info_viewer_options').removeClass("hidden")
+        //
+        showEl(byId('info_viewer_options'));
 
         this._showCurrentPageDiffs()
     }
@@ -188,9 +188,9 @@ class infoViewer extends AbstractViewer
         const rec = this.data['recs'][index]
         if (!rec) return
         ///
-        const div = $("#info_viewer .record ." + (forNew ? 'n' : 'u') + "screens#" + index)
+        const div = bySel("#info_viewer .record ." + (forNew ? 'n' : 'u') + "screens#" + index);
         if (!div) return
-        div.html("")
+        div.innerHTML = "";
         var info = ""
         ///
         if (rec.isVisible)
@@ -201,7 +201,7 @@ class infoViewer extends AbstractViewer
             info += this._showScreens(rec, index, forNew)
             rec.isVisible = true
         }
-        div.html(info)
+        div.innerHTML = info;
     }
     /////////////////////////////////////////////////
 
@@ -291,7 +291,7 @@ class infoViewer extends AbstractViewer
         }
         info += `<div id = "info_viewer_content_dynamic" /> `
 
-        $("#info_viewer_content").html(info)
+        byId("info_viewer_content").innerHTML = info;
     }
 
     _showData(data)
@@ -328,14 +328,14 @@ class infoViewer extends AbstractViewer
         }, this)
 
         this.data = data
-        $("#info_viewer_content_dynamic").html(info)
+        byId("info_viewer_content_dynamic").innerHTML = info;
     }
 
 
     _showSelf()
     {
         if (!this.inited) this.initialize()
-        $('#info_viewer').removeClass("hidden")
+        showEl(byId("info_viewer"));
         this.loadData()
 
         super._showSelf()
@@ -343,6 +343,6 @@ class infoViewer extends AbstractViewer
 
     _showLoadingMessage()
     {
-        $("#info_viewer_content_dynamic").html("Loading...")
+        byId("info_viewer_content_dynamic").innerHTML = "Loading...";
     }
 }

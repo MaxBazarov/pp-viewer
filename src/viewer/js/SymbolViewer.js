@@ -58,7 +58,7 @@ class SymbolViewer extends AbstractViewer
     _setSymCheck(showSymbols)
     {
         this.showSymbols = showSymbols;
-        toggleClass$(byId('lib_selector'));
+        toggleClass(byId('lib_selector'));
         this._reShowContent()
 
     }
@@ -113,10 +113,10 @@ class SymbolViewer extends AbstractViewer
         delete this.createdPages[viewer.currentPage.index]
 
         // remove existing symbol links        
-        this.page.linksDiv.children(".modalSymbolLink,.symbolLink").remove()
+        this.page.linksDiv.querySelectorAll(".modalSymbolLink,.symbolLink").forEach(el => el.remove());
         for (const panel of this.page.fixedPanels)
         {
-            panel.linksDiv.children(".modalSymbolLink,.symbolLink").remove()
+            panel.linksDiv.querySelectorAll(".modalSymbolLink,.symbolLink").remove();
         }
 
         // drop selection
@@ -159,23 +159,21 @@ class SymbolViewer extends AbstractViewer
         var isModal = viewer.currentPage && viewer.currentPage.type === "modal"
         if (isModal)
         {
-            $(".modalSymbolLink").remove()
+            byClassAll("modalSymbolLink").forEach(el => el.remove());
             delete this.createdPages[viewer.currentPage.index]
         }
-        const contentDiv = isModal ? $('#content-modal') : $('#content')
-        contentDiv.removeClass("contentSymbolsVisible")
+        removeClass(byId(isModal ? 'content-modal' : 'content'), "contentSymbolsVisible");
 
         viewer.linksDisabled = false
-        $('#symbol_viewer').addClass("hidden")
+        addClass(byId("symbol_viewer"), "hidden");
 
-        this.setSelected(null, null, null)
-
+        this.setSelected()
         super._hideSelf()
     }
 
     onContentClick()
     {
-        this.setSelected(null)
+        this.setSelected()
         return true
     }
 
@@ -224,7 +222,6 @@ class SymbolViewer extends AbstractViewer
         addClass(contentDiv, "contentSymbolsVisible");
 
         this._showEmptyContent()
-
         removeClass(byId('symbol_viewer'), "hidden");
 
         super._showSelf()
@@ -233,9 +230,16 @@ class SymbolViewer extends AbstractViewer
 
     _showEmptyContent()
     {
-        byId("symbol_viewer_content").innerHTML = story.experimentalExisting ?
-            "Click any element to inspect.<br/>EXPERIMENTAL widgets are in <span style='color:orange'>orange</span>." :
+        const content = byId("symbol_viewer_content");
+        content.innerHTML = "";
+
+        const div = document.createElement("div");
+        div.id = "empty";
+        div.className = "panel";
+        div.innerHTML = story.experimentalExisting ?
+            "Click any element to inspect1.<br/>EXPERIMENTAL widgets are in <span style='color:orange'>orange</span>." :
             "Click any element to inspect";
+        content.appendChild(div);
     }
 
 
@@ -384,25 +388,33 @@ class SymbolViewer extends AbstractViewer
 
     _showElement(l, siLayer = null)
     {
-        var a = $("<a>", {
+        const a = document.createElement("a");
+        a.className = viewer.currentPage.type === "modal" ? "modalSymbolLink" : "symbolLink";
+        a.style.zIndex = this.pageInfo.layerArray.length - l.infoIndex;
+        a.setAttribute("pi", this.pageIndex);
+        a.setAttribute("li", l.infoIndex);
+        a.setAttribute("si", l.indexOfSO);
+
+        /*
+        var a1 = ("<a>", {
             class: viewer.currentPage.type === "modal" ? "modalSymbolLink" : "symbolLink",
             pi: this.pageIndex,
             li: l.infoIndex,
             si: l.indexOfSO,
             style: `z-index:${this.pageInfo.layerArray.length - l.infoIndex};`
         })
-
-        a.click(function (event)
+        */
+        a.addEventListener("click", function (event)
         {
-            const sv = viewer.symbolViewer
-            const pageIndex = $(this).attr("pi")
-            const layerIndex = $(this).attr("li")
-            const siLayerIndex = $(this).attr("si")
+            const sv = viewer.symbolViewer;
+            const pageIndex = this.getAttribute("pi");
+            const layerIndex = this.getAttribute("li");
+            const siLayerIndex = this.getAttribute("si");
             const pageInfo = sv.createdPages[pageIndex]
             let topLayer = pageInfo.layerArray[layerIndex]
             const siLayer = siLayerIndex >= 0 ? pageInfo.layerArray[siLayerIndex] : null
 
-            sv.setSelected(event, topLayer, $(this))
+            sv.setSelected(event, topLayer)
             if (!sv.selected)
             {
                 return false
@@ -460,15 +472,15 @@ class SymbolViewer extends AbstractViewer
                 info += sv._showLayerImage(layer)
             }
 
-            $('#symbol_viewer #empty').addClass("hidden")
-            $("#symbol_viewer_content").html(info)
-            $("#symbol_viewer_content").removeClass("hidden")
+            byId("symbol_viewer_content").innerHTML = info;
+            removeClass(byId("symbol_viewer_content"), "hidden");
 
             //alert(info)
             return false
-        })
+        });
 
-        a.prependTo(l.parentPanel.linksDiv)
+        const pdiv = l.parentPanel.linksDiv;
+        pdiv.insertBefore(a, pdiv.children[0]);
 
         ///
         const highlight = siLayer && siLayer.s && (
@@ -480,19 +492,11 @@ class SymbolViewer extends AbstractViewer
         if (highlight) div.class += " exp"
         const symbolDiv = div.elDiv()
 
-        symbolDiv.addEventListener(
-            "mouseenter", function ()
+        symbolDiv.addEventListener("mouseenter", function ()
         {
             viewer.symbolViewer.mouseEnterLayerDiv(symbolDiv)
-        }
-        );
-        /*
-        symbolDiv.mouseenter(function ()
-        {
-            viewer.symbolViewer.mouseEnterLayerDiv(symbolDiv)
-        })*/
-        a[0].appendChild(symbolDiv)
-        //symbolDiv.appendTo(a)
+        });
+        a.appendChild(symbolDiv);
     }
 
 
@@ -898,7 +902,7 @@ class SymbolViewer extends AbstractViewer
         return info
     }
 
-    setSelected(event = null, layer = null, a = null, force = false)
+    setSelected(event = null, layer = null, force = false)
     {
         const prevClickedLayer = this.lastClickedLayer
         this.lastClickedLayer = layer
@@ -947,15 +951,15 @@ class SymbolViewer extends AbstractViewer
             this.lastClickedLayer = undefined
             this.selectedLayerIndex = undefined
             ////
-            $('#symbol_viewer #empty').removeClass("hidden")
-            $("#symbol_viewer_content").addClass("hidden")
+            //showEl(bySel("#symbol_viewer #empty"));
+            //hideEl(byId("symbol_viewer_content"));
             ////
             return
         }
         // select new
         this.selected = {
             layer: layer,
-            a: $(this),
+            a: this,
             marginDivs: [],
             borderDivs: [],
         }
@@ -1191,9 +1195,9 @@ class SymbolViewer extends AbstractViewer
     _drawMarginLine(currentPanel, x, y, width, height, className)
     {
         const sd = new StageDiv(x, y, width, height, className)
-        const div = sd.elDiv()
-        currentPanel.linksDiv[0].appendChild(div)
-        return div
+        const div = sd.elDiv();
+        currentPanel.linksDiv.appendChild(div);
+        return div;
     }
     _drawMarginValue(currentPanel, x, y, value)
     {
@@ -1204,8 +1208,8 @@ class SymbolViewer extends AbstractViewer
         //
         div.innerHTML = Number.parseFloat(value).toFixed(0)
         //
-        currentPanel.linksDiv[0].appendChild(div)
-        return div
+        currentPanel.linksDiv.appendChild(div);
+        return div;
     }
 
     _decorateCSS(layer, tokens, siLayer)

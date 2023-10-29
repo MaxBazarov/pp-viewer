@@ -27,12 +27,12 @@ class AbstractViewer
         //
         if (this.preventCustomTextSearch)
         {
-            const div = $('#' + this.divID)
-            div.mouseenter(function ()
+            const div = byId(this.divID)
+            div.addEventListener("mouseenter", function ()
             {
                 this.mouseover = true
             })
-            div.mouseleave(function ()
+            div.addEventListener("mouseleave", function ()
             {
                 this.mouseover = false
             })

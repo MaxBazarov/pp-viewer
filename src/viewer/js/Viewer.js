@@ -98,13 +98,12 @@ async function preloadAllPageImages()
 {
     removeClass(bySel("#nav #loading"), "hidden")
     pagerLoadingTotal = story.totalImages
-    var pages = story.pages;
     for (var page of story.pages)
     {
         if (page.elImage == undefined)
         {
             page.loadImages()
-            addClass(page.imageDiv[0], "hidden")
+            addClass(page.imageDiv, "hidden")
         }
     }
 }
@@ -1380,6 +1379,10 @@ function toggleClass(el, className, set)
     el.classList.toggle(className)
 }
 
+function hasClass(el, className)
+{
+    return el.classList.contains(className);
+}
 function addClass(el, className)
 {
     if (!el.classList.contains(className)) el.classList.add(className);
@@ -1396,7 +1399,11 @@ function byId(elementID)
 
 function byClass(elementID)
 {
-    return document.getElementByClassName(elementID)[0];
+    return document.getElementsByClassName(elementID)[0];
+}
+function byClassAll(elementID)
+{
+    return document.getElementsByClassName(elementID);
 }
 
 function byTag(tag)
@@ -1409,6 +1416,18 @@ function bySel(selector)
     return document.querySelector(selector);
 }
 
+function showEl(el, visible = true)
+{
+    if (visible)
+        removeClass(el, "hidden");
+    else
+        hideEl(el);
+}
+
+function hideEl(el)
+{
+    addClass(el, "hidden")
+}
 
 function handleStateChanges(e)
 {

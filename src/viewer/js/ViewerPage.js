@@ -44,13 +44,16 @@ let TRANS_ANIMATIONS = [
 
 
 
-function inViewport($el)
+function inViewport(elem)
 {
-    // source: https://stackoverflow.com/questions/24768795/get-the-visible-height-of-a-div-with-jquery
-    var elH = $el.outerHeight(),
-        H = $(window).height(),
-        r = $el[0].getBoundingClientRect(), t = r.top, b = r.bottom;
-    return [r.top, Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H))]
+    // source: https://vanillajstoolkit.com/helpers/isinviewport/
+    var distance = elem.getBoundingClientRect();
+    return (
+        distance.top >= 0 &&
+        distance.left >= 0 &&
+        distance.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        distance.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
 }
 
 function handleAnimationEndOnHide(el)
@@ -120,11 +123,11 @@ class ViewerPage
         {
             let show = forceShow != null ? forceShow : this.visibleInGallery && link.dpage.visibleInGallery && link.spage.visibleInGallery
             // hide link
-            const o = $("#gallery #grid svg #l" + link.index)
-            if (show) o.show(); else o.hide()
+            const o = bySel("#gallery #grid svg #l" + link.index);
+            showEl(o, show);
             // hide start point
-            const sp = $("#gallery #grid svg #s" + link.index)
-            if (show) sp.show(); else sp.hide()
+            const sp = bySel("#gallery #grid svg #s" + link.index);
+            showEl(sp, show);
         }, this)
     }
 
@@ -139,16 +142,16 @@ class ViewerPage
         if (!disableAnim && TRANS_ANIM_NONE != this.transAnimType && this.type !== "modal")
         {
             const transInfo = TRANS_ANIMATIONS[this.transAnimType]
-            const el = this.imageDiv.get(0)
+            const el = this.imageDiv
             el.setAttribute("_tch", this.transAnimType)
             transInfo.out_classes.forEach(function (className)
             {
-                this.imageDiv.addClass(className)
+                addClass(this.imageDiv, className);
             }, this)
             el.addEventListener("animationend", handleAnimationEndOnHide)
         } else
         {
-            this.imageDiv.addClass("hidden")
+            hideEl(this.imageDiv)
         }
 
         if (undefined != this.parentPage)
@@ -218,11 +221,11 @@ class ViewerPage
         if (!disableAnim && TRANS_ANIM_NONE != this.transAnimType && this.type !== "modal")
         {
             const transInfo = TRANS_ANIMATIONS[this.transAnimType]
-            const el = this.imageDiv.get(0)
+            const el = this.imageDiv;
             el.setAttribute("_tcs", this.transAnimType)
             transInfo.in_classes.forEach(function (className, index)
             {
-                this.imageDiv.addClass(className)
+                addClass(el, className);
             }, this)
             el.addEventListener("animationend", handleAnimationEndOnShow)
         } else
@@ -234,15 +237,15 @@ class ViewerPage
             const group = story.groups.filter(g => g.id == this.groupID)[0]
             if (group && group.backColor != undefined)
             {
-                $(".screen").css("background-color", group.backColor);
+                byClass("screen").style.backgroundColor = group.backColor;
             } else
             {
                 console.log(`Can't find page with ID=${this.groupID}`)
             }
         }
         //
-        this.imageDiv.removeClass("hidden")
-        this.visible = true
+        showEl(this.imageDiv);
+        this.visible = true;
     }
 
     // result:{
@@ -402,13 +405,14 @@ class ViewerPage
         let y = l.y - padding
 
         // show layer border
-        var style = "left: " + x + "px; top:" + y + "px; "
-        style += "width: " + (l.w + padding * 2) + "px; height:" + (l.h + padding * 2) + "px; "
-        var elemDiv = $("<div>", {
-            class: isFocused ? "searchFocusedResultDiv" : "searchResultDiv",
-        }).attr('style', style)
+        const elemDiv = document.createElement("div");
+        elemDiv.className = isFocused ? "searchFocusedResultDiv" : "searchResultDiv";
+        elemDiv.style.left = x + "px";
+        elemDiv.style.top = y + "px";
+        elemDiv.style.width = (l.w + padding * 2) + "px";
+        elemDiv.style.height = (l.h + padding * 2) + "px";
 
-        elemDiv.appendTo(this.linksDiv)
+        this.linksDiv.appendChild(elemDiv);
 
         // scroll window to show a layer
         if (isFocused)
@@ -432,8 +436,8 @@ class ViewerPage
 
     hideFoundTextResults()
     {
-        $(".searchResultDiv").remove()
-        $(".searchFocusedResultDiv").remove()
+        byClassAll("searchResultDiv").forEach(el => el.remove());
+        byClassAll("searchFocusedResultDiv").forEach(el => el.remove());
     }
 
     stopTextSearch()
@@ -458,13 +462,13 @@ class ViewerPage
             if (this.currentTop < 0) this.currentTop = 0
             if (this.currentLeft < 0) this.currentLeft = 0
 
-            var contentModal = $('#content-modal');
-            contentModal.css("margin-left", this.currentLeft + "px")
-            contentModal.css("margin-top", this.currentTop + "px")
+            const contentModal = byId('content-modal');
+            contentModal.style.marginLeft = this.currentLeft + "px";
+            contentModal.style.marginTop = this.currentTop + "px";
             if (this.height >= visibleHeight)
-                contentModal.css("overflow-y", "scroll")
+                contentModal.style.overflowY = "scroll";
             else
-                contentModal.css("overflow-y", "")
+                contentModal.style.overflowY = "";
         } else if ("overlay" == this.type)
         {
             this.currentLeft = viewer.currentPage ? viewer.currentPage.currentLeft : 0
@@ -748,20 +752,19 @@ class ViewerPage
             return pagerMarkImageAsLoaded()
         }
 
-        const enableLinks = true
+        const enableLinks = true;
         var isModal = this.type === "modal";
 
-        var content = $('#content')
-        var cssStyle = "height: " + this.height + "px; width: " + this.width + "px;"
+        const imageDiv = document.createElement("div");
+        imageDiv.id = "div_" + this.index;
+        imageDiv.style.height = this.height + "px";
+        imageDiv.style.width = this.width + "px";
+        imageDiv.className = ('overlay' == this.type) ? "divPanel" : "image_div";
         if (this.overlayShadow != undefined)
-            cssStyle += "box-shadow:" + this.overlayShadow + ";"
+            imageDiv.style.boxShadow = this.overlayShadow;
         if ('overlay' == this.type && this.overlayOverFixed)
-            cssStyle += "z-index: 50;"
-        var imageDiv = $('<div>', {
-            class: ('overlay' == this.type) ? "divPanel" : "image_div",
-            id: "div_" + this.index,
-            style: cssStyle
-        });
+            imageDiv.style.zIndex = 50;
+
         this.imageDiv = imageDiv
 
 
@@ -770,7 +773,9 @@ class ViewerPage
         {
             const isBottomFloat = panel.isFloat && !panel.constrains.top && panel.constrains.bottom
 
-            let style = "'"
+            const panelDiv = document.createElement("div");
+            panelDiv.id = panel.divID != '' ? panel.divID : ("fixed_" + this.index + "_" + panel.index);
+
             let cssClass = ""
 
             if (panel.isVertScroll)
@@ -783,32 +788,27 @@ class ViewerPage
                     case Constants.LAYER_VSCROLL_NEVER:
                         cssClass += " never"; break
                 }
-                style = `height: ${panel.mskH}px; width: ${panel.width}px; `
-                style += "margin-left:" + panel.x + "px;"
-                style += "top:" + panel.y + "px;"
+                panelDiv.style.height = panel.mskH + "px";
+                panelDiv.style.width = panel.width + "px";
+                panelDiv.style.marginLeft = panel.x + "px";
+                panelDiv.style.top = panel.y + "px";
+
             } else
             {
-                style = "height: " + panel.height + "px; width: " + panel.width + "px; "
+                panelDiv.style.height = panel.height + "px";
+                panelDiv.style.width = panel.width + "px";
 
                 if (panel.constrains.top || panel.isFixedisVertScrollDiv || (!panel.constrains.top && !panel.constrains.bottom))
                 {
-                    style += "top:" + panel.y + "px;"
+                    panelDiv.style.top = panel.y + "px";
                 } else if (panel.constrains.bottom)
                 {
-                    style += "bottom:" + (this.height - panel.y - panel.height) + "px;"
+                    panelDiv.style.bottom = (this.height - panel.y - panel.height) + "px";
                 }
-                if (panel.constrains.left || panel.isVertScroll || (!panel.constrains.left && !panel.constrains.right))
-                {
-                    style += "margin-left:" + panel.x + "px;"
-                } else if (panel.constrains.right)
-                {
-                    style += "margin-left:" + panel.x + "px;"
-                }
+                panelDiv.style.marginLeft = panel.x + "px";
                 //
 
-                if (panel.shadow != undefined)
-                    style += "box-shadow:" + panel.shadow + ";"
-
+                if (panel.shadow != undefined) panelDiv.style.boxShadow = panel.shadow
                 // create Div for fixed panel            
                 if (isBottomFloat)
                 {
@@ -828,59 +828,56 @@ class ViewerPage
                 }
             }
 
-            var divID = panel.divID != '' ? panel.divID : ("fixed_" + this.index + "_" + panel.index)
+            panelDiv.className = cssClass;
 
-            var panelDiv = $("<div>", {
-                id: divID,
-                class: cssClass,
-                style: style
-            })
             if (isBottomFloat)
             {
-                const wrap1 = $("<div>", {
-                    style: `position: absolute; z-index:13;`
-                })
-                const wrap2 = $("<div>", {
-                    style: `position: fixed; height:100vh; max-height: ${this.height}px; top:0px;`
-                })
-                panelDiv.appendTo(wrap2);
-                wrap2.appendTo(wrap1)
-                wrap1.appendTo(imageDiv)
+                const wrap1 = document.createElement("div");
+                wrap1.style.position = "absolute";
+                wrap1.style.zIndex = 13;
+                const wrap2 = document.createElement("div");
+                wrap1.style.position = "fixed";
+                wrap1.style.height = "100vh";
+                wrap1.style.top = "0px";
+                wrap1.style.maxHeight = this.height + "px";
+
+                wrap2.appendChild(panelDiv);
+                wrap1.appendChild(wrap2);
+                imageDiv.appendChild(wrap1);
             } else
             {
-                panelDiv.appendTo(imageDiv);
+                imageDiv.appendChild(panelDiv);
             }
-            panel.imageDiv = panelDiv
+            panel.imageDiv = panelDiv;
 
             // create link div
-            panel.linksDiv = $("<div>", {
-                class: "linksDiv",
-                style: "height: " + panel.height + "px; width: " + panel.width + "px;"
-            })
-            panel.linksDiv.appendTo(panel.imageDiv)
-            this._createLinks(panel)
+            panel.linksDiv = document.createElement("div");
+            panel.linksDiv.className = "linksDiv";
+            panel.linksDiv.style.height = panel.height + "px";
+            panel.linksDiv.style.width = panel.width + "px";
+            panel.imageDiv.appendChild(panel.linksDiv);
+            this._createLinks(panel);
 
             // add image itself
             panel.elImage = this._loadSingleImage(panel.isFloat || panel.isVertScroll ? panel : this, 'img_' + panel.index + "_");
-            panelDiv[0].appendChild(panel.elImage);
+            panelDiv.appendChild(panel.elImage);
             if (!this.isDefault) panel.panel.elImage.style.webkitTransform = "translate3d(0,0,0)"
         }
 
         // create main content image      
         {
-            var isModal = this.type === "modal";
-            var contentModal = $('#content-modal');
-            imageDiv.appendTo(isModal ? contentModal : content);
+            byId(isModal ? "content-modal" : "content").appendChild(imageDiv);
 
             // create link div
             if (enableLinks)
             {
-                var linksDiv = $("<div>", {
-                    id: "div_links_" + this.index,
-                    class: "linksDiv",
-                    style: "height: " + this.height + "px; width: " + this.width + "px;"
-                })
-                linksDiv.appendTo(imageDiv)
+                const linksDiv = document.createElement("div");
+                linksDiv.id = "div_links_" + this.index;
+                linksDiv.className = "linksDiv";
+                linksDiv.style.height = this.height + "px";
+                linksDiv.style.width = this.width + "px";
+
+                imageDiv.appendChild(linksDiv);
                 this.linksDiv = linksDiv
 
                 this._createLinks(this)
@@ -888,7 +885,7 @@ class ViewerPage
         }
         var img = this._loadSingleImage(this, 'img_')
         this.elImage = img
-        imageDiv[0].appendChild(img)
+        imageDiv.appendChild(img)
     }
 
     showLayout()
@@ -910,21 +907,27 @@ class ViewerPage
         var gutterWidth = this.layout.gutterWidth
         for (var i = 0; i < this.layout.numberOfColumns; i++)
         {
-            var style = "left: " + Math.trunc(x) + "px; top:" + 0 + "px; width: " + colWidthInt + "px; height:" + this.height + "px; "
-            var colDiv = $("<div>", {
-                class: "layoutColDiv layouLineDiv",
-            }).attr('style', style)
-            colDiv.appendTo(this.linksDiv)
-            x += colWidth + gutterWidth
+            const colDiv = document.createElement("div");
+            colDiv.className = "layoutColDiv layouLineDiv";
+            colDiv.style.left = Math.trunc(x) + "px";
+            colDiv.style.top = "0px";
+            colDiv.style.width = colWidthInt + "px";
+            colDiv.style.height = this.height + "px";
+
+            this.linksDiv.appendChild(colDiv);
+            x += colWidth + gutterWidth;
         }
 
         for (var y = 0; y < this.height; y += 5)
         {
-            var style = "left: " + 0 + "px; top:" + y + "px; width: " + this.width + "px; height:" + 1 + "px; "
-            var colDiv = $("<div>", {
-                class: "layoutRowDiv layouLineDiv",
-            }).attr('style', style)
-            colDiv.appendTo(this.linksDiv)
+            const colDiv = document.createElement("div");
+            colDiv.className = "layoutRowDiv layouLineDiv";
+            colDiv.style.left = "0px";
+            colDiv.style.top = y + "px";
+            colDiv.style.width = this.width + "px";
+            colDiv.style.height = "1px";
+
+            this.linksDiv.appendChild(colDiv);
         }
     }
 
@@ -1010,13 +1013,12 @@ class ViewerPage
             let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
             let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
 
-            var a = $("<a>", {
-                lpi: this.index,
-                li: link.index,
-                lppi: "fixedPanels" in panel ? -1 : panel.index,
-                lpx: x,
-                lpy: y
-            })
+            const a = document.createElement("a");
+            a.setAttribute("lpi", this.index);
+            a.setAttribute("li", link.index);
+            a.setAttribute("lppi", "fixedPanels" in panel ? -1 : panel.index);
+            a.setAttribute("lpx", x);
+            a.setAttribute("lpy", y);
 
             var eventType = Constants.TRIGGER_ON_CLICK
 
@@ -1037,7 +1039,7 @@ class ViewerPage
 
             if (EVENT_HOVER == eventType)
             { // for Mouse over event
-                a.mouseenter(handleLinkEvent)
+                a.addEventListener("mouseenter", handleLinkEvent);
                 if (
                     0 == destPage.overlayPin // ARTBOARD_OVERLAY_PIN_HOTSPOT
                     && 3 == destPage.overlayPinHotspot // ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT
@@ -1046,7 +1048,7 @@ class ViewerPage
                 } else
                 {
                     // need to pass click event to overlayed layers
-                    a.click(function (e)
+                    a.addEventListener("click", function (e)
                     {
                         if (undefined == e.originalEvent) return
                         var nextObjects = document.elementsFromPoint(e.originalEvent.x, e.originalEvent.y);
@@ -1054,27 +1056,28 @@ class ViewerPage
                         {
                             var obj = nextObjects[i].parentElement
                             if (!obj || obj.nodeName != 'A' || obj == this) continue
-                            $(obj).trigger('click', e);
+                            obj.click(e);
                             return
                         }
-                    })
+                    });
                 }
             } else
             { // for On click event
-                a.click(handleLinkEvent)
+                a.addEventListener("click", handleLinkEvent);
             }
 
-            a.appendTo(linksDiv)
-
+            linksDiv.appendChild(a);
             link.a = a
 
-            var style = "left: " + link.rect.x + "px; top:" + link.rect.y + "px; width: " + link.rect.width + "px; height:" + link.rect.height + "px; "
-            var linkDiv = $("<div>", {
-                class: (EVENT_HOVER == eventType ? "linkHoverDiv" : "linkDiv") + (story.highlightHotspot ? " linkDivHighlight" : ""),
-            }).attr('style', style)
-            linkDiv.appendTo(a)
+            var linkDiv = document.createElement("div");
+            linkDiv.className = (EVENT_HOVER == eventType ? "linkHoverDiv" : "linkDiv") + (story.highlightHotspot ? " linkDivHighlight" : "");
+            linkDiv.style.left = link.rect.x + "px";
+            linkDiv.style.top = link.rect.y + "px";
+            linkDiv.style.width = link.rect.width + "px";
+            linkDiv.style.height = link.rect.height + "px";
 
-            link.div = linkDiv
+            a.appendChild(linkDiv);
+            link.div = linkDiv;
 
         }
     }
@@ -1090,9 +1093,9 @@ function handleLinkEvent(event)
     if (viewer.linksDisabled) return false
 
     let currentPage = viewer.currentPage
-    let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt($(this).attr("lpi"), 10)]
+    let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt(this.getAttribute("lpi"), 10)];
 
-    const linkIndex = customData ? customData.linkIndex : parseInt($(this).attr("li"), 10)
+    const linkIndex = customData ? customData.linkIndex : parseInt(this.getAttribute("li"), 10);
     const link = orgPage._getLinkByIndex(linkIndex)
 
     if (link.page != undefined)
@@ -1100,22 +1103,18 @@ function handleLinkEvent(event)
         var destPageIndex = parseInt(link.page)
         var linkParentFixed = "overlay" != orgPage.type ? link.isParentFixed : orgPage.inFixedPanel
 
-
-        // title = story.pages[link.page].title;                   
         var destPage = story.pages[destPageIndex]
         if (!destPage) return
 
-
         if ('overlay' == destPage.type)
         {
-
-            var orgLink = {
+            const orgLink = {
                 orgPage: orgPage,
                 index: linkIndex,
-                fixedPanelIndex: parseInt($(this).attr("lppi")),
-                this: $(this),
-                x: customData ? customData.x : parseInt($(this).attr("lpx")),
-                y: customData ? customData.y : parseInt($(this).attr("lpy")),
+                fixedPanelIndex: parseInt(this.getAttribute("lppi")),
+                this: this,
+                x: customData ? customData.x : parseInt(this.getAttribute("lpx")),
+                y: customData ? customData.y : parseInt(this.getAttribute("lpy")),
                 width: link.rect.width,
                 height: link.rect.height,
             }
