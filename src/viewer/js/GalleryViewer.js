@@ -112,12 +112,11 @@ class GalleryViewerLink
         //
     }
 
-    buildCode(zoom, visible)
+    appendCode(svg, zoom, visible)
     {
         const page = this.spage
         const dpage = this.dpage
         const l = this.link
-        let svg = ""
         //
         var lsx = l.rect.x + l.rect.width / 2 + page.globalLeft
         var lsy = l.rect.y + l.rect.height / 2 + page.globalTop
@@ -153,9 +152,11 @@ class GalleryViewerLink
             dc = 0
         }
         //
-        //
-        const styleCode = visible ? "" : " style='display:none' "
-        svg += "<path " + styleCode + "marker-end='url(#arrow)' id='l" + this.index + "' d='M "
+        const path = document.createElementNS("http://www.w3.org/2000/path", "path");
+        if (visible) path.style.display = "none";
+        path.id = "l" + this.index;
+        path.setAttribute("marker-end", "url(#arrow)")
+        path.setAttribute("d", "'M "
             + Math.round(lsx * zoom) + " "
             + Math.round(lsy * zoom) + " "
             + "q "
@@ -163,11 +164,17 @@ class GalleryViewerLink
             + dc + " "
             + Math.round((ldx - lsx) * zoom) + " "
             + Math.round((ldy - lsy) * zoom) + " "
-            + "'/>"
+            + "'"
+        );
+        svg.appendChild(path);
         //
-        svg += "<circle " + styleCode + "' id='s" + this.index + "' cx='" + Math.round(lsx * zoom) + "' cy='" + Math.round(lsy * zoom) + "' r='3'/>"
-        //
-        return svg
+        const circle = document.createElementNS("http://www.w3.org/2000/path", "circle");
+        if (visible) circle.style.display = "none";
+        circle.id = "s" + this.index;
+        circle.setAttribute("cx", Math.round(lsx * zoom));
+        circle.setAttribute("cy", Math.round(lsy * zoom));
+        circle.setAttribute("r", 3);
+        svg.appendChild(circle);
     }
 }
 
@@ -182,7 +189,7 @@ function handleWheel(e)
 
         //
         // Adjust zoom
-        const zoomSelect = document.querySelector("#gallery-modal #controls #zoomSelector")
+        const zoomSelect = bySel("#gallery-modal #controls #zoomSelector");
         const customOption = zoomSelect.options[0]
         customOption.selected = true
         customOption.label = `${Math.round(viewer.galleryViewer.zoom * 100)}%`
@@ -390,11 +397,11 @@ class GalleryViewer extends AbstractViewer
 
         showEl(byId('gallery-modal'));
 
-        byId('#searchInput').addEventListener("focusin", function ()
+        byId('searchInput').addEventListener("focusin", function ()
         {
             viewer.galleryViewer.searchInputFocused = true
         })
-        byId('#searchInput').addEventListener("focusout", function ()
+        byId('searchInput').addEventListener("focusout", function ()
         {
             viewer.galleryViewer.searchInputFocused = false
         })
@@ -431,21 +438,14 @@ class GalleryViewer extends AbstractViewer
     {
         if (this.lastCurrentPage)
         {
-            const div = bySel("#gallery #grid #" + this.lastCurrentPage.index);
+            const div = bySel("#gallery #grid #g" + this.lastCurrentPage.index);
             if (div) removeClass(div, "active");
             //            
         }
         this.lastCurrentPage = viewer.currentPage
-        const div = bySel("#gallery #grid #" + this.lastCurrentPage.index);
+        const div = bySel("#gallery #grid #g" + this.lastCurrentPage.index);
         if (div) addClass(div, "active");
 
-    }
-
-
-    loadPages()
-    {
-        this.loadGroups()
-        this._markCurrentPage()
     }
 
 
@@ -461,16 +461,16 @@ class GalleryViewer extends AbstractViewer
 
     buildContent_Group(group)
     {
-        let background = story.galleryPageColorsEnabled ? `background:${group.backColor};` : ""
-        var divGroup = $('<div/>', {
-            id: "g" + group.id,
-            class: "galleryGroupAbs",
-            style: `${background}left:0px;top:0px;width:200%;height:0px;`,
-        });
-        group.jdiv = divGroup
-        group.div = divGroup.get(0)
+        var divGroup = document.createElement("div");
+        divGroup.id = "g" + group.id;
+        divGroup.style.left = "0px";
+        divGroup.style.top = "0px";
+        divGroup.style.width = "200%";
+        divGroup.style.height = "0px";
+        if (story.galleryPageColorsEnabled) divGroup.style.background = group.backColor;
+        group.div = divGroup
 
-        this.divGrid.append(group.div)
+        this.divGrid.appendChild(group.div)
 
         // find group pages
         const pages = this.pages.filter(s => s.groupID == group.id)
@@ -484,50 +484,51 @@ class GalleryViewer extends AbstractViewer
         /// build frame label
         if (page.isFrame)
         {
-            let style = `left:0px; top:0px; width:0px; height: 0px; font-size:12px;color:${invertColor(group.backColor)}`
-            var labelDiv = $('<div/>', {
-                class: "label",
-                style: style,
-                class: "galleryAbsFrameLabel"
-            });
-            labelDiv.text(page.title)
-            labelDiv.appendTo($('#gallery #grid'));
+            var labelDiv = document.createElement("div");
+            labelDiv.style.left = "0px";
+            labelDiv.style.top = "0px";
+            labelDiv.style.width = "0px";
+            labelDiv.style.height = "0px";
+            labelDiv.style.fontSize = "12px";
+            labelDiv.style.color = invertColor(group.backColor);
+            labelDiv.className = "label galleryAbsFrameLabel";
+            labelDiv.innerHTML = page.title;
+            //
+            bySel('#gallery #grid').appendChild(labelDiv);
             //            
-            page.label_jdiv = labelDiv
-            page.label_div = labelDiv.get(0)
+            page.label_div = labelDiv
         } else
         {
-            page.label_jdiv = null
+            page.label_div = null
         }
 
         // Show frame itself
         {
-            let style = "left:0px; top:0px; width:0px; height: 0px;"
-
-            var div = $('<div/>', {
-                id: page.index,
-                style: style,
-                class: page.isFrame ? "galleryArtboardAbs" : "galleryItemAbs"
-            });
+            var div = document.createElement("div");
+            div.style.left = "0px";
+            div.style.top = "0px";
+            div.style.width = "0px";
+            div.style.height = "0px";
+            div.className = page.isFrame ? "galleryArtboardAbs" : "galleryItemAbs";
+            div.id = page.index;
 
             if (page.isFrame)
             {
-                div.click(function (e)
+                div.addEventListener("click", function (e)
                 {
                     viewer.galleryViewer.selectPage(parseInt(this.id))
                 });
-                div.mouseenter(function ()
+                div.addEventListener("mouseenter", function ()
                 {
                     viewer.galleryViewer.mouseEnterPage(this.id)
                 })
-                div.mouseleave(function ()
+                div.addEventListener("mouseleave", function ()
                 {
                     viewer.galleryViewer.mouseLeavePage(this.id)
                 })
             }
-            div.appendTo($('#gallery #grid'));
-            page.jdiv = div
-            page.div = div.get(0)
+            bySel('#gallery #grid').appendChild(div);
+            page.div = div
             // Sbow image
             let img = new Image()
             img.src = encodeURIComponent(viewer.files) + "/previews/" + page.image
@@ -544,7 +545,7 @@ class GalleryViewer extends AbstractViewer
                 height: "100%",
                 src: src
             });*/
-            div[0].appendChild(img)
+            div.appendChild(img)
             page.img_div = img
 
         }
@@ -716,19 +717,30 @@ class GalleryViewer extends AbstractViewer
         if (old) old.remove()
         if (!this.isLinksVisible) return
         // build scene
-        let svg = "<svg id='links_svg'"
-            + " height='" + Math.abs(Math.round(finalHeight * this.zoom)) + "'"
-            + " width='" + Math.abs(Math.round(finalWidth * this.zoom)) + "'"
-            + " >"
-        svg += `
-            <defs>
-             <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
-                markerWidth="6" markerHeight="6" fill="#F89000"
-                orient="auto">
-                 <path d="M 0 0 L 10 5 L 0 10 z" fill="#F89000"/>
-             </marker>
-            </defs>
-        `
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "links_svg";
+        svg.setAttribute("width", Math.abs(Math.round(finalWidth * this.zoom)));
+        svg.setAttribute("height", Math.abs(Math.round(finalHeight * this.zoom)));
+
+        const defs = document.createElementNS("http://www.w3.org/2000/defs", "defs");
+        svg.appendChild(defs);
+
+        const marker = document.createElementNS("http://www.w3.org/2000/marker", "marker");
+        marker.id = "arrow";
+        marker.setAttribute("viewBox", "0 0 10 10");
+        marker.setAttribute("refX", 5);
+        marker.setAttribute("refY", 5);
+        marker.setAttribute("markerWidth", 6);
+        marker.setAttribute("markerHeight", 6);
+        marker.setAttribute("fill", "#F89000");
+        marker.setAttribute("orient", "auto");
+        defs.appendChild(marker);
+
+        const path = document.createElementNS("http://www.w3.org/2000/path", "path");
+        path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        path.setAttribute("fill", "#F89000");
+        marker.appendChild(path);
+
         //
         let indexCounter = 0
         this.links = []
@@ -744,19 +756,18 @@ class GalleryViewer extends AbstractViewer
                 if (!dpage || "external" == dpage.type) return
                 // build SVG coode for the link
                 const link = new GalleryViewerLink(indexCounter++, l, page, dpage)
-                svg += link.buildCode(this.zoom, this.isLinksVisible)
+                link.appendCode(svg, this.zoom, this.isLinksVisible)
                 this.links.push(link)
             }, this)
         }, this)
 
-        svg += "</svg>"
-        $('#gallery #grid').append(svg)
+        bySel('#gallery #grid').appendChild(svg)
     }
 
     //Search page in gallery by page name
     onSearchInputChange()
     {
-        var keyword = $("#searchInput").val().toLowerCase().trim()
+        var keyword = byId("searchInput").value.toLowerCase().trim()
         if (undefined == this.actualSearchText && "" == keyword) return
 
         var foundScreenAmount = 0;
@@ -764,12 +775,12 @@ class GalleryViewer extends AbstractViewer
         this.pages.forEach(function (page)
         {
             const title = page.title.toLowerCase().trim()
-            const div = $("#gallery #grid #" + page.index)
+            const div = bySel("#gallery #grid #g" + page.index);
             let visible = keyword == ''
             let foundTextLayers = []
 
             // Reset prev results
-            div.find(".searchFocusedResultDiv,.searchResultDiv").remove()
+            div.querySelector(".searchFocusedResultDiv,.searchResultDiv").forEach(el => el.remove());
 
             // Search in artboard title and image name            
             if (keyword != '')
@@ -789,7 +800,7 @@ class GalleryViewer extends AbstractViewer
             page.visibleInGallery = visible
             if (visible)
             {
-                div.removeClass("galleryArtboardAbsHidden")
+                removeClass(div, "galleryArtboardAbsHidden");
                 if (visible)
                 {
                     foundTextLayers.forEach(function (l)
@@ -799,7 +810,7 @@ class GalleryViewer extends AbstractViewer
                 }
             } else
             {
-                div.addClass("galleryArtboardAbsHidden")
+                addClass(div, "galleryArtboardAbsHidden");
             }
         });
 
@@ -808,7 +819,7 @@ class GalleryViewer extends AbstractViewer
         viewer.galleryViewer._showHideLinks()
 
         //load amount of pages to gallery title
-        document.querySelector("#gallery-header-container #info #frames").innerHTML = foundScreenAmount + " screens"
+        bySel("#gallery-header-container #info #frames").innerHTML = foundScreenAmount + " screens"
     }
 
     _findTextShowElement(page, l, div)
@@ -822,13 +833,14 @@ class GalleryViewer extends AbstractViewer
         let y = l.y / zoom
 
         // show layer border
-        var style = "left: " + x + "px; top:" + y + "px; "
-        style += "width: " + (l.w / zoom + padding * 2) + "px; height:" + (l.h / zoom + padding * 2) + "px; "
-        var elemDiv = $("<div>", {
-            class: isFocused ? "searchFocusedResultDiv" : "searchResultDiv",
-        }).attr('style', style)
+        const elemDiv = document.createElement("div");
+        elemDiv.className = isFocused ? "searchFocusedResultDiv" : "searchResultDiv";
+        elemDiv.style.left = x + "px";
+        elemDiv.style.top = y + "px";
+        elemDiv.style.width = (l.w / zoom + padding * 2) + "px";
+        elemDiv.style.height = (l.h / zoom + padding * 2) + "px";
 
-        elemDiv.appendTo(div)
+        div.appendChild(elemDiv);
     }
 
 }

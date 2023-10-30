@@ -42,18 +42,14 @@ let TRANS_ANIMATIONS = [
     { in_str_classes: ".transit .slideInDown", out_str_classes: ".transit .slideOutDown", in_token: "transition-slidein-down", out_token: "transition-slideout-down" },
 ]
 
-
-
 function inViewport(elem)
 {
-    // source: https://vanillajstoolkit.com/helpers/isinviewport/
-    var distance = elem.getBoundingClientRect();
-    return (
-        distance.top >= 0 &&
-        distance.left >= 0 &&
-        distance.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        distance.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
+    const elH = elem.outerHeight;
+    const H = window.height;
+    const r = elem.getBoundingClientRect();
+    const t = r.top;
+    const b = r.bottom;
+    return [r.top, Math.max(0, t > 0 ? Math.min(elH, H - t) : Math.min(b, H))]
 }
 
 function handleAnimationEndOnHide(el)
@@ -630,21 +626,21 @@ class ViewerPage
         {
             if (link.panel.isVertScroll)
             {
-                div.removeClass('fixedPanelFloat')
-                div.addClass('divPanel')
+                removeClass(div, 'fixedPanelFloat')
+                addClass(div, 'divPanel')
             }
             else if (this.inFixedPanel)
             {
-                div.removeClass('divPanel')
-                div.addClass('fixedPanelFloat')
+                removeClass(div, 'divPanel')
+                addClass(div, 'fixedPanelFloat')
             } else if (newParentPage.type === "modal")
             {
-                //div.removeClass('divPanel')
-                //div.removeClass('fixedPanelFloat')        
+                //removeClass(div,'divPanel')
+                //removeClass(div,'fixedPanelFloat')        
             } else
             {
-                div.removeClass('fixedPanelFloat') // clear after inFixedPanel
-                div.addClass('divPanel')
+                removeClass(div, 'fixedPanelFloat') // clear after inFixedPanel
+                addClass(div, 'divPanel')
             }
 
             // click on overlay outside of any hotspots should not close it
@@ -670,10 +666,10 @@ class ViewerPage
                 // check page right border
                 if ((posX + this.width) > orgPage.width) posX = orgPage.width - this.width
 
-                newParentPage.imageDiv.append(div)
-                div.css('top', "")
-                div.css('bottom', posY)
-                div.css('margin-left', posX + "px")
+                newParentPage.imageDiv.appendChild(div)
+                div.style.top = "";
+                div.style.bottom = - posY + "px";
+                div.style.marginLeft = posX + "px";
             } else if (link.overlayPinPage)
             {
                 let top = "", bottom = "", ml = "", mr = ""
@@ -688,11 +684,11 @@ class ViewerPage
                 }
                 if (ml != "" && (ml + this.width) > newParentPage.width) ml = newParentPage.width - this.width
                 //
-                newParentPage.imageDiv.append(div)
-                div.css('top', top + (top != "" ? "px" : ""))
-                div.css('bottom', bottom + (bottom != "" ? "px" : ""))
-                div.css('margin-left', ml + (ml != "" ? "px" : ""))
-                div.css('margin-right', mr + (mr != "" ? "px" : ""))
+                newParentPage.imageDiv.appendChild(div)
+                div.style.top = top + (top != "" ? "px" : "");
+                div.style.bottom = bottom + (bottom != "" ? "px" : "");
+                div.style.marginLeft = ml + (ml != "" ? "px" : "");
+                div.style.marginRight = mr + (mr != "" ? "px" : "");
             } else
             {
                 // 
@@ -716,15 +712,15 @@ class ViewerPage
 
                 if (link.panel.isVertScroll)
                 {
-                    link.panel.imageDiv.append(div)
+                    link.panel.imageDiv.appendChild(div)
                 } else if ("modal" == orgPage.type)
-                    newParentPage.imageDiv.append(div)
-                div.css('top', posY + "px")
-                div.css('margin-left', posX + "px")
+                    newParentPage.imageDiv.appendChild(div)
+                div.style.top = posY + "px";
+                div.style.marginLeft = posX + "px";
             }
 
             this.show(disableAnim)
-            div.css('z-index', 50 + newParentPage.currentOverlays.length)
+            div.style.zIndex = 50 + newParentPage.currentOverlays.length;
             newParentPage.currentOverlays.push(this)
             this.parentPage = newParentPage
             this.currentLink = link
