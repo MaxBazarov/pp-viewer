@@ -644,8 +644,9 @@ class ViewerPage
             }
 
             // click on overlay outside of any hotspots should not close it
-            div.click(function ()
+            div.addEventListener("click", function (event)
             {
+                event.stopPropagation();
                 const index = parseInt(this.id.substring(this.id.indexOf("_") + 1))
                 if (index >= 0)
                 {
@@ -1059,7 +1060,7 @@ class ViewerPage
                 }
             } else
             { // for On click event                              
-                a.addEventListener("click", handleLinkEvent, { passive: false });
+                a.addEventListener("click", handleLinkEvent);
             }
 
             linksDiv.appendChild(a);
