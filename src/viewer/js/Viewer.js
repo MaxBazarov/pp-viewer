@@ -199,8 +199,9 @@ class Viewer
             if (ids.length >= 4) this.docID = ids[3]
         }
 
-        /// Init UI            
-        bySel("#menu #zoom").checked = this.zoomEnabled
+        /// Init UI
+        const menuItemZoom = bySel("#menu #zoom");
+        if (menuItemZoom) menuItemZoom.checked = this.zoomEnabled
 
         /// Init Viewers
         if (!story.hideGallery)
@@ -695,7 +696,11 @@ class Viewer
     toggleZoom(newState = undefined, updateToogler = true)
     {
         this.zoomEnabled = newState !== undefined ? newState : !this.zoomEnabled
-        if (updateToogler) bySel("#menu #zoom").checked = this.zoomEnabled
+        if (updateToogler)
+        {
+            let menuZoomItem = bySel("#menu #zoom");
+            if (menuZoomItem) menuZoomItem.checked = this.zoomEnabled
+        }
         this.zoomContent()
     }
 
@@ -1019,7 +1024,8 @@ class Viewer
     }
     refresh_update_links_toggler(page)
     {
-        bySel("#menu #links").checked = this.highlightAllHotspotsOn;
+        let menuItemLinks = bySel("#menu #links");
+        if (menuItemLinks) menuItemLinks.checked = this.highlightAllHotspotsOn;
     }
     refresh_hide_last_image(page)
     {
@@ -1310,7 +1316,11 @@ class Viewer
     toogleLayout(newState = undefined, updateToogler = true)
     {
         this.showLayout = newState != undefined ? newState : !this.showLayout
-        if (updateToogler) bySel("#menu #pagegrid").checked = this.showLayout;
+        if (updateToogler)
+        {
+            let menuItemGrid = bySel("#menu #pagegrid");
+            if (menuItemGrid) menuItemGrid.checked = this.showLayout;
+        }
         const div = byId('content');
 
         if (this.showLayout)
@@ -1323,7 +1333,11 @@ class Viewer
     toogleFullScreen(newState = undefined, updateToogler = true)
     {
         this.isFullScreen = newState != undefined ? newState : !this.isFullScreen;
-        if (updateToogler) bySel("#menu #fullScreen").checked = this.isFullScreen;
+        if (updateToogler)
+        {
+            let menuItemFullScreen = bySel("#menu #fullScreen");
+            if (menuItemFullScreen) menuItemFullScreen.checked = this.isFullScreen;
+        }
         //
         return this.isFullScreen ? this._enableFullScreen() : this._disableFullScreen()
     }
@@ -1331,7 +1345,11 @@ class Viewer
     toogleUI(newState = undefined, updateToogler = true)
     {
         this.showUI = newState != undefined ? newState : !this.showUI;
-        if (updateToogler) bySel("#menu #ui").checked = this.showUI;
+        if (updateToogler)
+        {
+            let menuItemToogler = bySel("#menu #ui");
+            if (menuItemToogler) menuItemToogler.checked = this.showUI;
+        }
         toggleClass(byId('nav'), "hidden", !this.showUI)
     }
     _updateLinksState(showLinks = undefined, div = undefined)
