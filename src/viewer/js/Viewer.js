@@ -1476,7 +1476,12 @@ function byTag(tag)
 
 function bySel(selector)
 {
-    return document.querySelector(selector);
+    const el = document.querySelector(selector);
+    if (el === null)
+    {
+        console.log(`Can not find element by selector "${selector}"`);
+    }
+    return el;
 }
 
 function showEl(el, visible = true)
