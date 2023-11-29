@@ -258,7 +258,7 @@ class GalleryViewer extends AbstractViewer
 
         //update info
         document.querySelector("#gallery-header-container #info #title").innerHTML = story.title
-        document.querySelector("#gallery-header-container #info #frames").innerHTML = this.pages.length + " screens";
+        document.querySelector("#gallery-header-container #info #frames").innerHTML = this.pages.length + " frames";
         //
         this.inited = true
 
@@ -824,7 +824,7 @@ class GalleryViewer extends AbstractViewer
         viewer.galleryViewer._showHideLinks()
 
         //load amount of pages to gallery title
-        bySel("#gallery-header-container #info #frames").innerHTML = foundScreenAmount + " screens"
+        bySel("#gallery-header-container #info #frames").innerHTML = foundScreenAmount + " frames"
     }
 
     _findTextShowElement(page, l, div)

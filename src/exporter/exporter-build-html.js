@@ -758,7 +758,7 @@ function buildMainHTML(options, es)
         },
         {
             ID: "", items: [
-                { ID: "", label: "View all screens", icon: "icGrid", key: "G", onclick: "viewer.galleryViewer.show()", on: es.galleryEnabled && es.menuGalleryEnabled },
+                { ID: "", label: "View Map", icon: "icGrid", key: "G", onclick: "viewer.galleryViewer.show()", on: es.galleryEnabled && es.menuGalleryEnabled },
                 { ID: "start", label: "Go to start", icon: "icBack", key: "S", onclick: "viewer.goToPage(0)", on: es.menuGoToStartEnabled },
                 { ID: "play", label: "Play", icon: "icPlay", key: "P", onclick: "viewer.presenterViewer.play()", on: es.menuPlayEnabled },
             ]
