@@ -1209,7 +1209,7 @@ function handleLinkEvent(event)
                 } else
                 {
                     //////////////////////////////// PIN TO PAGE ////////////////////////////////
-                    if (pinPage) [x, y] = _calcOverlayPos(currentPage, destPage, destPage.overlayPinPage)
+                    if (pinPage) [pageX, pageY] = _calcOverlayPos(currentPage, destPage, destPage.overlayPinPage)
 
                 }
 
