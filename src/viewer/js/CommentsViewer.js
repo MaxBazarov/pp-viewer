@@ -36,7 +36,7 @@ class CommentsViewer extends AbstractViewer
         super._hideSelf()
         viewer.refresh_url(viewer.currentPage, "", false)
         viewer.currentPage.linksDiv.querySelectorAll("a").forEach(el => showEl(el));
-        this.comments.hideViewer()
+        if (this.comments) this.comments.hideViewer()
     }
 
     handleKeyDownWhileInactive(event)
