@@ -35,7 +35,7 @@ class CommentsViewer extends AbstractViewer
         hideEl(byId("comments_viewer"));
         super._hideSelf()
         viewer.refresh_url(viewer.currentPage, "", false)
-        viewer.currentPage.linksDiv.querySelector("a").forEach(el => showEl(el));
+        viewer.currentPage.linksDiv.querySelectorAll("a").forEach(el => showEl(el));
         this.comments.hideViewer()
     }
 
@@ -193,7 +193,7 @@ class CommentsViewer extends AbstractViewer
         super._showSelf()
         //
         viewer.refresh_url(viewer.currentPage, "", false)
-        viewer.currentPage.linksDiv.querySelector("a").forEach(el => hideEl(el));
+        viewer.currentPage.linksDiv.querySelectorAll("a").forEach(el => hideEl(el));
         //
         if (this.comments) this.comments.showViewer()
     }
