@@ -146,7 +146,7 @@ class CommentsViewer extends AbstractViewer
         if (total > 0)
         {
             div.innerHTML = total;
-            showEl(div);
+            showEl(div); x
         } else
         {
             hideEl(div);
@@ -189,7 +189,7 @@ class CommentsViewer extends AbstractViewer
     _showSelf()
     {
         if (!this.inited) this.initialize()
-        shoWEl(byId("comments_viewer"))
+        showEl(byId("comments_viewer"))
         super._showSelf()
         //
         viewer.refresh_url(viewer.currentPage, "", false)
