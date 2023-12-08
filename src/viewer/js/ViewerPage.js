@@ -22,7 +22,6 @@ const Constants = {
     ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_RIGHT: "BOTTOM_RIGHT",
     ARTBOARD_OVERLAY_PIN_PAGE_CENTER: "CENTER",
 
-    TRIGGER_ON_CLICK: 0,
     TRIGGER_ON_HOVER: 1,
 
     LAYER_VSCROLL_NONE: 0,
@@ -1010,6 +1009,16 @@ class ViewerPage
             let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
             let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
 
+            if (link.trigger === "AFTER_TIMEOUT")
+            {
+                x = 0;
+                y = 0;
+                link.rect.x = 0;
+                link.rect.y = 0;
+                link.rect.width = 0;
+                link.rect.height = 0;
+            }
+
             const a = document.createElement("a");
             a.setAttribute("lpi", this.index);
             a.setAttribute("li", link.index);
@@ -1024,7 +1033,7 @@ class ViewerPage
                 var destPageIndex = viewer.getPageIndex(parseInt(link.page))
                 var destPage = story.pages[destPageIndex];
                 //
-                if (link.triggerOnHover)
+                if (link.trigger === "ON_HOVER")
                 {
                     eventType = Constants.TRIGGER_ON_HOVER
                     destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
@@ -1058,9 +1067,17 @@ class ViewerPage
                         }
                     });
                 }
-            } else
-            { // for On click event                              
+            } else if (link.trigger === "ON_CLICK")
+            {
+                // for On click event                              
                 a.addEventListener("click", handleLinkEvent);
+            } else if (link.trigger === "AFTER_TIMEOUT")
+            {
+                const customEvent = {
+                    pageIndex: this.index,
+                    linkIndex: link.index
+                }
+                setTimeout(handleLinkEvent, link.triggerTimeout, null, customEvent)
             }
 
             linksDiv.appendChild(a);
@@ -1081,16 +1098,16 @@ class ViewerPage
 }
 
 //
-// customData:
+// customEvent:
 //  x,y,pageIndex
-function handleLinkEvent(event)
+function handleLinkEvent(event, customEvent = undefined)
 {
     event.stopPropagation();
 
     if (viewer.linksDisabled) return false
 
     let currentPage = viewer.currentPage
-    var customData = viewer["customEvent"]
+    var customData = customEvent || viewer["customEvent"]
     let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt(this.getAttribute("lpi"), 10)];
 
     const linkIndex = customData ? customData.linkIndex : parseInt(this.getAttribute("li"), 10);
