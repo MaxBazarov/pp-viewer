@@ -1102,7 +1102,7 @@ class ViewerPage
 //  x,y,pageIndex
 function handleLinkEvent(event, customEvent = undefined)
 {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
 
     if (viewer.linksDisabled) return false
 
@@ -1126,7 +1126,7 @@ function handleLinkEvent(event, customEvent = undefined)
             const orgLink = {
                 orgPage: orgPage,
                 index: linkIndex,
-                fixedPanelIndex: parseInt(this.getAttribute("lppi")),
+                fixedPanelIndex: customData ? undefined : parseInt(this.getAttribute("lppi")),
                 this: this,
                 x: customData ? customData.x : parseInt(this.getAttribute("lpx")),
                 y: customData ? customData.y : parseInt(this.getAttribute("lpy")),
@@ -1283,7 +1283,7 @@ function handleLinkEvent(event, customEvent = undefined)
     } else if (link.url != null)
     {
         viewer.currentPage.hideCurrentOverlays()
-        var target = event.metaKey ? "_blank" : link.target
+        var target = event && event.metaKey ? "_blank" : link.target
         const extURL = viewer.convFigmaURL(link.url);
         //
         if (typeof extURL == "string" && extURL.includes("//"))
