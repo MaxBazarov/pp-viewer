@@ -857,7 +857,7 @@ class ViewerPage
             // add image itself
             panel.elImage = this._loadSingleImage(panel.isFloat || panel.isVertScroll ? panel : this, 'img_' + panel.index + "_");
             panelDiv.appendChild(panel.elImage);
-            if (!this.isDefault) panel.panel.elImage.style.webkitTransform = "translate3d(0,0,0)"
+            if (!this.isDefault) panel.elImage.style.webkitTransform = "translate3d(0,0,0)"
         }
 
         // create main content image      
@@ -1077,7 +1077,7 @@ class ViewerPage
                     pageIndex: this.index,
                     linkIndex: link.index
                 }
-                setTimeout(handleLinkEvent, link.triggerTimeout, null, customEvent)
+                //setTimeout(handleLinkEvent, link.triggerTimeout, null, customEvent)
             }
 
             linksDiv.appendChild(a);
