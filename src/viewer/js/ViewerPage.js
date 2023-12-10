@@ -1141,8 +1141,15 @@ function handleLinkEvent(event, customEvent = undefined)
                 width: link.rect.width,
                 height: link.rect.height,
             }
-            //currentPage.hideCurrentOverlays();
-            destPage.showAsOverlayInCurrentPage(orgPage, orgLink, orgPage.currentX, orgPage.currentY, linkParentFixed)
+            if (orgPage.type == "modal")
+            {
+                viewer.closeModal();
+                destPage.type = "modal";
+                destPage.show();
+            } else
+            {
+                destPage.showAsOverlayInCurrentPage(orgPage, orgLink, orgPage.currentX, orgPage.currentY, linkParentFixed)
+            }
         } else if ('overlay' == destPage.type)
         {
             const orgLink = {
