@@ -597,6 +597,9 @@ class ViewerPage
 
     showAsOverlayInCurrentPage(orgPage, link, posX = 0, posY = 0, linkParentFixed = false, disableAnim = false)
     {
+        if (typeof posX == "string") posX = Number(posX.replace("px", ""))
+        if (typeof posY == "string") posY = Number(posY.replace("px", ""))
+
         const newParentPage = viewer.currentPage
 
         if (!this.imageDiv) this.loadImages(true)
@@ -1126,7 +1129,21 @@ function handleLinkEvent(event, customEvent = undefined)
         var destPage = story.pages[destPageIndex]
         if (!destPage) return
 
-        if ('overlay' == destPage.type)
+        if (link.navigationType === "SWAP")
+        {
+            const orgLink = {
+                orgPage: orgPage,
+                index: linkIndex,
+                fixedPanelIndex: customData ? undefined : parseInt(this.getAttribute("lppi")),
+                this: this,
+                x: customData ? customData.x : parseInt(this.getAttribute("lpx")),
+                y: customData ? customData.y : parseInt(this.getAttribute("lpy")),
+                width: link.rect.width,
+                height: link.rect.height,
+            }
+            //currentPage.hideCurrentOverlays();
+            destPage.showAsOverlayInCurrentPage(orgPage, orgLink, orgPage.currentX, orgPage.currentY, linkParentFixed)
+        } else if ('overlay' == destPage.type)
         {
             const orgLink = {
                 orgPage: orgPage,
