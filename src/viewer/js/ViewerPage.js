@@ -1143,8 +1143,7 @@ function handleLinkEvent(event, customEvent = undefined)
             }
             if (orgPage.type == "modal")
             {
-                viewer.closeModal();
-                destPage.show();
+                viewer.goTo(destPage.index);
             } else
             {
                 destPage.showAsOverlayInCurrentPage(orgPage, orgLink, orgPage.currentX, orgPage.currentY, linkParentFixed)
