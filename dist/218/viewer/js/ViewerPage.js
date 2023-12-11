@@ -1144,7 +1144,6 @@ function handleLinkEvent(event, customEvent = undefined)
             if (orgPage.type == "modal")
             {
                 viewer.closeModal();
-                destPage.type = "modal";
                 destPage.show();
             } else
             {
