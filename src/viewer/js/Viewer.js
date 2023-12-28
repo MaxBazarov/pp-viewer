@@ -876,7 +876,7 @@ class Viewer
         if (undefined != searchText)
         {
             this.searchText = searchText
-            this.currentPage.findText(this.searchText)
+            this.currentPage.findText(this.searchText, false)
         }
     }
 

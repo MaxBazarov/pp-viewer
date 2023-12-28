@@ -440,12 +440,12 @@ class GalleryViewer extends AbstractViewer
     {
         if (this.lastCurrentPage)
         {
-            const div = bySel("#gallery #grid #g" + this.lastCurrentPage.index);
+            const div = bySel("#gallery #grid #p" + this.lastCurrentPage.index);
             if (div) removeClass(div, "active");
             //            
         }
         this.lastCurrentPage = viewer.currentPage
-        const div = bySel("#gallery #grid #g" + this.lastCurrentPage.index);
+        const div = bySel("#gallery #grid #p" + this.lastCurrentPage.index);
         if (div) addClass(div, "active");
 
     }
@@ -464,7 +464,7 @@ class GalleryViewer extends AbstractViewer
     buildContent_Group(group)
     {
         var divGroup = document.createElement("div");
-        divGroup.id = "g" + group.id;
+        divGroup.id = "g" + group.index;
         divGroup.style.left = "0px";
         divGroup.style.top = "0px";
         divGroup.style.width = "200%";
@@ -512,21 +512,21 @@ class GalleryViewer extends AbstractViewer
             div.style.width = "0px";
             div.style.height = "0px";
             div.className = page.isFrame ? "galleryArtboardAbs" : "galleryItemAbs";
-            div.id = page.index;
+            div.id = "p" + page.index;
 
             if (page.isFrame)
             {
                 div.addEventListener("click", function (e)
                 {
-                    viewer.galleryViewer.selectPage(parseInt(this.id))
+                    viewer.galleryViewer.selectPage(page.index)
                 });
                 div.addEventListener("mouseenter", function ()
                 {
-                    viewer.galleryViewer.mouseEnterPage(this.id)
+                    viewer.galleryViewer.mouseEnterPage(page.index)
                 })
                 div.addEventListener("mouseleave", function ()
                 {
-                    viewer.galleryViewer.mouseLeavePage(this.id)
+                    viewer.galleryViewer.mouseLeavePage(page.index)
                 })
             }
             this.divGrid.appendChild(div);
@@ -780,12 +780,12 @@ class GalleryViewer extends AbstractViewer
         this.pages.forEach(function (page)
         {
             const title = page.title.toLowerCase().trim()
-            const div = bySel("#gallery #grid #g" + page.index);
+            const div = bySel("#gallery #grid #p" + page.index);
             let visible = keyword == ''
             let foundTextLayers = []
 
             // Reset prev results
-            div.querySelector(".searchFocusedResultDiv,.searchResultDiv").forEach(el => el.remove());
+            div.querySelectorAll(".searchFocusedResultDiv,.searchResultDiv").forEach(el => el.remove());
 
             // Search in artboard title and image name            
             if (keyword != '')
@@ -831,19 +831,18 @@ class GalleryViewer extends AbstractViewer
     {
         const isFocused = true
         const padding = isFocused ? 2 : 0
-        const divWidth = div.innerWidth()
-        const zoom = page.width / divWidth
+        const zoom = this.zoom;
 
-        let x = l.x / zoom
-        let y = l.y / zoom
+        let x = l.x * zoom
+        let y = l.y * zoom
 
         // show layer border
         const elemDiv = document.createElement("div");
         elemDiv.className = isFocused ? "searchFocusedResultDiv" : "searchResultDiv";
         elemDiv.style.left = x + "px";
         elemDiv.style.top = y + "px";
-        elemDiv.style.width = (l.w / zoom + padding * 2) + "px";
-        elemDiv.style.height = (l.h / zoom + padding * 2) + "px";
+        elemDiv.style.width = (l.w * zoom + padding * 2) + "px";
+        elemDiv.style.height = (l.h * zoom + padding * 2) + "px";
 
         div.appendChild(elemDiv);
     }
