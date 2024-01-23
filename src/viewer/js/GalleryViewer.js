@@ -756,8 +756,8 @@ class GalleryViewer extends AbstractViewer
             page.links.forEach(function (l)
             {
                 // valide destination page
-                if (l.page == page.index) return
-                const dpage = story.pages[l.page]
+                if (l.frameIndex == page.index) return
+                const dpage = story.pages[l.frameIndex]
                 if (!dpage || "external" == dpage.type) return
                 // build SVG coode for the link
                 const link = new GalleryViewerLink(indexCounter++, l, page, dpage)

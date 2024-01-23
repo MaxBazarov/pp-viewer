@@ -252,10 +252,6 @@ class ViewerPage
         }
     }
 
-    // result:{
-    //    foundPage: {}
-    //    foundlink: {}
-    //}
     showOverlayOverParent()
     {
         var foundPage = null
@@ -263,8 +259,15 @@ class ViewerPage
         // scan all regular pages
         story.pages.filter(page => "regular" == page.type).some(function (page)
         {
-            const foundLinks = page.links.filter(link => link.page != null && link.page == this.index)
-            if (foundLinks.length != 0)
+            const foundLinks = []
+            page.links.forEach((link) =>
+            {
+                link.reaction.forEach((reaction) =>
+                {
+                    if (reaction.frameIndex != null && reaction.frameIndex == this.index) foundLinks.push(link);
+                })
+            }, this)
+            if (foundReactions.length != 0)
             {
                 // return the page index which has link to modal                    
                 foundPage = page
@@ -504,7 +507,7 @@ class ViewerPage
         // can handle only page-to-page transition
         if ((link["page"] == undefined)) return false
 
-        var destPage = story.pages[link.page]
+        var destPage = story.pages[link.frameIndex]
         // for mouseover overlay we need to show it on click, but only one time)
         if ("overlay" == destPage.type && Constants.TRIGGER_ON_HOVER == destPage.overlayByEvent)
         {
@@ -961,10 +964,14 @@ class ViewerPage
 
     _getLinkByTargetPage(page, links, targetPageIndex)
     {
-        const link = links.find(link => link.page == targetPageIndex)
-        if (!link) return null
+        const foundLink = null;
+        links.forEach((link) =>
+        {
+            if (link.reactions.find(r => r.frameIndex == targetPageIndex)) foundLink = foundLinklink;
+        })
+        if (!foundLink) return null
         return {
-            link: link,
+            link: foundLink,
             page: page
         }
     }
@@ -1021,7 +1028,9 @@ class ViewerPage
             let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
             let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
 
-            if (link.trigger === "AFTER_TIMEOUT")
+            // Pre-find timeout interaction
+            const timeOutReaction = link.reactions.find(r => r.trigger === "AFTER_TIMEOUT");
+            if (timeOutReaction === "AFTER_TIMEOUT")
             {
                 x = 0;
                 y = 0;
@@ -1038,54 +1047,61 @@ class ViewerPage
             a.setAttribute("lpx", x);
             a.setAttribute("lpy", y);
 
-            var eventType = Constants.TRIGGER_ON_CLICK
-
-            if ('page' in link)
+            // scan other reactuonbs            
+            for (var reaction of link.reactions)
             {
-                var destPageIndex = viewer.getPageIndex(parseInt(link.page))
-                var destPage = story.pages[destPageIndex];
-                //
-                if (link.trigger === "ON_HOVER")
-                {
-                    eventType = Constants.TRIGGER_ON_HOVER
-                    destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
-                } else if ('overlay' == destPage.type)
-                {
-                    eventType = destPage.overlayByEvent
-                }
-            }
+                var eventType = Constants.TRIGGER_ON_CLICK
 
-            if (EVENT_HOVER == eventType)
-            { // for Mouse over event
-                a.addEventListener("mouseenter", handleLinkEvent);
-                if (
-                    0 == destPage.overlayPin // ARTBOARD_OVERLAY_PIN_HOTSPOT
-                    && 3 == destPage.overlayPinHotspot // ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT
-                )
+                if ('frameIndex' in reaction)
                 {
+                    var destPageIndex = viewer.getPageIndex(parseInt(reaction.frameIndex))
+                    var destPage = story.pages[destPageIndex];
+                    //
+                    if (reaction.trigger === "ON_HOVER")
+                    {
+                        eventType = Constants.TRIGGER_ON_HOVER
+                        destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
+                    } else if ('overlay' == destPage.type)
+                    {
+                        eventType = destPage.overlayByEvent
+                    }
+                }
+
+                if (EVENT_HOVER == eventType)
+                { // for Mouse over event
+                    a.addEventListener("mouseenter", handleLinkEvent);
+                    if (
+                        0 == destPage.overlayPin // ARTBOARD_OVERLAY_PIN_HOTSPOT
+                        && 3 == destPage.overlayPinHotspot // ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT
+                    )
+                    {
+                    } else
+                    {
+                        // need to pass click event to overlayed layers
+                        a.addEventListener("click", function (e)
+                        {
+                            if (undefined == e.originalEvent) return
+                            var nextObjects = document.elementsFromPoint(e.originalEvent.x, e.originalEvent.y);
+                            for (var i = 0; i < nextObjects.length; i++)
+                            {
+                                var obj = nextObjects[i].parentElement
+                                if (!obj || obj.nodeName != 'A' || obj == this) continue
+                                obj.click(e);
+                                return
+                            }
+                        });
+                    }
+                } else if (reaction.trigger === "AFTER_TIMEOUT")
+                {
+                    this.linkTimeout = link;
                 } else
                 {
-                    // need to pass click event to overlayed layers
-                    a.addEventListener("click", function (e)
-                    {
-                        if (undefined == e.originalEvent) return
-                        var nextObjects = document.elementsFromPoint(e.originalEvent.x, e.originalEvent.y);
-                        for (var i = 0; i < nextObjects.length; i++)
-                        {
-                            var obj = nextObjects[i].parentElement
-                            if (!obj || obj.nodeName != 'A' || obj == this) continue
-                            obj.click(e);
-                            return
-                        }
-                    });
+                    // for On click event                              
+                    a.addEventListener("click", handleLinkEvent);
                 }
-            } else if (link.trigger === "AFTER_TIMEOUT")
-            {
-                this.linkTimeout = link;
-            } else
-            {
-                // for On click event                              
-                a.addEventListener("click", handleLinkEvent);
+                // we need the only first reaction
+                // the second will be handled in handleLinkEvent_Final()
+                break;
             }
 
             linksDiv.appendChild(a);
@@ -1108,7 +1124,7 @@ class ViewerPage
 //
 // customEvent:
 //  x,y,pageIndex
-function handleLinkEvent(event, customEvent = undefined)
+function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0)
 {
     if (event) event.stopPropagation();
 
@@ -1121,15 +1137,19 @@ function handleLinkEvent(event, customEvent = undefined)
     const linkIndex = customData ? customData.linkIndex : parseInt(this.getAttribute("li"), 10);
     const link = orgPage._getLinkByIndex(linkIndex)
 
-    if (link.page != undefined)
+    // Check if we have a reaction with requested index
+    if (link.reactions.length <= reactionIndex) return false;
+    const reaction = link.reactions[reactionIndex];
+
+    if (reaction.frameIndex != undefined)
     {
-        var destPageIndex = parseInt(link.page)
+        var destPageIndex = parseInt(reaction.frameIndex)
         var linkParentFixed = "overlay" != orgPage.type ? link.isParentFixed : orgPage.inFixedPanel
 
         var destPage = story.pages[destPageIndex]
         if (!destPage) return
 
-        if (link.navigationType === "SWAP")
+        if (reaction.navigationType === "SWAP")
         {
             const orgLink = {
                 orgPage: orgPage,
@@ -1231,10 +1251,10 @@ function handleLinkEvent(event, customEvent = undefined)
                         pageY -= destPage.height
                     } else
                     {
-                        if (link.pageOverlayPinHotspot === Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_RELATIVE)
+                        if (reaction.pageOverlayPinHotspot === Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_RELATIVE)
                         {
-                            pageX += link.pageOverlayPinHotspotX
-                            pageY += link.pageOverlayPinHotspotY
+                            pageX += reaction.pageOverlayPinHotspotX
+                            pageY += reaction.pageOverlayPinHotspotY
 
                         }
                     }
@@ -1292,12 +1312,12 @@ function handleLinkEvent(event, customEvent = undefined)
             viewer.goTo(parseInt(destPageIndex), true, link)
             return handleLinkEvent_Final(link, orgPage)
         }
-    } else if (link.action === 'BACK')
+    } else if (reaction.action === 'BACK')
     {
         viewer.currentPage.hideCurrentOverlays()
         viewer.goBack()
         return handleLinkEvent_Final(link, orgPage)
-    } else if (link.action === 'CLOSE')
+    } else if (reaction.action === 'CLOSE')
     {
         if (orgPage.type === "modal")
         {
@@ -1306,12 +1326,12 @@ function handleLinkEvent(event, customEvent = undefined)
         {
             orgPage.hide()
         }
-        return handleLinkEvent_Final(link, orgPage)
-    } else if (link.url != null)
+        return handleLinkEvent(link, orgPage, reactionIndex + 1);
+    } else if (reaction.url != null)
     {
         viewer.currentPage.hideCurrentOverlays()
-        var target = event && event.metaKey ? "_blank" : link.target
-        const extURL = viewer.convFigmaURL(link.url);
+        var target = event && event.metaKey ? "_blank" : reaction.target
+        const extURL = viewer.convFigmaURL(reaction.url);
         //
         if (typeof extURL == "string" && extURL.includes("//"))
         { // Redirect to some URL
@@ -1324,7 +1344,7 @@ function handleLinkEvent(event, customEvent = undefined)
             { // Go to a local page
                 viewer.goTo(extURL)
             }
-        return handleLinkEvent_Final(link, orgPage)
+        return handleLinkEvent(link, orgPage, reactionIndex + 1);
     }
 
     // close last current overlay if it still has parent
@@ -1333,7 +1353,7 @@ function handleLinkEvent(event, customEvent = undefined)
         orgPage.hide()
     }
 
-    return handleLinkEvent_Final(link, orgPage)
+    return handleLinkEvent(link, orgPage, reactionIndex + 1);
 }
 
 

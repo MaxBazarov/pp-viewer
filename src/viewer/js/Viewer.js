@@ -812,7 +812,7 @@ class Viewer
         // scan all regular pages
         story.pages.filter(page => "regular" == page.type).some(function (page)
         {
-            const foundLinks = page.links.filter(link => link.page != null && link.page == modalIndex)
+            const foundLinks = page.links.filter(link => link.frameIndex != null && link.frameIndex == modalIndex)
             if (foundLinks.length != 0)
             {
                 // return the page index which has link to modal
