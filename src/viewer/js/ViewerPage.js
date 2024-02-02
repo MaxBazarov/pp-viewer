@@ -687,14 +687,14 @@ class ViewerPage
                 div.style.top = "";
                 div.style.bottom = - posY + "px";
                 div.style.marginLeft = posX + "px";
-            } else if (reaction.overlayPinPage)
+            } else if (reaction.overlayPinPagePositionType)
             {
                 let top = "", bottom = "", ml = "", mr = ""
-                if (link.overlayPinPage === Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_CENTER)
+                if (reaction.overlayPinPagePositionType === Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_CENTER)
                 {
                     ml = (newParentPage.width - this.width) / 2
                     bottom = 0
-                } else if (link.overlayPinPage === Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER)
+                } else if (reaction.overlayPinPagePositionType === Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER)
                 {
                     ml = (newParentPage.width - this.width) / 2
                     top = 0
