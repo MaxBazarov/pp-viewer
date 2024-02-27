@@ -1,28 +1,35 @@
 
 ///
 const Constants = {
-    ARTBOARD_OVERLAY_PIN_HOTSPOT: "HOTSPOT",
-    ARTBOARD_OVERLAY_PIN_PAGE: "PAGE",
+    FRAME_OVERLAY_PIN_HOTSPOT: "HOTSPOT",
+    FRAME_OVERLAY_PIN_PAGE: "PAGE",
     //
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_LEFT: "UNDER_LEFT",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_CENTER: "UNDER_CENTER",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT: "UNDER_RIGHT",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT: "TOP_LEFT",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_CENTER: "TOP_CENTER",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_RIGHT: "TOP_RIGHT",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_BOTTOM_RIGHT: "BOTTOM_RIGHT",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_UP_CENTER: "UP_CENTER",
-    ARTBOARD_OVERLAY_PIN_HOTSPOT_RELATIVE: "RELATIVE",
+    FRAME_OVERLAY_PIN_HOTSPOT_UNDER_LEFT: "UNDER_LEFT",
+    FRAME_OVERLAY_PIN_HOTSPOT_UNDER_CENTER: "UNDER_CENTER",
+    FRAME_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT: "UNDER_RIGHT",
+    FRAME_OVERLAY_PIN_HOTSPOT_TOP_LEFT: "TOP_LEFT",
+    FRAME_OVERLAY_PIN_HOTSPOT_TOP_CENTER: "TOP_CENTER",
+    FRAME_OVERLAY_PIN_HOTSPOT_TOP_RIGHT: "TOP_RIGHT",
+    FRAME_OVERLAY_PIN_HOTSPOT_BOTTOM_RIGHT: "BOTTOM_RIGHT",
+    FRAME_OVERLAY_PIN_HOTSPOT_UP_CENTER: "UP_CENTER",
+    FRAME_OVERLAY_PIN_HOTSPOT_RELATIVE: "RELATIVE",
     //
-    ARTBOARD_OVERLAY_PIN_PAGE_TOP_LEFT: "TOP_LEFT",
-    ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER: "TOP_CENTER",
-    ARTBOARD_OVERLAY_PIN_PAGE_TOP_RIGHT: "TOP_RIGHT",
-    ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_LEFT: "BOTTOM_LEFT",
-    ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_CENTER: "BOTTOM_CENTER",
-    ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_RIGHT: "BOTTOM_RIGHT",
-    ARTBOARD_OVERLAY_PIN_PAGE_CENTER: "CENTER",
+    FRAME_OVERLAY_PIN_PAGE_TOP_LEFT: "TOP_LEFT",
+    FRAME_OVERLAY_PIN_PAGE_TOP_CENTER: "TOP_CENTER",
+    FRAME_OVERLAY_PIN_PAGE_TOP_RIGHT: "TOP_RIGHT",
+    FRAME_OVERLAY_PIN_PAGE_BOTTOM_LEFT: "BOTTOM_LEFT",
+    FRAME_OVERLAY_PIN_PAGE_BOTTOM_CENTER: "BOTTOM_CENTER",
+    FRAME_OVERLAY_PIN_PAGE_BOTTOM_RIGHT: "BOTTOM_RIGHT",
+    FRAME_OVERLAY_PIN_PAGE_CENTER: "CENTER",
 
     TRIGGER_ON_HOVER: 1,
+
+    FRAME_TRANS_ANIM_NONE: 0,
+    FRAME_TRANS_ANIM_SLIDEIN_UP: 1,
+    FRAME_TRANS_ANIM_SLIDEIN_LEFT: 2,
+    FRAME_TRANS_ANIM_FADE: 3,
+    FRAME_TRANS_ANIM_SLIDEIN_RIGHT: 4,
+    FRAME_TRANS_ANIM_SLIDEIN_DOWN: 5,
 
     LAYER_VSCROLL_NONE: 0,
     LAYER_VSCROLL_DEFAULT: 1,
@@ -31,7 +38,6 @@ const Constants = {
 }
 
 const EVENT_HOVER = 1
-const TRANS_ANIM_NONE = 0
 let TRANS_ANIMATIONS = [
     {},
     { in_str_classes: ".transit .slideInUp", out_str_classes: ".transit .slideOutUp", in_token: "transition-slidein-up", out_token: "transition-slideout-up" },
@@ -134,7 +140,7 @@ class ViewerPage
 
     hide(hideChilds = false, disableAnim = false)
     {
-        if (!disableAnim && TRANS_ANIM_NONE != this.transAnimType && this.type !== "modal")
+        if (!disableAnim && this.transAnimType != Constants.FRAME_TRANS_ANIM_NONE && this.type !== "modal")
         {
             const transInfo = TRANS_ANIMATIONS[this.transAnimType]
             const el = this.imageDiv
@@ -178,7 +184,7 @@ class ViewerPage
 
     hideCurrentOverlays()
     {
-        const overlays = this.currentOverlays.filter(p => p.overlayCloseOnClickOutside === true).slice()
+        const overlays = this.currentOverlays.filter(p => p.currentReaction && p.currentReaction.overlayCloseOnClickOutside === true).slice()
         for (let overlay of overlays)
         {
             overlay.hide()
@@ -213,7 +219,7 @@ class ViewerPage
 
         this.updatePosition()
 
-        if (!disableAnim && TRANS_ANIM_NONE != this.transAnimType && this.type !== "modal")
+        if (!disableAnim && this.transAnimType != Constants.FRAME_TRANS_ANIM_NONE && this.type !== "modal")
         {
             const transInfo = TRANS_ANIMATIONS[this.transAnimType]
             const el = this.imageDiv;
@@ -229,13 +235,13 @@ class ViewerPage
         // Set scene back color
         if (this.type !== "modal")
         {
-            const group = story.groups.filter(g => g.id == this.groupID)[0]
+            const group = story.groups[this.groupIndex];
             if (group && group.backColor != undefined)
             {
                 byClass("screen").style.backgroundColor = group.backColor;
             } else
             {
-                console.log(`Can't find page with ID=${this.groupID}`)
+                console.log(`Can't find page with index=${this.groupIndex}`)
             }
         }
         //
@@ -252,10 +258,6 @@ class ViewerPage
         }
     }
 
-    // result:{
-    //    foundPage: {}
-    //    foundlink: {}
-    //}
     showOverlayOverParent()
     {
         var foundPage = null
@@ -263,8 +265,15 @@ class ViewerPage
         // scan all regular pages
         story.pages.filter(page => "regular" == page.type).some(function (page)
         {
-            const foundLinks = page.links.filter(link => link.page != null && link.page == this.index)
-            if (foundLinks.length != 0)
+            const foundLinks = []
+            page.links.forEach((link) =>
+            {
+                link.reaction.forEach((reaction) =>
+                {
+                    if (reaction.frameIndex != null && reaction.frameIndex == this.index) foundLinks.push(link);
+                })
+            }, this)
+            if (foundReactions.length != 0)
             {
                 // return the page index which has link to modal                    
                 foundPage = page
@@ -424,6 +433,28 @@ class ViewerPage
             this._scrollTo(l.x, l.y)
         }
     }
+    _createVideoPlayers()
+    {
+        if (!this.videoNodes) return
+        this.videoNodes.forEach((n) =>
+        {
+            const stageDiv = new StageDiv(n.x, n.y, n.w, n.h, "videoDiv");
+            const div = stageDiv.elDiv();
+            this.linksDiv.appendChild(div);
+            //
+            const filePathCompleted = n.n.includes("/") || n.n.includes("\\")
+            const filePath = filePathCompleted ? n.n : "images/" + n.n;
+            //
+            const stageVideo = new StageDiv(0, 0, n.w, n.h);
+            const video = stageVideo.elDiv("video");
+            video.setAttribute("src", filePath);
+            //video.setAttribute("type", "video/mov");
+            video.setAttribute("controls", "true");
+            //elemDiv.className = isFocused ? "searchFocusedResultDiv" : "searchResultDiv";
+            //< source src = "movie.mp4" type = "video/mp4" ></source>
+            div.appendChild(video);
+        }, this);
+    }
 
     _scrollTo(x, y)
     {
@@ -504,7 +535,7 @@ class ViewerPage
         // can handle only page-to-page transition
         if ((link["page"] == undefined)) return false
 
-        var destPage = story.pages[link.page]
+        var destPage = story.pages[link.frameIndex]
         // for mouseover overlay we need to show it on click, but only one time)
         if ("overlay" == destPage.type && Constants.TRIGGER_ON_HOVER == destPage.overlayByEvent)
         {
@@ -595,8 +626,10 @@ class ViewerPage
     }
 
 
-    showAsOverlayInCurrentPage(orgPage, link, posX = 0, posY = 0, linkParentFixed = false, disableAnim = false)
+    showAsOverlayInCurrentPage(orgPage, link, reaction, posX = 0, posY = 0, linkParentFixed = false, disableAnim = false)
     {
+        this.currentReaction = reaction
+
         if (typeof posX == "string") posX = Number(posX.replace("px", ""))
         if (typeof posY == "string") posY = Number(posY.replace("px", ""))
 
@@ -682,14 +715,14 @@ class ViewerPage
                 div.style.top = "";
                 div.style.bottom = - posY + "px";
                 div.style.marginLeft = posX + "px";
-            } else if (link.overlayPinPage)
+            } else if (reaction.overlayPinPagePositionType)
             {
-                let top = "", bottom = "", ml = "", mr = ""
-                if (link.overlayPinPage === Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_CENTER)
+                let top = posY, bottom = "", ml = "", mr = ""
+                if (reaction.overlayPinPagePositionType === Constants.FRAME_OVERLAY_PIN_PAGE_BOTTOM_CENTER)
                 {
                     ml = (newParentPage.width - this.width) / 2
                     bottom = 0
-                } else if (link.overlayPinPage === Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER)
+                } else if (reaction.overlayPinPagePositionType === Constants.FRAME_OVERLAY_PIN_PAGE_TOP_CENTER)
                 {
                     ml = (newParentPage.width - this.width) / 2
                     top = 0
@@ -706,11 +739,11 @@ class ViewerPage
                 // 
                 if (!this.overlayClosePrevOverlay && !positionCloned && undefined != this.overlayShadowX &&
                     (
-                        (0 == this.overlayPin) // ARTBOARD_OVERLAY_PIN_HOTSPOT
-                        && (3 == this.overlayPinHotspot) //ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT
+                        (Constants.FRAME_OVERLAY_PIN_HOTSPOT == reaction.overlayPinType) // FRAME_OVERLAY_PIN_HOTSPOT
+                        && (3 == reaction.overlayPinHotspot) //FRAME_OVERLAY_PIN_HOTSPOT_TOP_LEFT
                     )
                 )
-                {// OLD_ARTBOARD_OVERLAY_ALIGN_HOTSPOT_TOP_LEFT
+                {// OLD_FRAME_OVERLAY_ALIGN_HOTSPOT_TOP_LEFT
                     posX -= this.overlayShadowX
                 }
                 if (link.panel.isVertScroll)
@@ -894,6 +927,8 @@ class ViewerPage
         var img = this._loadSingleImage(this, 'img_')
         this.elImage = img
         imageDiv.appendChild(img)
+        //
+        this._createVideoPlayers();
     }
 
     showLayout()
@@ -961,10 +996,14 @@ class ViewerPage
 
     _getLinkByTargetPage(page, links, targetPageIndex)
     {
-        const link = links.find(link => link.page == targetPageIndex)
-        if (!link) return null
+        const foundLink = null;
+        links.forEach((link) =>
+        {
+            if (link.reactions.find(r => r.frameIndex == targetPageIndex)) foundLink = foundLinklink;
+        })
+        if (!foundLink) return null
         return {
-            link: link,
+            link: foundLink,
             page: page
         }
     }
@@ -1021,7 +1060,9 @@ class ViewerPage
             let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
             let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
 
-            if (link.trigger === "AFTER_TIMEOUT")
+            // Pre-find timeout interaction
+            const timeOutReaction = link.reactions.find(r => r.trigger === "AFTER_TIMEOUT");
+            if (timeOutReaction === "AFTER_TIMEOUT")
             {
                 x = 0;
                 y = 0;
@@ -1038,54 +1079,62 @@ class ViewerPage
             a.setAttribute("lpx", x);
             a.setAttribute("lpy", y);
 
-            var eventType = Constants.TRIGGER_ON_CLICK
-
-            if ('page' in link)
+            // scan other reactuonbs            
+            for (var reaction of link.reactions)
             {
-                var destPageIndex = viewer.getPageIndex(parseInt(link.page))
-                var destPage = story.pages[destPageIndex];
-                //
-                if (link.trigger === "ON_HOVER")
-                {
-                    eventType = Constants.TRIGGER_ON_HOVER
-                    destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
-                } else if ('overlay' == destPage.type)
-                {
-                    eventType = destPage.overlayByEvent
-                }
-            }
+                var eventType = Constants.TRIGGER_ON_CLICK
 
-            if (EVENT_HOVER == eventType)
-            { // for Mouse over event
-                a.addEventListener("mouseenter", handleLinkEvent);
-                if (
-                    0 == destPage.overlayPin // ARTBOARD_OVERLAY_PIN_HOTSPOT
-                    && 3 == destPage.overlayPinHotspot // ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT
-                )
+                if ('frameIndex' in reaction)
                 {
+                    var destPageIndex = viewer.getPageIndex(parseInt(reaction.frameIndex))
+                    var destPage = story.pages[destPageIndex];
+                    //
+                    if (reaction.trigger === "ON_HOVER")
+                    {
+                        eventType = Constants.TRIGGER_ON_HOVER
+                        destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
+                    } else if ('overlay' == destPage.type)
+                    {
+                        eventType = destPage.overlayByEvent
+                    }
+                }
+
+                if (EVENT_HOVER == eventType)
+                { // for Mouse over event
+                    a.addEventListener("mouseenter", handleLinkEvent);
+                    if
+                        (
+                        (Constants.FRAME_OVERLAY_PIN_HOTSPOT == reaction.overlayPinType) // FRAME_OVERLAY_PIN_HOTSPOT
+                        && (3 == reaction.overlayPinHotspot) //FRAME_OVERLAY_PIN_HOTSPOT_TOP_LEFT
+                    )                    
+                    {
+                    } else
+                    {
+                        // need to pass click event to overlayed layers
+                        a.addEventListener("click", function (e)
+                        {
+                            if (undefined == e.originalEvent) return
+                            var nextObjects = document.elementsFromPoint(e.originalEvent.x, e.originalEvent.y);
+                            for (var i = 0; i < nextObjects.length; i++)
+                            {
+                                var obj = nextObjects[i].parentElement
+                                if (!obj || obj.nodeName != 'A' || obj == this) continue
+                                obj.click(e);
+                                return
+                            }
+                        });
+                    }
+                } else if (reaction.trigger === "AFTER_TIMEOUT")
+                {
+                    this.linkTimeout = link;
                 } else
                 {
-                    // need to pass click event to overlayed layers
-                    a.addEventListener("click", function (e)
-                    {
-                        if (undefined == e.originalEvent) return
-                        var nextObjects = document.elementsFromPoint(e.originalEvent.x, e.originalEvent.y);
-                        for (var i = 0; i < nextObjects.length; i++)
-                        {
-                            var obj = nextObjects[i].parentElement
-                            if (!obj || obj.nodeName != 'A' || obj == this) continue
-                            obj.click(e);
-                            return
-                        }
-                    });
+                    // for On click event                              
+                    a.addEventListener("click", handleLinkEvent);
                 }
-            } else if (link.trigger === "AFTER_TIMEOUT")
-            {
-                this.linkTimeout = link;
-            } else
-            {
-                // for On click event                              
-                a.addEventListener("click", handleLinkEvent);
+                // we need the only first reaction
+                // the second will be handled in handleLinkEvent_Final()
+                break;
             }
 
             linksDiv.appendChild(a);
@@ -1108,36 +1157,41 @@ class ViewerPage
 //
 // customEvent:
 //  x,y,pageIndex
-function handleLinkEvent(event, customEvent = undefined)
+function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj = undefined)
 {
     if (event) event.stopPropagation();
-
     if (viewer.linksDisabled) return false
+
+    if (!obj) obj = this
 
     let currentPage = viewer.currentPage
     var customData = customEvent || viewer["customEvent"]
-    let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt(this.getAttribute("lpi"), 10)];
+    let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt(obj.getAttribute("lpi"), 10)];
 
-    const linkIndex = customData ? customData.linkIndex : parseInt(this.getAttribute("li"), 10);
+    const linkIndex = customData ? customData.linkIndex : parseInt(obj.getAttribute("li"), 10);
     const link = orgPage._getLinkByIndex(linkIndex)
 
-    if (link.page != undefined)
+    // Check if we have a reaction with requested index
+    if (link.reactions.length <= reactionIndex) return false;
+    const reaction = link.reactions[reactionIndex];
+
+    if (reaction.frameIndex != undefined)
     {
-        var destPageIndex = parseInt(link.page)
+        var destPageIndex = parseInt(reaction.frameIndex)
         var linkParentFixed = "overlay" != orgPage.type ? link.isParentFixed : orgPage.inFixedPanel
 
         var destPage = story.pages[destPageIndex]
         if (!destPage) return
 
-        if (link.navigationType === "SWAP")
+        if (reaction.navigationType === "SWAP")
         {
             const orgLink = {
                 orgPage: orgPage,
                 index: linkIndex,
-                fixedPanelIndex: customData ? undefined : parseInt(this.getAttribute("lppi")),
+                fixedPanelIndex: customData ? undefined : parseInt(obj.getAttribute("lppi")),
                 this: this,
-                x: customData ? customData.x : parseInt(this.getAttribute("lpx")),
-                y: customData ? customData.y : parseInt(this.getAttribute("lpy")),
+                x: customData ? customData.x : parseInt(obj.getAttribute("lpx")),
+                y: customData ? customData.y : parseInt(obj.getAttribute("lpy")),
                 width: link.rect.width,
                 height: link.rect.height,
             }
@@ -1146,17 +1200,17 @@ function handleLinkEvent(event, customEvent = undefined)
                 viewer.goTo(destPage.index);
             } else
             {
-                destPage.showAsOverlayInCurrentPage(orgPage, orgLink, orgPage.currentX, orgPage.currentY, linkParentFixed)
+                destPage.showAsOverlayInCurrentPage(orgPage, orgLink, reaction, orgPage.currentX, orgPage.currentY, linkParentFixed)
             }
         } else if ('overlay' == destPage.type)
         {
             const orgLink = {
                 orgPage: orgPage,
                 index: linkIndex,
-                fixedPanelIndex: customData ? undefined : parseInt(this.getAttribute("lppi")),
+                fixedPanelIndex: customData ? undefined : parseInt(obj.getAttribute("lppi")),
                 this: this,
-                x: customData ? customData.x : parseInt(this.getAttribute("lpx")),
-                y: customData ? customData.y : parseInt(this.getAttribute("lpy")),
+                x: customData ? customData.x : parseInt(obj.getAttribute("lpx")),
+                y: customData ? customData.y : parseInt(obj.getAttribute("lpy")),
                 width: link.rect.width,
                 height: link.rect.height,
             }
@@ -1171,8 +1225,8 @@ function handleLinkEvent(event, customEvent = undefined)
                 orgLink.fixedBottomPanel = currentPage.fixedPanels[orgLink.fixedPanelIndex]
             } else
             { // clicked not from fixed panel           
-                const pinHotspot = Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT == destPage.overlayPin
-                const pinPage = Constants.ARTBOARD_OVERLAY_PIN_PAGE == destPage.overlayPin
+                const pinHotspot = Constants.FRAME_OVERLAY_PIN_HOTSPOT == reaction.overlayPinType
+                const pinPage = Constants.FRAME_OVERLAY_PIN_PAGE == reaction.overlayPinType
 
                 var pageX = 0
                 var pageY = 0
@@ -1191,9 +1245,9 @@ function handleLinkEvent(event, customEvent = undefined)
 
                     var offsetX = pinHotspot
                         && (
-                            Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_LEFT == destPage.overlayPinHotspot
-                            || Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_CENTER == destPage.overlayPinHotspot
-                            || Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT == destPage.overlayPinHotspot
+                            Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_LEFT == reaction.overlayPinHotspot
+                            || Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_CENTER == reaction.overlayPinHotspot
+                            || Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT == reaction.overlayPinHotspot
                         )
                         ? 5 : 0
 
@@ -1201,46 +1255,46 @@ function handleLinkEvent(event, customEvent = undefined)
                     {
                         pageX = orgPage.currentX
                         pageY = orgPage.currentY
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_LEFT == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_LEFT == reaction.overlayPinHotspot)
                     {
                         pageY += link.rect.height
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_CENTER == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_CENTER == reaction.overlayPinHotspot)
                     {
                         pageX += parseInt(orgLink.width / 2) - parseInt(destPage.width / 2)
                         pageY += link.rect.height
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_UNDER_RIGHT == reaction.overlayPinHotspot)
                     {
                         pageX += orgLink.width - destPage.width
                         pageY += link.rect.height
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_TOP_LEFT == reaction.overlayPinHotspot)
                     {
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_CENTER == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_TOP_CENTER == reaction.overlayPinHotspot)
                     {
                         pageX += parseInt(orgLink.width / 2) - parseInt(destPage.width / 2)
                         //pageY -= destPage.height                            
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_RIGHT == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_TOP_RIGHT == reaction.overlayPinHotspot)
                     {
                         pageX += orgLink.width - destPage.width
                         //pageY = pageY - destPage.height                            
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_BOTTOM_RIGHT == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_BOTTOM_RIGHT == reaction.overlayPinHotspot)
                     {
                         pageX += orgLink.width
-                    } else if (pinHotspot && Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_UP_CENTER == destPage.overlayPinHotspot)
+                    } else if (pinHotspot && Constants.FRAME_OVERLAY_PIN_HOTSPOT_UP_CENTER == reaction.overlayPinHotspot)
                     {
                         pageX += parseInt(orgLink.width / 2) - parseInt(destPage.width / 2)
                         pageY -= destPage.height
                     } else
                     {
-                        if (link.pageOverlayPinHotspot === Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_RELATIVE)
+                        if (reaction.overlayPinHotspot === Constants.FRAME_OVERLAY_PIN_HOTSPOT_RELATIVE)
                         {
-                            pageX += link.pageOverlayPinHotspotX
-                            pageY += link.pageOverlayPinHotspotY
+                            pageX += reaction.overlayPinHotspotX
+                            pageY += reaction.overlayPinHotspotY
 
                         }
                     }
 
                     // check page right side
-                    if (!pinHotspot || (Constants.ARTBOARD_OVERLAY_PIN_HOTSPOT_TOP_LEFT != destPage.overlayPinHotspot))
+                    if (!pinHotspot || (Constants.FRAME_OVERLAY_PIN_HOTSPOT_TOP_LEFT != reaction.overlayPinHotspot))
                     {
                         const fullWidth = destPage.width + offsetX // + (('overlayShadowX' in destPage)?destPage.overlayShadowX:0)
                         if ((pageX + fullWidth) > currentPage.width)
@@ -1253,7 +1307,7 @@ function handleLinkEvent(event, customEvent = undefined)
                 } else
                 {
                     //////////////////////////////// PIN TO PAGE ////////////////////////////////
-                    if (pinPage) [pageX, pageY] = _calcOverlayPos(currentPage, destPage, destPage.overlayPinPage)
+                    if (pinPage) [pageX, pageY] = _calcOverlayPos(currentPage, destPage, reaction.overlayPinPagePositionType)
 
                 }
 
@@ -1271,12 +1325,12 @@ function handleLinkEvent(event, customEvent = undefined)
                 {
                     destPage.hide(false, true) // hide without transition animation
                     if (orgPage != destPage)
-                        destPage.showAsOverlayInCurrentPage(orgPage, orgLink, pageX, pageY, linkParentFixed, true)
+                        destPage.showAsOverlayInCurrentPage(orgPage, orgLink, reaction, pageX, pageY, linkParentFixed, true)
                 }
                 return false
             }
-            destPage.showAsOverlayInCurrentPage(orgPage, orgLink, pageX, pageY, linkParentFixed)
-            return handleLinkEvent_Final(link, orgPage)
+            destPage.showAsOverlayInCurrentPage(orgPage, orgLink, reaction, pageX, pageY, linkParentFixed)
+            return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
         } else
         {
             // close modal if some link inside a modal opens the same modal
@@ -1290,14 +1344,14 @@ function handleLinkEvent(event, customEvent = undefined)
             currentPage.hideCurrentOverlays()
 
             viewer.goTo(parseInt(destPageIndex), true, link)
-            return handleLinkEvent_Final(link, orgPage)
+            return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
         }
-    } else if (link.action === 'BACK')
+    } else if (reaction.action === 'BACK')
     {
         viewer.currentPage.hideCurrentOverlays()
         viewer.goBack()
-        return handleLinkEvent_Final(link, orgPage)
-    } else if (link.action === 'CLOSE')
+        return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
+    } else if (reaction.action === 'CLOSE')
     {
         if (orgPage.type === "modal")
         {
@@ -1306,12 +1360,12 @@ function handleLinkEvent(event, customEvent = undefined)
         {
             orgPage.hide()
         }
-        return handleLinkEvent_Final(link, orgPage)
-    } else if (link.url != null)
+        return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
+    } else if (reaction.url != null)
     {
         viewer.currentPage.hideCurrentOverlays()
-        var target = event && event.metaKey ? "_blank" : link.target
-        const extURL = viewer.convFigmaURL(link.url);
+        var target = event && event.metaKey ? "_blank" : reaction.target
+        const extURL = viewer.convFigmaURL(reaction.url);
         //
         if (typeof extURL == "string" && extURL.includes("//"))
         { // Redirect to some URL
@@ -1324,7 +1378,7 @@ function handleLinkEvent(event, customEvent = undefined)
             { // Go to a local page
                 viewer.goTo(extURL)
             }
-        return handleLinkEvent_Final(link, orgPage)
+        return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
     }
 
     // close last current overlay if it still has parent
@@ -1333,7 +1387,7 @@ function handleLinkEvent(event, customEvent = undefined)
         orgPage.hide()
     }
 
-    return handleLinkEvent_Final(link, orgPage)
+    return handleLinkEvent(event, undefined, reactionIndex + 1, obj);
 }
 
 
@@ -1343,50 +1397,34 @@ function _calcOverlayPos(currentPage, destPage, overlayPinPage)
     //////////////////////////////// PIN TO PAGE ////////////////////////////////
     const padX = 0
     const padY = 0
-    if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_LEFT == overlayPinPage)
+    if (Constants.FRAME_OVERLAY_PIN_PAGE_TOP_LEFT == overlayPinPage)
     {
         pageX = padX
         pageY = padY
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_CENTER == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_TOP_CENTER == overlayPinPage)
     {
         pageX = parseInt(currentPage.width / 2) - parseInt(destPage.width / 2)
         pageY = padY
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_TOP_RIGHT == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_TOP_RIGHT == overlayPinPage)
     {
         pageX = currentPage.width - destPage.width - padX
         pageY = padY
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_CENTER == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_CENTER == overlayPinPage)
     {
         pageX = parseInt(currentPage.width / 2) - parseInt(destPage.width / 2)
         pageY = parseInt(currentPage.height / 2) - parseInt(destPage.height / 2)
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_LEFT == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_BOTTOM_LEFT == overlayPinPage)
     {
         pageX = padX
         pageY = currentPage.height - destPage.height - padY
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_CENTER == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_BOTTOM_CENTER == overlayPinPage)
     {
         pageX = parseInt(currentPage.width / 2) - parseInt(destPage.width / 2)
         pageY = currentPage.height - destPage.height - padY
-    } else if (Constants.ARTBOARD_OVERLAY_PIN_PAGE_BOTTOM_RIGHT == overlayPinPage)
+    } else if (Constants.FRAME_OVERLAY_PIN_PAGE_BOTTOM_RIGHT == overlayPinPage)
     {
         pageX = currentPage.width - destPage.width - padX
         pageY = currentPage.height - destPage.height - padY
     }
     return [pageX, pageY]
-}
-
-function handleLinkEvent_Final(link, orgPage)
-{
-    // Check do we need to show some overlay after action exectuted?
-    if (link.name != "" && orgPage)
-    {
-        const overlayName = orgPage.title.split("--")[0] + "-" + link.name + "-Ntf"
-        const overlayToShow = story.pages.filter(p => p.type === "overlay" && p.title === overlayName)
-        overlayToShow.forEach(function (p)
-        {
-            if (p.overlayPinPage !== undefined) link.overlayPinPage = p.overlayPinPage
-            p.showAsOverlayInCurrentPage(viewer.currentPage, link)
-        })
-    }
-    return false
 }
