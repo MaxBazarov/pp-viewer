@@ -97,6 +97,8 @@ class ViewerPage
         this.currentX = undefined
         this.currentY = undefined
 
+        this.currentLink = undefined;
+
         // this.searchLayer  = undefined
 
         this.overlayByEvent = undefined
@@ -140,11 +142,11 @@ class ViewerPage
 
     hide(hideChilds = false, disableAnim = false)
     {
-        if (!disableAnim && this.transAnimType != Constants.FRAME_TRANS_ANIM_NONE && this.type !== "modal")
+        if (!disableAnim && this.currentTransAnimReaction && this.type !== "modal")
         {
-            const transInfo = TRANS_ANIMATIONS[this.transAnimType]
+            const transInfo = TRANS_ANIMATIONS[this.currentTransAnimReaction.transAnimType]
             const el = this.imageDiv
-            el.setAttribute("_tch", this.transAnimType)
+            el.setAttribute("_tch", this.currentTransAnimReaction.transAnimType)
             transInfo.out_classes.forEach(function (className)
             {
                 addClass(this.imageDiv, className);
@@ -219,11 +221,11 @@ class ViewerPage
 
         this.updatePosition()
 
-        if (!disableAnim && this.transAnimType != Constants.FRAME_TRANS_ANIM_NONE && this.type !== "modal")
+        if (!disableAnim && this.currentTransAnimReaction && this.type !== "modal")
         {
-            const transInfo = TRANS_ANIMATIONS[this.transAnimType]
+            const transInfo = TRANS_ANIMATIONS[this.currentTransAnimReaction.transAnimType]
             const el = this.imageDiv;
-            el.setAttribute("_tcs", this.transAnimType)
+            el.setAttribute("_tcs", this.currentTransAnimReaction.transAnimType)
             transInfo.in_classes.forEach(function (className, index)
             {
                 addClass(el, className);
@@ -1161,10 +1163,10 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
 {
     if (event) event.stopPropagation();
     if (viewer.linksDisabled) return false
-
     if (!obj) obj = this
-
     let currentPage = viewer.currentPage
+    if (reactionIndex === 0) currentPage.currentAnimReaction = undefined;
+
     var customData = customEvent || viewer["customEvent"]
     let orgPage = customData ? story.pages[customData.pageIndex] : story.pages[parseInt(obj.getAttribute("lpi"), 10)];
 
@@ -1182,6 +1184,11 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
 
         var destPage = story.pages[destPageIndex]
         if (!destPage) return
+
+        if (reaction.transAnimType != Constants.FRAME_TRANS_ANIM_NONE)
+        {
+            destPage.currentTransAnimReaction = reaction;
+        }
 
         if (reaction.navigationType === "SWAP")
         {
