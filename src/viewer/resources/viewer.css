@@ -944,6 +944,20 @@ a:focus {
     --color-background-gallery: var(--color-primary);
     --color-background-gallery-90: rgba(64, 75, 88, 0.90);
 
+    /*
+    --color-danger: #E40949;
+    --color-warning: #FFB70A;        
+    --color-accent: #568AF2;    
+    --color-hover-bright: rgba(255, 255, 255, .12);    
+    --color-link: #989EA5;
+    */
+    --menu-color-secondary: #989EA5;
+    --menu-color-active: #282828;
+    --menu-color-border: #383838;
+    --menu-color-primary: #FFFFFF;
+    --menu-color-background: #1E1E1E;
+    --menu-color-hover: #007AFF;
+
     /* font size */
     --font-regular: 12px;
     --font-small: 12px;
@@ -1156,8 +1170,8 @@ body {
     flex-direction: column;
     width: 240px;
     padding: 12px 0;
-    background: var(--color-background);
-    border: var(--border);
+    background: var(--menu-color-background);
+    border: var(--menu-border);
     box-shadow: var(--shadow2);
     border-radius: var(--border-radius);
     visibility: hidden;
@@ -1178,8 +1192,13 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    height: 44px;
-    background: var(--color-background);
+    height: 32px;
+    background: var(--menu-color-background);
+}
+
+.menu hr {
+    border-top: 1px solid var(--menu-color-border);
+    margin: 12px 0px 12px 0px;
 }
 
 .item {
@@ -1187,22 +1206,23 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    height: 44px;
+    height: 32px;
     cursor: pointer;
-    background: var(--color-background);
+    color: var(--menu-color-primary);
+    background: var(--menu-color-background);
 }
 
 .item:hover {
-    background: var(--color-hover);
+    background: var(--menu-color-hover);
 }
 
 .item:active {
-    background: var(--color-active);
+    background: var(--menu-color-active);
     transition: background .12s;
 }
 
 .item.sub:active {
-    background: var(--color-hover);
+    background: var(--menu-color-hover);
 }
 
 .item.sub:hover+div {
@@ -1215,11 +1235,17 @@ body {
 
 .item svg {
     margin-right: 16px;
+    fill: var(--menu-color-primary);
 }
 
 .item span {
     flex-grow: 1;
     text-align: start;
+}
+
+
+.item .checkbox-container label {
+    background-color: var(--menu-color-secondary);
 }
 
 .submenu {
@@ -1230,14 +1256,14 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     padding: 12px 0;
-    background: var(--color-background);
+    background: var(--menu-color-background);
     display: none;
     box-shadow: var(--shadow1);
 }
 
 .menu .tips {
     font-size: var(--font-small);
-    color: var(--color-secondary);
+    color: var(--menu-color-secondary);
     padding-left: 12px;
 }
 
@@ -1252,7 +1278,7 @@ hr {
     height: 1px;
     border: 0;
     border-top: 1px solid var(--color-border);
-    margin: 12px 0 12px 20px;
+    margin: 12px 20px 12px 20px;
     padding: 0;
 }
 
@@ -1420,7 +1446,6 @@ area {
         --color-background-gallery-90: rgba(53, 54, 58, 0.90);
         --shadow1: 0 2px 6px 0 rgba(0, 0, 0, 0.24);
     }
-
 }
 
 @media (prefers-color-scheme: light) {
