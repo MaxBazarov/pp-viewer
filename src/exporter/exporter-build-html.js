@@ -596,7 +596,7 @@ function buildMainHTML(options, es)
         <!--HEAD_INJECT-->
     </head>
 
-    <body class="screen" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
+    <body class="screenBody" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
             `
     if (options.googleCode != '')
     {

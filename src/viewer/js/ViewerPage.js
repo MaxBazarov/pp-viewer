@@ -242,7 +242,7 @@ class ViewerPage
             const group = story.groups[this.groupIndex];
             if (group && group.backColor != undefined)
             {
-                byClass("screen").style.backgroundColor = group.backColor;
+                byClass("screenBody").style.backgroundColor = group.backColor;
             } else
             {
                 console.log(`Can't find page with index=${this.groupIndex}`)
