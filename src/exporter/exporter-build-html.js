@@ -659,7 +659,7 @@ function buildMainHTML(options, es)
                         <option value="current">Current screen</option>
                     </select>
                 </div>
-                <div ID="info_viewer_content" style="padding: 24px 20px 0 20px" />
+                <div ID="info_viewer_content" style="padding: 24px 20px 0 20px"></div>
             </div>
             <div ID="exp_viewer" class="hidden viewer">
                 <div class="title">
