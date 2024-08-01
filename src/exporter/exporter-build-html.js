@@ -616,7 +616,7 @@ function buildMainHTML(options, es)
         <div class="shaft4"></div><div class="shaft5"></div><div class="shaft6"></div><div class="shaft7"></div>
     </div>
    <!--/load indicator-->
-        <div ID = "container">        
+        <div ID="container">        
         <div ID="content" onclick="viewer.onContentClick()"></div>
         <div ID="sidebar" class="hidden">
             <div ID="symbol_viewer" class="hidden viewer">
@@ -632,8 +632,7 @@ function buildMainHTML(options, es)
                   <span class="checkbox-label">Show symbols&nbsp;&nbsp;</span>
                   <select ID="lib_selector" style="width:200px;display:none;"></select>
                 </div>
-                <div ID="symbol_viewer_content" style="margin-top:20px;">
-                </div>
+                <div ID="symbol_viewer_content" style="margin-top:20px;"></div>
             </div>
             <div ID="comments_viewer" class="hidden viewer">
                 <div class="title">
