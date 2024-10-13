@@ -472,11 +472,163 @@ function buildMainHTML_NavigationIcons(options, es)
     </div>
     `
 }
+
+async function getZipFilesContent(files)
+{
+    const zipContent = []
+    const promises = []
+    files.forEach(async (relativePath, file) =>
+    {
+        const promise = file.async('string')
+        promises.push(promise)
+        zipContent.push({
+            file: relativePath,
+            content: await promise
+        })
+    })
+
+    await Promise.all(promises)
+    return zipContent
+}
+
+async function buildMainHTML_JS(options, es, verPostfix, srcPath)
+{
+    console.log("buildMainHTML_JS");
+    let s = "";
+    if (options.jsFiles)
+    {
+        let files;
+        await getZipFilesContent(options.jsFiles).then(f => files = f);
+        //options.jsFiles.filter(name => name.includes(".js")).forEach(function (f)
+        for (f of files)
+        {
+            const name = f["file"];
+            if (!name.includes(".js")) continue;
+            //
+            if (name.includes("GalleryViewer.js") && !es.galleryEnabled) continue;
+            if (name.includes("SymbolViewer.js") && !es.inspectorEnabled) continue;
+            //
+            if (name.includes("AbstractViewer.js"))
+            {
+                s = `
+                // ${f["file"]}
+                ${f["content"]}
+                ${s}
+                `;
+            } else
+                s += `        
+                // ${f["file"]}
+                ${f["content"]}            
+            `
+        };
+        if (options.jsLayersData) s += `
+            ${options.jsLayersData}
+        `
+        if (options.jsStory) s += `
+            ${options.jsStory}
+        `
+
+        s = `
+        <script>
+            ${s}
+        </script>
+        `;
+    } else
+    {
+        s += `
+        <script type = "text/javascript" src = "${srcPath}js/ViewerPage.js${verPostfix}" charset = "UTF-8"></script>        
+        <script type="text/javascript" src="${srcPath}js/Viewer.js${verPostfix}" charset="UTF-8"></script>
+        <script type="text/javascript" src="${srcPath}js/AbstractViewer.js${verPostfix}" charset="UTF-8"></script>
+        <script type="text/javascript" src="${srcPath}js/CommentsViewer.js${verPostfix}" charset="UTF-8"></script>
+        <script type="text/javascript" src="${srcPath}js/InfoViewer.js${verPostfix}" charset="UTF-8"></script>
+            `
+        if (es.galleryEnabled)
+        {
+            s += `
+                <script type = "text/javascript" src = "${srcPath}js/GalleryViewer.js${verPostfix}" charset = "UTF-8"></script>
+                    `
+        }
+        s += `
+                    <script type = "text/javascript" src = "${srcPath}js/PresenterViewer.js${verPostfix}" charset = "UTF-8"></script>
+                        `
+        if (es.inspectorEnabled)
+        {
+            if (!options.uploading)
+            {
+                s += `
+                    <script type="text/javascript" src="data/handoff.js${verPostfix}" charset="UTF-8"></script>        
+                `
+            }
+            s += `
+                    <script type = "text/javascript" src = "${srcPath}js/SymbolViewer.js${verPostfix}" charset = "UTF-8"></script>
+                `
+            if (options.enableExpViewer)
+            {
+                s += `
+                     <script type = "text/javascript" src = "${srcPath}js/ExpViewer.js${verPostfix}" charset = "UTF-8"></script>
+                `
+            }
+        }
+        s += `
+            <script type="text/javascript" src="data/story.js${verPostfix}" charset="UTF-8"></script>
+        `
+    }
+    return s;
+}
+
+async function buildMainHTML_CSS(options, es, verPostfix, srcPath)
+{
+    console.log("buildMainHTML_CSS");
+    let s = "";
+    if (options.cssFiles)
+    {
+        let files;
+        await getZipFilesContent(options.cssFiles).then(f => files = f);
+        s += `
+            <style>
+        `
+        for (f of files)
+        {
+            const name = f["file"];
+            if (!name.includes(".css")) continue;
+            //
+            if (name.includes("animations") && !options.enableAnimations) continue;
+            //
+            s += `
+                ${f["content"]}
+            `;
+        };
+        s += `
+            </style>
+        `;
+    } else
+    {
+        s += `
+            <link rel="stylesheet" type="text/css" href="${srcPath}resources/viewer.css${verPostfix}">
+            <link rel="stylesheet" type="text/css" href="${srcPath}resources/viewer-top.css${verPostfix}">
+        `
+        if (options.enableAnimations)
+        {
+            s += `
+                <link rel="stylesheet" type="text/css" href="${srcPath}resources/animations.css${verPostfix}">`
+        }
+        if (undefined != options.cssFileNames)
+        {
+            options.cssFileNames.forEach(function (cssFile)
+            {
+                s += `
+                <link rel="stylesheet" type="text/css" href="${srcPath}resources/${cssFile}${verPostfix}">`
+            })
+        }
+    }
+    return s;
+}
+
 // options{
 //      generatorText: ""
 // }
 // es: ExportSettingsInterface
-function buildMainHTML(options, es)
+async function buildMainHTML(options, es)
 {
 
     const verPostfix = "?" + ExporterConstants.DOCUMENT_VERSION_PLACEHOLDER
@@ -484,250 +636,167 @@ function buildMainHTML(options, es)
 
     let s = "";
     s += `
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="generator" content="${options.generatorText}">
-        <title>${options.docName}</title>
-        <link rel="shortcut icon"  type="image/png?" href="${srcPath}resources/icon.png${verPostfix}">
-        <link rel="stylesheet" type="text/css" href="${srcPath}resources/viewer.css${verPostfix}">
+                                <!DOCTYPE html>
+                                    <html>
+                                        <head>
+                                            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                                                <meta name="generator" content="${options.generatorText}">
+                                                    <title>${options.docName}</title>
+                                                    <link rel="shortcut icon" type="image/png?" href="${srcPath}resources/icon.png${verPostfix}">
     `
-    if (options.enableAnimations)
-    {
-        s += `
-        <link rel="stylesheet" type="text/css" href="${srcPath}resources/animations.css${verPostfix}">`
-    }
-    if (undefined != options.cssFileNames)
-    {
-        options.cssFileNames.forEach(function (cssFile)
-        {
-            s += `
-        <link rel="stylesheet" type="text/css" href="${srcPath}resources/${cssFile}${verPostfix}">`
-        })
-    }
+    s += await buildMainHTML_CSS(options, es, verPostfix, srcPath);
+    s += await buildMainHTML_JS(options, es, verPostfix, srcPath);
     s += `
-        <link rel="stylesheet" type="text/css" href="${srcPath}resources/viewer-top.css${verPostfix}">
-        <script type="text/javascript" src="${srcPath}js/ViewerPage.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="data/story.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="${srcPath}js/Viewer.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="${srcPath}js/AbstractViewer.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="${srcPath}js/CommentsViewer.js${verPostfix}" charset="UTF-8"></script>
-    `
-    if (es.galleryEnabled)
-    {
-        s += `
-            <script type="text/javascript" src="${srcPath}js/GalleryViewer.js${verPostfix}" charset="UTF-8"></script>
-            `
-    }
-    s += `
-        <script type="text/javascript" src="${srcPath}js/PresenterViewer.js${verPostfix}" charset="UTF-8"></script>
-	`
-    if (es.inspectorEnabled)
-    {
-        if (!options.uploading)
-            s += `
-                <script type="text/javascript" src="data/handoff.js${verPostfix}" charset="UTF-8"></script>        
-		    `
-        s += `        
-        <script type="text/javascript" src="${srcPath}js/SymbolViewer.js${verPostfix}" charset="UTF-8"></script>
-		`
-        if (options.enableExpViewer)
-        {
-            s += `
-              <script type="text/javascript" src="${srcPath}js/ExpViewer.js${verPostfix}" charset="UTF-8"></script>
-            `
-        }
-    }
-    s += `
-        <script type="text/javascript" src="${srcPath}js/InfoViewer.js${verPostfix}" charset="UTF-8"></script>
         <script type="text/javascript">
     `
     if (options.jsCode && options.jsCode != '')
     {
         s += `
-        function runJSCode(){${options.jsCode}}
+        function runJSCode() {${options.jsCode} }
         `
     }
     s += `
-        var viewer = new Viewer(story, "images")
-        `
+                                                                    var viewer = new Viewer(story, "images");
+                                                                    `
     s += '</script>'
-
-    if (options.googleCode != '')
-    {
-        if (options.googleCode.startsWith("GTM"))
-        {
-            s += `
-        <!--Google Tag Manager-->
-            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?ID='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','${options.googleCode}');</script>
-            <!--End Google Tag Manager--> `
-        } else
-        {
-            s += `
-        <!--Global site tag(gtag.js) - Google Analytics-->
-            <script async src="https://www.googletagmanager.com/gtag/js?ID=${options.googleCode}"></script>
-            <script>
-            window.dataLayer = window.dataLayer || [];
-             function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${options.googleCode}');
-            </script>
-    `
-        }
-    }
     s += `
-        <script>
-        function copyToBuffer(elID) {
-            var copyText = document.getElementById(elID);
+                                                                <script>
+                                                                    function copyToBuffer(elID)
+                                                                    {
+                var copyText = document.getElementById(elID);
 
-            var temp = document.createElement("input");
-            byTag("body").appendChild(temp);
-            temp.value = copyText.textContent;
-            temp.select();
-            document.execCommand("copy");
-            temp.remove();
-        }
-        </script>
-        <!--HEAD_INJECT-->
-    </head>
+                                                                    var temp = document.createElement("input");
+                                                                    byTag("body").appendChild(temp);
+                                                                    temp.value = copyText.textContent;
+                                                                    temp.select();
+                                                                    document.execCommand("copy");
+                                                                    temp.remove();
+            }
+                                                                </script>
+                                                                <!--HEAD_INJECT-->
+                                                            </head>
 
-    <body class="screenBody" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
-            `
-    if (options.googleCode != '')
-    {
-        if (options.googleCode.startsWith("GTM"))
-        {
-            s += `
-            <!--Google Tag Manager(noscript)-->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?ID=${options.googleCode}"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <!--End Google Tag Manager(noscript)--> `
-        }
-    }
+                                                            <body class="screenBody" onload="${options.jsCode && options.jsCode != "" ? "runJSCode()" : ""}">
+    `
 
     s += buildMainHTML_NavigationIcons(options, es)
     s += `
-        <div class="shaft1"></div><div class="shaft2"></div><div class="shaft3"></div>
-        <div class="shaft4"></div><div class="shaft5"></div><div class="shaft6"></div><div class="shaft7"></div>
-    </div>
-   <!--/load indicator-->
-        <div ID="container">        
-        <div ID="content" onclick="viewer.onContentClick()"></div>
-        <div ID="sidebar" class="hidden">
-            <div ID="symbol_viewer" class="hidden viewer">
-                <div class="title">
-                  <div style="width:100%;">Element Inspector</div>
-                  <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.symbolViewer.toggle();  return false;">
-                    <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
-                  </div>
-                </div>
-                <div class="checkbox-container" style="margin-top:62px;display:none">
-                  <input type="checkbox" ID="symbol_viewer_symbols" />
-                  <label for="symbol_viewer_symbols"></label>
-                  <span class="checkbox-label">Show symbols&nbsp;&nbsp;</span>
-                  <select ID="lib_selector" style="width:200px;display:none;"></select>
-                </div>
-                <div ID="symbol_viewer_content" style="margin-top:20px;"></div>
-            </div>
-            <div ID="comments_viewer" class="hidden viewer">
-                <div class="title">
-                    <div style="width:100%;">Comments</div>
-                    <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
-                        <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
-                    </div>
-                </div>
-                <div ID="comments_viewer_content">
-                </div>
-            </div>
-            <div ID="info_viewer" class="hidden viewer">
-                <div class="title">
-                    <div style="width:100%;">Changes Inspector</div>
-                    <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.infoViewer.toggle();  return false;">
-                        <svg class="svgIcon">
-                            <use xlink:href="#icClose"></use>
-                        </svg>
-                    </div>
-                </div>
-                <div style="padding: 72px 20px 0 20px">
-                    <select onchange="viewer.infoViewer.switchContext(this.value)">
-                        <option value="all">All screens</option>
-                        <option value="current">Current screen</option>
-                    </select>
-                </div>
-                <div ID="info_viewer_content" style="padding: 24px 20px 0 20px"></div>
-            </div>
-            <div ID="exp_viewer" class="hidden viewer">
-                <div class="title">
-                  <div style="width:100%;">Widgets</div>
-                  <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.expViewer.toggle();  return false;">
-                    <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
-                  </div>
-                </div>
-                <div ID="controls" style="padding: 62px 20px 0 20px">
-                    <div class="label">Show</div>
-                    <div>
-                        <input type="radio" ID="exp-scope-project" name="exp-scope" checked onclick="viewer.expViewer.setScope('project')"/><label for="exp-scope-project">all pages</label>&nbsp;
-                        <input type="radio" ID="exp-scope-page" name="exp-scope" onclick="viewer.expViewer.setScope('page')"/><label for="exp-scope-page">current page</label>
-                    </div>
-                    <div class="label">Group by</div>
-                    <div>
-                        <input type="radio" ID="exp-mode-widgets" name="exp-mode" checked onclick="viewer.expViewer.setMode('widgets')"/><label for="exp-mode-widgets">Widgets</label>&nbsp;
-                        <input type="radio" ID="exp-mode-pages" name="exp-mode" onclick="viewer.expViewer.setMode('pages')"/><label for="exp-mode-pages">Pages</label>
-                    </div>
-                    <div class="label">Filter by</div>
-                    <div>
-                        <input type="radio" ID="exp-filter-exp" name="exp-filter" checked onclick="viewer.expViewer.setFilter('exp')"/><label for="exp-filter-exp">Experimental</label>&nbsp;
-                        <input type="radio" ID="exp-filter-all" name="exp-filter" onclick="viewer.expViewer.setFilter('all')"/><label for="exp-filter-all">All</label>
-                    </div>
-                </div>
-                <div ID="exp_viewer_content" style="padding: 20px 20px 0 20px"></div>
-            </div>
-        </div>
-    <div ID="content-shadow" class="hidden" onclick="viewer.onContentClick()"></div>
-    <div ID="content-modal" class="contentModal hidden" onclick="viewer.onModalClick()"></div>
-    <div ID="gallery-modal" class="hidden">
-        <div ID="gallery-header">
-            <div ID="gallery-header-container">
-                <div id="info">
-                    <div id="title">Test</div>
-                    <div id="frames"></div>
-                </div>
-                <div ID="search"><input type="text" placeholder="Search screen..." ID="searchInput" onkeyup="viewer.galleryViewer.onSearchInputChange()"></div>
-                <div ID="right">
-                    <div class="checkbox-container">
-                        <input type="checkbox" ID="galleryShowLinks" onclick="viewer.galleryViewer.showLinks(this.checked)" />
-                        <label for="galleryShowLinks"></label>
-                        <span class="checkbox-label">Interactions(L)</span>
-                    </div>
-                    <div ID="controls">
-                        <select id="zoomSelector" onchange="viewer.galleryViewer.zoomChanged(this.value)">
-                            <option selected value="opt">Zoom to fit</option>
-                            <option value="0.1">Zoom to 10%</option>
-                            <option value="0.5">Zoom to 50%</option>
-                            <option value="1">Zoom to 100%</option>
-                            <option value="2">Zoom to 200%</option>
-                        </select>
-                    </div>
-                    <div ID="closebtn" onclick="viewer.galleryViewer.hide(); return false;"><svg class="svgIcon">
-                            <use xlink:href="#icCloseBtn"></use>
-                        </svg></div>
-                </div>
-            </div>
-        </div>
-        <div ID = "gallery">
-            <div ID="grid"></div>
-        </div>               
-    </div>
-    </div>
-    <!--  GENERATE MENU -->
-    <div ID = "nav" class="${es.menuEnabled ? "nav" : "hidden"}">
-    <div class="navLeft">
-    `
+                                                            <div class="shaft1"></div><div class="shaft2"></div><div class="shaft3"></div>
+                                                            <div class="shaft4"></div><div class="shaft5"></div><div class="shaft6"></div><div class="shaft7"></div>
+                                                        </div>
+                                                        <!--/load indicator-->
+                                                        <div ID="container">
+                                                            <div ID="content" onclick="viewer.onContentClick()"></div>
+                                                            <div ID="sidebar" class="hidden">
+                                                                <div ID="symbol_viewer" class="hidden viewer">
+                                                                    <div class="title">
+                                                                        <div style="width:100%;">Element Inspector</div>
+                                                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.symbolViewer.toggle();  return false;">
+                                                                            <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="checkbox-container" style="margin-top:62px;display:none">
+                                                                        <input type="checkbox" ID="symbol_viewer_symbols" />
+                                                                        <label for="symbol_viewer_symbols"></label>
+                                                                        <span class="checkbox-label">Show symbols&nbsp;&nbsp;</span>
+                                                                        <select ID="lib_selector" style="width:200px;display:none;"></select>
+                                                                    </div>
+                                                                    <div ID="symbol_viewer_content" style="margin-top:20px;"></div>
+                                                                </div>
+                                                                <div ID="comments_viewer" class="hidden viewer">
+                                                                    <div class="title">
+                                                                        <div style="width:100%;">Comments</div>
+                                                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
+                                                                            <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div ID="comments_viewer_content">
+                                                                    </div>
+                                                                </div>
+                                                                <div ID="info_viewer" class="hidden viewer">
+                                                                    <div class="title">
+                                                                        <div style="width:100%;">Changes Inspector</div>
+                                                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.infoViewer.toggle();  return false;">
+                                                                            <svg class="svgIcon">
+                                                                                <use xlink:href="#icClose"></use>
+                                                                            </svg>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div style="padding: 72px 20px 0 20px">
+                                                                        <select onchange="viewer.infoViewer.switchContext(this.value)">
+                                                                            <option value="all">All screens</option>
+                                                                            <option value="current">Current screen</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div ID="info_viewer_content" style="padding: 24px 20px 0 20px"></div>
+                                                                </div>
+                                                                <div ID="exp_viewer" class="hidden viewer">
+                                                                    <div class="title">
+                                                                        <div style="width:100%;">Widgets</div>
+                                                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.expViewer.toggle();  return false;">
+                                                                            <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div ID="controls" style="padding: 62px 20px 0 20px">
+                                                                        <div class="label">Show</div>
+                                                                        <div>
+                                                                            <input type="radio" ID="exp-scope-project" name="exp-scope" checked onclick="viewer.expViewer.setScope('project')" /><label for="exp-scope-project">all pages</label>&nbsp;
+                                                                            <input type="radio" ID="exp-scope-page" name="exp-scope" onclick="viewer.expViewer.setScope('page')" /><label for="exp-scope-page">current page</label>
+                                                                        </div>
+                                                                        <div class="label">Group by</div>
+                                                                        <div>
+                                                                            <input type="radio" ID="exp-mode-widgets" name="exp-mode" checked onclick="viewer.expViewer.setMode('widgets')" /><label for="exp-mode-widgets">Widgets</label>&nbsp;
+                                                                            <input type="radio" ID="exp-mode-pages" name="exp-mode" onclick="viewer.expViewer.setMode('pages')" /><label for="exp-mode-pages">Pages</label>
+                                                                        </div>
+                                                                        <div class="label">Filter by</div>
+                                                                        <div>
+                                                                            <input type="radio" ID="exp-filter-exp" name="exp-filter" checked onclick="viewer.expViewer.setFilter('exp')" /><label for="exp-filter-exp">Experimental</label>&nbsp;
+                                                                            <input type="radio" ID="exp-filter-all" name="exp-filter" onclick="viewer.expViewer.setFilter('all')" /><label for="exp-filter-all">All</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div ID="exp_viewer_content" style="padding: 20px 20px 0 20px"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div ID="content-shadow" class="hidden" onclick="viewer.onContentClick()"></div>
+                                                            <div ID="content-modal" class="contentModal hidden" onclick="viewer.onModalClick()"></div>
+                                                            <div ID="gallery-modal" class="hidden">
+                                                                <div ID="gallery-header">
+                                                                    <div ID="gallery-header-container">
+                                                                        <div id="info">
+                                                                            <div id="title">Test</div>
+                                                                            <div id="frames"></div>
+                                                                        </div>
+                                                                        <div ID="search"><input type="text" placeholder="Search screen..." ID="searchInput" onkeyup="viewer.galleryViewer.onSearchInputChange()"></div>
+                                                                        <div ID="right">
+                                                                            <div class="checkbox-container">
+                                                                                <input type="checkbox" ID="galleryShowLinks" onclick="viewer.galleryViewer.showLinks(this.checked)" />
+                                                                                <label for="galleryShowLinks"></label>
+                                                                                <span class="checkbox-label">Interactions(L)</span>
+                                                                            </div>
+                                                                            <div ID="controls">
+                                                                                <select id="zoomSelector" onchange="viewer.galleryViewer.zoomChanged(this.value)">
+                                                                                    <option selected value="opt">Zoom to fit</option>
+                                                                                    <option value="0.1">Zoom to 10%</option>
+                                                                                    <option value="0.5">Zoom to 50%</option>
+                                                                                    <option value="1">Zoom to 100%</option>
+                                                                                    <option value="2">Zoom to 200%</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div ID="closebtn" onclick="viewer.galleryViewer.hide(); return false;"><svg class="svgIcon">
+                                                                                <use xlink:href="#icCloseBtn"></use>
+                                                                            </svg></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div ID="gallery">
+                                                                    <div ID="grid"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!--GENERATE MENU-->
+                                                        <div ID="nav" class="${es.menuEnabled ? " nav" : "hidden"}">
+                                                        <div class="navLeft">
+                                                            `
     // init menu content
     const menu = []
     menu.push(
@@ -774,8 +843,8 @@ function buildMainHTML(options, es)
     // render menu
     let shownGroup = 0
     s += `
-            <div ID="menu" class="menu">
-                `
+                                                            <div ID="menu" class="menu">
+                                                                `
     menu.forEach(function (group, index)
     {
         //
@@ -791,15 +860,15 @@ function buildMainHTML(options, es)
                 <div ID="${group.ID}" class="item sub">
             `
             if (group.icon !== undefined && group.icon !== "")
-                s += `<svg class ="svgIcon"><use xlink: href="#${group.icon}"></use></svg>`
+                s += `<svg class="svgIcon"><use xlink:href="#${group.icon}"></use></svg>`
             s += `
-                <span>${group.label}</span>
-                    <div class ="tips">
-                        <svg class ='svgIcon'><use xlink: href="#icArrwRight"></use></svg>
-                    </div>
-                    <div class="submenu">
-                        <div class="groupe">
-            `
+                                                                    <span>${group.label}</span>
+                                                                    <div class="tips">
+                                                                        <svg class='svgIcon'><use xlink:href="#icArrwRight"></use></svg>
+                                                                    </div>
+                                                                    <div class="submenu">
+                                                                        <div class="groupe">
+                                                                            `
         } else
         {
             s += `<div class="groupe" ID="${group.ID}">`
@@ -843,53 +912,53 @@ function buildMainHTML(options, es)
             s += `</div>`
     })
     s += `
-        </div>
-            `
+                                                                    </div>
+                                                                    `
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     s += `
-                <div ID = "btnMenu" class="btnMenu" onclick = "viewer.showMenu()">
-                    <svg class='svgIcon'><use xlink:href="#icMenu"></use></svg>
-        </div>
-        <!--Button to embed mode-->
-        <div ID="btnOpenNew" class="btnMenu hidden" onclick="viewer.openNewWindow();return false;">
-            <svg class='svgIcon'><use xlink:href="#icResize"></use></svg>
-        </div>
-        <!--Next / Back button-->
-                <div class="navPreviewNext">
-                    <div ID="nav-left-prev" class="btnPreview" onclick="viewer.previous(); return false;" title="Previous screen">
-                        <svg class='svgIcon'><use xlink:href="#icArrwLeft"></use></svg>
-                    </div>
-                    <div ID="nav-left-next" class="btnNext" onclick="viewer.next(); return false;" title="Next screen"><svg class='svgIcon'><use xlink:href="#icArrwRight"></use></svg></div>
-                </div>
-        </div>
-                <div class="navCenter">
-                    <div class="pageName title">Default button</div>
-                    <div ID="info_viewer_options" class="infoViewerMode hidden">
-                        <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_diff" value="diff" checked onclick="viewer.infoViewer.pageChanged()" disabled /><label for="info_viewer_mode_diff">Differences</label>
-                        <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_prev" value="prev" onclick="viewer.infoViewer.pageChanged()" disabled><label for="info_viewer_mode_prev">Prev version</label>
-                            <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_new" value="new " onclick="viewer.infoViewer.pageChanged()" disabled><label for="info_viewer_mode_new">New version</label>
-                            </div>
-                    </div>
-                    <div class="navRight">
-                        <div ID="loading" class="hidden">
-                            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-                        </div>
-                        <div ID="pageComments" onclick="commentsViewer.toggle(); return false;" class="hidden">
-                            <svg class="svgIcon"> <use xlink:href="#icAddComment"></use></svg>
-                            <div ID="counter"></div>
-                        </div>
-                        <div ID="experimental" onclick="viewer.expViewer.toggle();return false;" class="hidden">
-                            <svg class="svgIcon"> <use xlink:href="#icExperimental"></use></svg>
-                        </div>
-                    </div>
-                </div>
-        </div>
-    </div>
-                `
+                                                                    <div ID="btnMenu" class="btnMenu" onclick="viewer.showMenu()">
+                                                                        <svg class='svgIcon'><use xlink:href="#icMenu"></use></svg>
+                                                                    </div>
+                                                                    <!--Button to embed mode-->
+                                                                    <div ID="btnOpenNew" class="btnMenu hidden" onclick="viewer.openNewWindow();return false;">
+                                                                        <svg class='svgIcon'><use xlink:href="#icResize"></use></svg>
+                                                                    </div>
+                                                                    <!--Next / Back button-->
+                                                                    <div class="navPreviewNext">
+                                                                        <div ID="nav-left-prev" class="btnPreview" onclick="viewer.previous(); return false;" title="Previous screen">
+                                                                            <svg class='svgIcon'><use xlink:href="#icArrwLeft"></use></svg>
+                                                                        </div>
+                                                                        <div ID="nav-left-next" class="btnNext" onclick="viewer.next(); return false;" title="Next screen"><svg class='svgIcon'><use xlink:href="#icArrwRight"></use></svg></div>
+                                                                    </div>
+                                                            </div>
+                                                            <div class="navCenter">
+                                                                <div class="pageName title">Default button</div>
+                                                                <div ID="info_viewer_options" class="infoViewerMode hidden">
+                                                                    <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_diff" value="diff" checked onclick="viewer.infoViewer.pageChanged()" disabled /><label for="info_viewer_mode_diff">Differences</label>
+                                                                    <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_prev" value="prev" onclick="viewer.infoViewer.pageChanged()" disabled><label for="info_viewer_mode_prev">Prev version</label>
+                                                                        <input type="radio" name="info_viewer_mode" ID="info_viewer_mode_new" value="new " onclick="viewer.infoViewer.pageChanged()" disabled><label for="info_viewer_mode_new">New version</label>
+                                                                        </div>
+                                                                </div>
+                                                                <div class="navRight">
+                                                                    <div ID="loading" class="hidden">
+                                                                        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+                                                                    </div>
+                                                                    <div ID="pageComments" onclick="commentsViewer.toggle(); return false;" class="hidden">
+                                                                        <svg class="svgIcon"> <use xlink:href="#icAddComment"></use></svg>
+                                                                        <div ID="counter"></div>
+                                                                    </div>
+                                                                    <div ID="experimental" onclick="viewer.expViewer.toggle();return false;" class="hidden">
+                                                                        <svg class="svgIcon"> <use xlink:href="#icExperimental"></use></svg>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    `
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     s += `
-    </body>
-</htm>
-                `
+                                                </body>
+                                            </htm>
+                                            `
     return s
 }
