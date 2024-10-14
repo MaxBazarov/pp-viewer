@@ -1054,8 +1054,10 @@ class ViewerPage
             pagerMarkImageAsLoaded()
         };
         const name = namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image));
-        img.src = images[name];
-        // img.src = encodeURIComponent(viewer.files) + '/' + name + unCachePostfix;        
+        if (IMAGES !== undefined)
+            img.src = images[name];
+        else
+            img.src = encodeURIComponent(viewer.files) + '/' + name + unCachePostfix;
         return img;
     }
 
