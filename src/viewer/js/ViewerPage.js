@@ -867,8 +867,8 @@ class ViewerPage
             // create link div
             panel.linksDiv = document.createElement("div");
             panel.linksDiv.className = "linksDiv";
-            panel.linksDiv.style.height = panel.height + "px";
-            panel.linksDiv.style.width = panel.width + "px";
+            panel.linksDiv.style.height = panel.aheight + "px";
+            panel.linksDiv.style.width = panel.awidth + "px";
             panel.imageDiv.appendChild(panel.linksDiv);
             this._createLinks(panel);
 
@@ -888,8 +888,8 @@ class ViewerPage
                 const linksDiv = document.createElement("div");
                 linksDiv.id = "div_links_" + this.index;
                 linksDiv.className = "linksDiv";
-                linksDiv.style.height = this.height + "px";
-                linksDiv.style.width = this.width + "px";
+                linksDiv.style.height = this.aheight + "px";
+                linksDiv.style.width = this.awidth + "px";
 
                 imageDiv.appendChild(linksDiv);
                 this.linksDiv = linksDiv
@@ -903,7 +903,7 @@ class ViewerPage
         //
         if (this.ax !== 0 || this.ay !== 0)
         {
-            imageDiv.scrollTo(this.x - this.ax, this.y - this.ay)
+            imageDiv.scrollTo(this.ax, this.ay)
         }
 
         //
@@ -1040,8 +1040,8 @@ class ViewerPage
         for (var link of panel.links)
         {
             link.panel = panel
-            let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
-            let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
+            let x = link.rect.x + (link.isParentFixed ? panel.x : 0) + panel.ax
+            let y = link.rect.y + (link.isParentFixed ? panel.y : 0) + panel.ay
 
             // Pre-find timeout interaction
             const timeOutReaction = link.reactions.find(r => r.trigger === "AFTER_TIMEOUT");
@@ -1125,8 +1125,8 @@ class ViewerPage
 
             var linkDiv = document.createElement("div");
             linkDiv.className = (EVENT_HOVER == eventType ? "linkHoverDiv" : "linkDiv") + (story.highlightHotspot ? " linkDivHighlight" : "");
-            linkDiv.style.left = link.rect.x + "px";
-            linkDiv.style.top = link.rect.y + "px";
+            linkDiv.style.left = (link.rect.x + panel.ax) + "px";
+            linkDiv.style.top = (link.rect.y + panel.ay) + "px";
             linkDiv.style.width = link.rect.width + "px";
             linkDiv.style.height = link.rect.height + "px";
 

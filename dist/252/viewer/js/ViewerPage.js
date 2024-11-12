@@ -30,11 +30,6 @@ const Constants = {
     FRAME_TRANS_ANIM_FADE: 3,
     FRAME_TRANS_ANIM_SLIDEIN_RIGHT: 4,
     FRAME_TRANS_ANIM_SLIDEIN_DOWN: 5,
-
-    LAYER_VSCROLL_NONE: 0,
-    LAYER_VSCROLL_DEFAULT: 1,
-    LAYER_VSCROLL_ALWAYS: 2,
-    LAYER_VSCROLL_NEVER: 3,
 }
 
 const EVENT_HOVER = 1
@@ -669,15 +664,10 @@ class ViewerPage
         // Show overlay on the new position
         const div = this.imageDiv
 
-        this.inFixedPanel = linkParentFixed && (this.overlayAlsoFixed || link.panel.isVertScroll)
+        this.inFixedPanel = linkParentFixed && (this.overlayAlsoFixed)
         if (!this.parentPage || this.parentPage.id != newParentPage.id || hasClass(div, 'hidden'))
         {
-            if (link.panel.isVertScroll)
-            {
-                removeClass(div, 'fixedPanelFloat')
-                addClass(div, 'divPanel')
-            }
-            else if (this.inFixedPanel)
+            if (this.inFixedPanel)
             {
                 removeClass(div, 'divPanel')
                 addClass(div, 'fixedPanelFloat')
@@ -754,19 +744,11 @@ class ViewerPage
                 {// OLD_FRAME_OVERLAY_ALIGN_HOTSPOT_TOP_LEFT
                     posX -= this.overlayShadowX
                 }
-                if (link.panel.isVertScroll)
-                {
-                    posY -= link.panel.y
-                    //if(orgPage.type==="modal") posY+=orgPage.
-                }
 
                 this.currentX = posX
                 this.currentY = posY
 
-                if (link.panel.isVertScroll)
-                {
-                    link.panel.imageDiv.appendChild(div)
-                } else if ("modal" == orgPage.type)
+                if ("modal" == orgPage.type)
                     newParentPage.imageDiv.appendChild(div)
                 div.style.top = posY + "px";
                 div.style.marginLeft = posX + "px";
@@ -813,7 +795,8 @@ class ViewerPage
             imageDiv.style.boxShadow = this.overlayShadow;
         if ('overlay' == this.type && this.overlayOverFixed)
             imageDiv.style.zIndex = 50;
-
+        if (this.protoOverflowH) imageDiv.style.overflowX = "auto";
+        if (this.protoOverflowV) imageDiv.style.overflowY = "auto";
         this.imageDiv = imageDiv
 
 
@@ -827,27 +810,12 @@ class ViewerPage
 
             let cssClass = ""
 
-            if (panel.isVertScroll)
-            {
-                cssClass = "panelVSCroll divPanel"
-                switch (panel.vst)
-                {
-                    case Constants.LAYER_VSCROLL_ALWAYS:
-                        cssClass += " always"; break
-                    case Constants.LAYER_VSCROLL_NEVER:
-                        cssClass += " never"; break
-                }
-                panelDiv.style.height = panel.mskH + "px";
-                panelDiv.style.width = panel.width + "px";
-                panelDiv.style.marginLeft = panel.x + "px";
-                panelDiv.style.top = panel.y + "px";
 
-            } else
             {
                 panelDiv.style.height = panel.height + "px";
                 panelDiv.style.width = panel.width + "px";
 
-                if (panel.constrains.top || panel.isFixedisVertScrollDiv || (!panel.constrains.top && !panel.constrains.bottom))
+                if (panel.constrains.top || (!panel.constrains.top && !panel.constrains.bottom))
                 {
                     panelDiv.style.top = panel.y + "px";
                 } else if (panel.constrains.bottom)
@@ -865,9 +833,6 @@ class ViewerPage
                 } else if (panel.isFloat)
                 {
                     cssClass = 'fixedPanelFloat'
-                } else if (panel.isVertScroll)
-                {
-                    cssClass = 'divPanel'
                 } else if ("top" == panel.type)
                 {
                     cssClass = 'fixedPanel fixedPanelTop'
@@ -902,13 +867,13 @@ class ViewerPage
             // create link div
             panel.linksDiv = document.createElement("div");
             panel.linksDiv.className = "linksDiv";
-            panel.linksDiv.style.height = panel.height + "px";
-            panel.linksDiv.style.width = panel.width + "px";
+            panel.linksDiv.style.height = panel.aheight + "px";
+            panel.linksDiv.style.width = panel.awidth + "px";
             panel.imageDiv.appendChild(panel.linksDiv);
             this._createLinks(panel);
 
             // add image itself
-            panel.elImage = this._loadSingleImage(panel.isFloat || panel.isVertScroll ? panel : this, 'img_' + panel.index + "_");
+            panel.elImage = this._loadSingleImage(panel.isFloat ? panel : this, 'img_' + panel.index + "_");
             panelDiv.appendChild(panel.elImage);
             if (!this.isDefault) panel.elImage.style.webkitTransform = "translate3d(0,0,0)"
         }
@@ -923,8 +888,8 @@ class ViewerPage
                 const linksDiv = document.createElement("div");
                 linksDiv.id = "div_links_" + this.index;
                 linksDiv.className = "linksDiv";
-                linksDiv.style.height = this.height + "px";
-                linksDiv.style.width = this.width + "px";
+                linksDiv.style.height = this.aheight + "px";
+                linksDiv.style.width = this.awidth + "px";
 
                 imageDiv.appendChild(linksDiv);
                 this.linksDiv = linksDiv
@@ -935,6 +900,12 @@ class ViewerPage
         var img = this._loadSingleImage(this, 'img_')
         this.elImage = img
         imageDiv.appendChild(img)
+        //
+        if (this.ax !== 0 || this.ay !== 0)
+        {
+            imageDiv.scrollTo(this.ax, this.ay)
+        }
+
         //
         this._createVideoPlayers();
     }
@@ -1047,13 +1018,17 @@ class ViewerPage
         const img = document.createElement('img');
         img.id = idPrefix + this.index;
         img.setAttribute("class", "pageImage");
-        img.style.width = sizeSrc.width + "px";
-        img.style.height = sizeSrc.height + "px";
+        img.style.width = sizeSrc.awidth + "px";
+        img.style.height = sizeSrc.aheight + "px";
         img.onload = function ()
         {
             pagerMarkImageAsLoaded()
         };
-        img.src = encodeURIComponent(viewer.files) + '/' + namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image)) + unCachePostfix;
+        const name = namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image));
+        if (story.singleFile)
+            img.src = IMAGES[name];
+        else
+            img.src = encodeURIComponent(viewer.files) + '/' + name + unCachePostfix;
         return img;
     }
 
@@ -1065,8 +1040,8 @@ class ViewerPage
         for (var link of panel.links)
         {
             link.panel = panel
-            let x = link.rect.x + (link.isParentFixed ? panel.x : 0)
-            let y = link.rect.y + (link.isParentFixed ? panel.y : 0)
+            let x = link.rect.x + (link.isParentFixed ? panel.x : 0) + panel.ax
+            let y = link.rect.y + (link.isParentFixed ? panel.y : 0) + panel.ay
 
             // Pre-find timeout interaction
             const timeOutReaction = link.reactions.find(r => r.trigger === "AFTER_TIMEOUT");
@@ -1150,8 +1125,8 @@ class ViewerPage
 
             var linkDiv = document.createElement("div");
             linkDiv.className = (EVENT_HOVER == eventType ? "linkHoverDiv" : "linkDiv") + (story.highlightHotspot ? " linkDivHighlight" : "");
-            linkDiv.style.left = link.rect.x + "px";
-            linkDiv.style.top = link.rect.y + "px";
+            linkDiv.style.left = (link.rect.x + panel.ax) + "px";
+            linkDiv.style.top = (link.rect.y + panel.ay) + "px";
             linkDiv.style.width = link.rect.width + "px";
             linkDiv.style.height = link.rect.height + "px";
 
@@ -1196,6 +1171,11 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
             destPage.currentTransAnimReaction = reaction;
         }
 
+        if (destPage.type == "modal")
+        {
+            viewer.goTo(destPage.index);
+            return
+        }
         if (reaction.navigationType === "SWAP")
         {
             const orgLink = {
