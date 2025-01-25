@@ -1490,6 +1490,6 @@ area {
     }
 
     .submenu {
-        transform: translateX(24px, -24px);
+        transform: translate(24px, -24px);
     }
 }
