@@ -517,7 +517,7 @@ class SymbolViewer extends AbstractViewer
                 categoryName = "Icon"
             }
         }
-        const libName = layer.b ? "Team library" : "Local";
+        const libName = layer.r ? "Team library" : "Local";
         //
         let info = `
         <hr>
