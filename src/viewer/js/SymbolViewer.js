@@ -441,8 +441,8 @@ class SymbolViewer extends AbstractViewer
             }
 
             info += sv._showLayerDimensions(layer)
-            info += sv._showLayerAutoLayout(layer)
             info += sv._showLayerSymbol(layer, symName, siLayer)
+            info += sv._showLayerAutoLayout(layer)
             info += sv._showLayerComment(layer, siLayer)
             info += sv._showLayerText(layer, siLayer, decRes)
             info += sv._showLayerFrame(layer, siLayer, decRes)
@@ -505,7 +505,7 @@ class SymbolViewer extends AbstractViewer
     {
         if (undefined == symName) return ""
         // Drop path to icon, leave only name
-        let categoryName = "Figma component"
+        let categoryName = "Component"
         const iconTagPos = layer.n.indexOf(ICON_TAG)
         this.currLayerIsIcon = iconTagPos >= 0
         if (this.currLayerIsIcon)
@@ -522,15 +522,23 @@ class SymbolViewer extends AbstractViewer
         let info = `
         <hr>
         <div class="panel">
-            <div class="label">${categoryName}</div>
-            <div class="fieldset">
-                <span class="label">Name</span>                
-                <span class="value">${symName}</span>
-            </div> 
-            <div class="fieldset">
-                <span class="label">Library</span>                
-                <span class="value">${libName}</span>
-            </div> 
+            <div class="label">${symName}</div>
+            <div class="descr">${libName}</div>
+        `
+        // Show variant values
+        if (layer.cv && layer.cv.length)
+        {
+            layer.cv.forEach(v =>
+            {
+                info += `
+                <div class="fieldset">
+                    <span class="label">${v.n}</span>                
+                    <span class="value">${v.v}</span>
+                </div> 
+                `
+            })
+        }
+        info += `
         </div>
         `
         return info

@@ -342,6 +342,14 @@ select:focus {
     padding-bottom: 16px;
 }
 
+#symbol_viewer_content .panel .descr {
+    color: var(--color-secondary);
+    font-weight: 300;
+    margin-right: 10px;
+    margin-top: -12px;
+    margin-bottom: 8px;
+}
+
 #symbol_viewer_content .field {
     margin-bottom: 4px;
 }
