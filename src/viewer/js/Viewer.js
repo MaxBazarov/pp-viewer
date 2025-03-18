@@ -533,16 +533,13 @@ class Viewer
             }
             fileKey = items[4];
         }
-        //                
-        if (story.fileKey !== fileKey) return url;
-        //        
+        //    
         const qi = url.indexOf("?");
         if (qi < 0)
         {
             console.log(`Can't find ? in ${url}`);
             return "";
         }
-        // Parse URL to find a requested node-id
         const searchParams = new URLSearchParams(url.substring(qi));
         if (searchParams.has("starting-point-node-id"))
         {
@@ -554,15 +551,27 @@ class Viewer
                 frameID = searchParams.get("node-id");
             }
         }
-        if (frameID === "") return url;
-        // Try to find a local page by node-id
-        const foundPages = story.pages.filter(p => p.id === frameID);
-        if (foundPages.length == 0)
+        //            
+        if (story.fileKey !== fileKey)
         {
-            console.log(`Can't find page by node-id "${frameID}"`);
-            return "";
+            const mapItem = pageMap[fileKey];
+            if (mapItem)
+            {
+                return "./" + mapItem + (frameID ? "?frameID=" + frameID : "");
+            }
+            return url;
+        } else
+        {
+            if (frameID === "") return url;
+            // Try to find a local page by node-id
+            const foundPages = story.pages.filter(p => p.id === frameID);
+            if (foundPages.length == 0)
+            {
+                console.log(`Can't find page by node-id "${frameID}"`);
+                return "";
+            }
+            return foundPages[0].index;
         }
-        return foundPages[0].index;
     }
 
     _convFigmaURL_Cloud(url)
@@ -1156,8 +1165,21 @@ class Viewer
 
         if (null == result.page_name || "" == result.page_name || this.urlParams.get(result.page_name) != "")
         {
-            result.page_name = ""
-            result.reset_url = true
+            const frameID = this.urlParams.get("frameID");
+            if (frameID)
+            {
+                const foundPages = story.pages.filter(p => p.id === frameID);
+                alert(frameID);
+                if (foundPages.length)
+                {
+                    result.page_name = foundPages[0].name;
+                }
+
+            }
+            if (result.page_name === "")
+            {
+                result.reset_url = true;
+            }
         } else
         {
             result.overlayLinkIndex = this.urlParams.get("o")

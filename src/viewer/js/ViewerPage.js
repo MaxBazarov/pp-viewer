@@ -1362,7 +1362,7 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
         var target = event && event.metaKey ? "_blank" : reaction.target
         const extURL = viewer.convFigmaURL(reaction.url);
         //
-        if (typeof extURL == "string" && extURL.includes("//"))
+        if (typeof extURL == "string" && (extURL.includes("//") || extURL.includes("./")))
         { // Redirect to some URL
             window.open(extURL, target != undefined ? target : "_self")
         } else if (typeof extURL == "number")
