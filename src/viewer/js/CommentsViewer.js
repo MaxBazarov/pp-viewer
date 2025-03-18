@@ -9,22 +9,20 @@ class CommentsViewer extends AbstractViewer
 
         this.alwaysHandlePageChanged = true
         this.preventCustomTextSearch = true
+        this.blockMainNavigation = true;
 
-        this.comments = null
         this.inputFocused = false
         commentsViewer = this
 
         this.forumID = viewer.teamID
-        this.commentsURL = document.location.origin + "/ds/_private/comments/backend/server.php?fid=" + this.forumID
+        this.backURL = document.location.origin + "/ds/_private/comments/backend/server.php?fid=" + this.forumID
+
+        this.comments = new Comments(this.forumID, this.backURL);
     }
 
     initialize(force = false)
     {
         if (!super.initialize(force)) return
-
-        this._showLoadingMessage()
-        this._showComments();
-
     }
 
     ///////////////////////////////////////////////// called by Viewer
@@ -134,7 +132,7 @@ class CommentsViewer extends AbstractViewer
     sendRequest(formData, cmd, handler)
     {
         var xhr = new XMLHttpRequest()
-        xhr.open("POST", this.commentsURL + "&cmd=" + cmd, true)
+        xhr.open("POST", this.backURL + "&cmd=" + cmd, true)
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
         xhr.onload = handler
         xhr.send(formData)
@@ -146,7 +144,7 @@ class CommentsViewer extends AbstractViewer
         if (total > 0)
         {
             div.innerHTML = total;
-            showEl(div); x
+            showEl(div);
         } else
         {
             hideEl(div);
@@ -155,6 +153,7 @@ class CommentsViewer extends AbstractViewer
 
     _showComments()
     {
+        /*
         var formData = new FormData();
         //
         var uid = window.localStorage.getItem("comments-uid")
@@ -183,6 +182,7 @@ class CommentsViewer extends AbstractViewer
 
         };
         xhr.send(formData);
+        */
     }
 
 
@@ -196,10 +196,5 @@ class CommentsViewer extends AbstractViewer
         viewer.currentPage.linksDiv.querySelectorAll("a").forEach(el => hideEl(el));
         //
         if (this.comments) this.comments.showViewer()
-    }
-
-    _showLoadingMessage()
-    {
-        byId("comments_viewer_content").innerHTML = "Loading...";
     }
 }
