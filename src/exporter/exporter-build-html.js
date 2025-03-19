@@ -491,6 +491,14 @@ async function getZipFilesContent(files)
     return zipContent
 }
 
+
+async function buildMainHTML_LocalHTMLCode(options, es, verPostfix, srcPath)
+{
+    if (!options.localHTMLMap) return "";
+    let s = "const localHTMLMap = " + JSON.stringify(options.localHTMLMap) + ";";
+    return s;
+}
+
 async function buildMainHTML_JS(options, es, verPostfix, srcPath)
 {
     console.log("buildMainHTML_JS");
@@ -660,6 +668,7 @@ async function buildMainHTML(options, es)
                         <meta name="generator" content="${options.generatorText}">
                             <title>${options.docName}</title>
                             <link rel="shortcut icon" type="image/png?" href="${srcPath}resources/icon.png${verPostfix}">
+                            
                                 `
     s += await buildMainHTML_Images(options, es, verPostfix, srcPath);
     s += await buildMainHTML_CSS(options, es, verPostfix, srcPath);
@@ -667,6 +676,7 @@ async function buildMainHTML(options, es)
     s += `
                                 <script type="text/javascript">
                                     `
+    s += await buildMainHTML_LocalHTMLCode(options, es, verPostfix, srcPath);
     if (options.jsCode && options.jsCode != '')
     {
         s += `
