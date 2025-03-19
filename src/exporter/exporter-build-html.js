@@ -533,9 +533,6 @@ async function buildMainHTML_JS(options, es, verPostfix, srcPath)
             ${s}
         </script>
         `;
-        s += `
-            <script type="text/javascript" src="pageMap.js" charset="UTF-8"></script>
-        `;
     } else
     {
         s += `

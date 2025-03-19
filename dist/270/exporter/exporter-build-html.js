@@ -657,6 +657,7 @@ async function buildMainHTML(options, es)
                         <meta name="generator" content="${options.generatorText}">
                             <title>${options.docName}</title>
                             <link rel="shortcut icon" type="image/png?" href="${srcPath}resources/icon.png${verPostfix}">
+                            
                                 `
     s += await buildMainHTML_Images(options, es, verPostfix, srcPath);
     s += await buildMainHTML_CSS(options, es, verPostfix, srcPath);
