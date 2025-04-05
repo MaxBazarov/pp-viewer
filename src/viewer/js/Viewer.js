@@ -105,7 +105,7 @@ async function preloadAllPageImages()
 {
     removeClass(bySel("#nav #loading"), "hidden")
     pagerLoadingTotal = story.totalImages
-    for (var page of story.pages.filter(type === "regular"))
+    for (var page of story.pages.filter(n => n.type === "regular"))
     {
         if (page.elImage == undefined)
         {
