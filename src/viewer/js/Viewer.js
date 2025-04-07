@@ -990,7 +990,7 @@ class Viewer
             this._setupTransNext(newPage.transNextMsecs)
         }
 
-        if (!newPage.disableAutoScroll && (!link || !link.disableAutoScroll))
+        if (!link || !(link.reactions.filter(r => r.disableAutoScroll).length))
         {
             window.scrollTo(0, 0)
         }
