@@ -780,7 +780,7 @@ class ViewerPage
         /// check if already loaded images for this page
         if (!force && this.elImage != undefined)
         {
-            return pagerMarkImageAsLoaded()
+            return
         }
 
         const enableLinks = true;
@@ -1020,10 +1020,11 @@ class ViewerPage
         img.setAttribute("class", "pageImage");
         img.style.width = sizeSrc.awidth + "px";
         img.style.height = sizeSrc.aheight + "px";
-        img.onload = function ()
-        {
-            pagerMarkImageAsLoaded()
-        };
+        /*        img.onload = function ()
+                {
+                    pagerMarkImageAsLoaded()
+                };
+                */
         const name = namePrefix + (sizeSrc.imageFixedLess ? sizeSrc.imageFixedLess : encodeURIComponent(sizeSrc.image));
         if (story.singleFile)
             img.src = IMAGES[name];

@@ -92,18 +92,9 @@ function doTransNext()
     viewer.transQueue.shift()
 }
 
-function pagerMarkImageAsLoaded()
-{
-    console.log(pagerLoadingTotal);
-    if (--pagerLoadingTotal == 0)
-    {
-        addClass(bySel("#nav #loading"), "hidden")
-    }
-}
-
 async function preloadAllPageImages()
 {
-    removeClass(bySel("#nav #loading"), "hidden")
+    showEl(bySel("#nav #loading"));
     pagerLoadingTotal = story.totalImages
     for (var page of story.pages.filter(n => n.type === "regular"))
     {
@@ -113,6 +104,7 @@ async function preloadAllPageImages()
             addClass(page.imageDiv, "hidden")
         }
     }
+    hideEl(bySel("#nav #loading"));
 }
 
 function reloadAllPageImages()
