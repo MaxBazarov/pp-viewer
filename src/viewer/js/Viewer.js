@@ -578,7 +578,7 @@ class Viewer
         formData.append("url", url)
         //
         var request = new XMLHttpRequest();
-        request.open("POST", `../../../_private/tools.php?cmd=convertFigmaURL&tid=${this.teamID}`, false);
+        request.open("POST", `../../_private/tools.php?cmd=convertFigmaURL&tid=${this.teamID}`, false);
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         request.send(formData);
         if (request.status === 200)
