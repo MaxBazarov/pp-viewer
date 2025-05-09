@@ -329,6 +329,27 @@ select:focus {
     padding: 72px 12px 0 12px;
 }
 
+#comments_viewer_content .comment {
+    font-size: 12px;
+    margin-top: 10px
+}
+
+#comments_viewer_content .comment .header {
+    color: var(--color-secondary);
+}
+
+#comments_viewer_content .commentForm {
+    font-size: 12px;
+    width: 99%;
+}
+
+#comments_viewer_content .commentForm #msg {
+    font-size: 12px;
+    width: 99%
+}
+
+
+
 #symbol_viewer_content #empty {
     position: absolute;
     top: 54px;
@@ -1500,4 +1521,212 @@ area {
     .submenu {
         transform: translate(80px, -160px);
     }
+}
+
+/* Figma UI */
+/* Vars */
+:root {
+    /* COLORS */
+    /* Accent */
+    --blue: #18a0fb;
+    --purple: #7b61ff;
+    --hot-pink: #ff00ff;
+    --green: #1bc47d;
+    --red: #f24822;
+    --yellow: #ffeb00;
+    /* Basic foreground */
+    --black: #000000;
+    --black8: rgba(0, 0, 0, .8);
+    --black8-opaque: #333333;
+    --black3: rgba(0, 0, 0, .3);
+    --black3-opaque: #B3B3B3;
+    --white: #ffffff;
+    --white8: rgba(255, 255, 255, .8);
+    --white4: rgba(255, 255, 255, .4);
+    /* Basic background */
+    --grey: #f0f0f0;
+    --silver: #e5e5e5;
+    --hud: #222222;
+    --toolbar: #2c2c2c;
+    /* Special */
+    --black1: rgba(0, 0, 0, .1);
+    --blue3: rgba(24, 145, 251, .3);
+    --purple4: rgba(123, 97, 255, .4);
+    --hover-fill: rgba(0, 0, 0, .06);
+    --selection-a: #daebf7;
+    --selection-b: #edf5fa;
+    --white2: rgba(255, 255, 255, .2);
+    /* TYPOGRAPHY */
+    /* Pos = positive applications (black on white) */
+    /* Neg = negative applications (white on black) */
+    /* Font stack */
+    --font-stack: 'Inter', sans-serif;
+    /* Font sizes */
+    --font-size-xsmall: 11px;
+    --font-size-small: 12px;
+    --font-size-large: 13px;
+    --font-size-xlarge: 14px;
+    /* Font weights */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+    /* Lineheight */
+    --font-line-height: 16px;
+    /* Use For xsmall, small font sizes */
+    --font-line-height-large: 24px;
+    /* Use For large, xlarge font sizes */
+    /* Letterspacing */
+    --font-letter-spacing-pos-xsmall: .005em;
+    --font-letter-spacing-neg-xsmall: .01em;
+    --font-letter-spacing-pos-small: 0;
+    --font-letter-spacing-neg-small: .005em;
+    --font-letter-spacing-pos-large: -.0025em;
+    --font-letter-spacing-neg-large: .0025em;
+    --font-letter-spacing-pos-xlarge: -.001em;
+    --font-letter-spacing-neg-xlarge: -.001em;
+    /* BORDER RADIUS */
+    --border-radius-small: 2px;
+    --border-radius-med: 5px;
+    --border-radius-large: 6px;
+    /* SHADOWS */
+    --shadow-hud: 0 5px 17px rgba(0, 0, 0, .2), 0 2px 7px rgba(0, 0, 0, .15);
+    --shadow-floating-window: 0 2px 14px rgba(0, 0, 0, .15);
+    /* SPACING + SIZING */
+    --size-xxxsmall: 4px;
+    --size-xxsmall: 8px;
+    --size-xsmall: 16px;
+    --size-small: 24px;
+    --size-medium: 32px;
+    --size-large: 40px;
+    --size-xlarge: 48px;
+    --size-xxlarge: 64px;
+    --size-xxxlarge: 80px;
+}
+
+
+.button {
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius-large);
+    color: var(--white);
+    flex-shrink: 0;
+    font-family: var(--font-stack);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--font-letter-spacing-neg-small);
+    line-height: var(--font-line-height);
+    height: var(--size-medium);
+    padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+    text-decoration: none;
+    outline: none;
+    border: 2px solid transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.button--primary {
+    background-color: var(--blue);
+}
+
+.button--primary:enabled:active,
+.button--primary:enabled:focus {
+    border: 2px solid var(--black3);
+}
+
+.button--primary:disabled {
+    background-color: var(--black3);
+}
+
+.button--primary-destructive {
+    background-color: var(--red);
+}
+
+.button--primary-destructive:enabled:active,
+.button--primary-destructive:enabled:focus {
+    border: 2px solid var(--black3);
+}
+
+.button--primary-destructive:disabled {
+    opacity: 0.3;
+}
+
+.button--secondary,
+.button--secondary-destructive {
+    background-color: var(--white);
+    border: 1px solid var(--black8);
+    color: var(--black8);
+    padding: 0 calc(var(--size-xsmall) + 1px) 0 calc(var(--size-xsmall) + 1px);
+    letter-spacing: var(--font-letter-spacing-pos-small);
+}
+
+.button--secondary:enabled:active,
+.button--secondary-destructive:enabled:active,
+.button--secondary:enabled:focus,
+.button--secondary-destructive:enabled:focus {
+    border: 2px solid var(--blue);
+    padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+}
+
+.button--secondary:disabled,
+.button--secondary-destructive:disabled {
+    border: 1px solid var(--black3);
+    color: var(--black3);
+}
+
+.button--secondary-destructive {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.button--secondary-destructive:disabled {
+    background-color: var(--white);
+}
+
+.button--secondary-destructive:enabled:active,
+.button--secondary-destructive:enabled:focus {
+    border: 2px solid var(--red);
+    padding: 0 var(--size-xsmall) 0 var(--size-xsmall);
+}
+
+.button--secondary-destructive:disabled {
+    border: 1px solid var(--red);
+    background-color: var(--white);
+    color: var(--red);
+    opacity: 0.4;
+}
+
+.button--tertiary,
+.button--tertiary-destructive {
+    border: 1px solid transparent;
+    color: var(--blue);
+    background-color: transparent;
+    padding: 0;
+    font-weight: var(--font-weight-normal);
+    letter-spacing: var(--font-letter-spacing-pos-small);
+    cursor: pointer;
+}
+
+.button--tertiary:enabled:focus,
+.button--tertiary-destructive:enabled:focus {
+    text-decoration: underline;
+}
+
+.button--tertiary:disabled,
+.button--tertiary-destructive:disabled {
+    cursor: default;
+    color: var(--black3);
+}
+
+.button--tertiary-destructive {
+    color: var(--red);
+}
+
+.button--tertiary-destructive:enabled:focus {
+    text-decoration: underline;
+}
+
+.button--tertiary-destructive:disabled {
+    opacity: 0.4;
 }

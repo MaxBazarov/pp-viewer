@@ -538,15 +538,21 @@ async function buildMainHTML_JS(options, es, verPostfix, srcPath)
         s += `
         <script type = "text/javascript" src = "${srcPath}js/ViewerPage.js${verPostfix}" charset = "UTF-8"></script>        
         <script type="text/javascript" src="${srcPath}js/Viewer.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="${srcPath}js/AbstractViewer.js${verPostfix}" charset="UTF-8"></script>
-        <script type="text/javascript" src="${srcPath}js/CommentsViewer.js${verPostfix}" charset="UTF-8"></script>
+        <script type="text/javascript" src="${srcPath}js/AbstractViewer.js${verPostfix}" charset="UTF-8"></script>        
         <script type="text/javascript" src="${srcPath}js/InfoViewer.js${verPostfix}" charset="UTF-8"></script>
-            `
+            `;
+        if (es.enableComments)
+        {
+            s += `
+            <script type="text/javascript" src="${srcPath}js/CommentsViewer.js${verPostfix}" charset="UTF-8"></script>
+            <script type="text/javascript" src="${srcPath}js/CommentsV.js${verPostfix}" charset="UTF-8"></script>
+            `;
+        }
         if (es.galleryEnabled)
         {
             s += `
-                <script type = "text/javascript" src = "${srcPath}js/GalleryViewer.js${verPostfix}" charset = "UTF-8"></script>
-                    `
+            <script type = "text/javascript" src = "${srcPath}js/GalleryViewer.js${verPostfix}" charset = "UTF-8"></script>
+            `;
         }
         s += `
                     <script type = "text/javascript" src = "${srcPath}js/PresenterViewer.js${verPostfix}" charset = "UTF-8"></script>
@@ -719,16 +725,22 @@ async function buildMainHTML(options, es)
                                     </div>
                                     <div ID="symbol_viewer_content" style="margin-top:20px;"></div>
                                 </div>
-                                <div ID="comments_viewer" class="hidden viewer">
-                                    <div class="title">
-                                        <div style="width:100%;">Comments</div>
-                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
-                                            <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
-                                        </div>
-                                    </div>
-                                    <div ID="comments_viewer_content">
-                                    </div>
-                                </div>
+                                 <div ID="comments_viewer" class="hidden viewer">
+                <div class="title">
+                    <div style="width:100%;">Comments</div>
+                    <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
+                        <svg class="svgIcon">
+                            <use xlink:href="#icClose"></use>
+                        </svg>
+                    </div>
+                </div>
+                <div ID="comments_viewer_content">
+                    <div id="top"></div>
+                    <br />
+                    <div id="comments"></div>
+                </div>
+            </div>
+                                
                                 <div ID="info_viewer" class="hidden viewer">
                                     <div class="title">
                                         <div style="width:100%;">Changes Inspector</div>
