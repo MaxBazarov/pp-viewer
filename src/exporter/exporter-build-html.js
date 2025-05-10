@@ -545,7 +545,7 @@ async function buildMainHTML_JS(options, es, verPostfix, srcPath)
         {
             s += `
             <script type="text/javascript" src="${srcPath}js/CommentsViewer.js${verPostfix}" charset="UTF-8"></script>
-            <script type="text/javascript" src="${srcPath}js/CommentsV.js${verPostfix}" charset="UTF-8"></script>
+            <script type="text/javascript" src="${srcPath}js/Comments.js${verPostfix}" charset="UTF-8"></script>
             `;
         }
         if (es.galleryEnabled)
