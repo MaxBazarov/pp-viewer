@@ -741,9 +741,9 @@ async function buildMainHTML(options, es)
                 </div>
             </div>
                                 
-                                <div ID="info_viewer" class="hidden viewer">
+                                 <div ID="info_viewer" class="hidden viewer">
                                     <div class="title">
-                                        <div style="width:100%;">Changes Inspector</div>
+                                        <div style="width:100%;">Document versions</div>
                                         <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.infoViewer.toggle();  return false;">
                                             <svg class="svgIcon">
                                                 <use xlink:href="#icClose"></use>
@@ -751,9 +751,10 @@ async function buildMainHTML(options, es)
                                         </div>
                                     </div>
                                     <div style="padding: 72px 20px 0 20px">
+                                        <a href="../live">Live</a><br /><br />
                                         <select onchange="viewer.infoViewer.switchContext(this.value)">
-                                            <option value="all">All screens</option>
-                                            <option value="current">Current screen</option>
+                                            <option value="all">All screen versions</option>
+                                            <option value="current">Current screen versions</option>
                                         </select>
                                     </div>
                                     <div ID="info_viewer_content" style="padding: 24px 20px 0 20px"></div>
