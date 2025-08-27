@@ -306,16 +306,32 @@ class infoViewer extends AbstractViewer
 
     _showData(data)
     {
+        this.data = data;
+        let info = "";
         if (this.context == "all")
         {
-            this._showDataForAll(data);
+            info += this._buildDataForAll(data);
         } else
         {
-            this._showDataForCurrent(data);
+            info += this._buildDataForCurrent(data);
         }
+        byId("info_viewer_content_dynamic").innerHTML = info;
     }
 
-    _showDataForCurrent(data)
+    _buildRecHeadHTML(rec, index)
+    {
+        var authorHTML = undefined != rec['email'] ? ` <div class= "tooltip" > by ${rec['author']}  <span class= "tooltiptext" > ${rec['email']}</span ></div > ` : rec['author'];
+        return `
+            <div class="ver">
+            <a href="#" 
+                onclick="viewer.infoViewer.goToVersionByRecIndex(${index})"
+                >#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}
+            </div>
+            <div class="message">${rec['message'].replaceAll('--NOTELE', '')}</div>
+            `;
+    }
+
+    _buildDataForCurrent(data)
     {
         var info = ""
         var curr = viewer.currentPage.image;
@@ -331,11 +347,9 @@ class infoViewer extends AbstractViewer
             //
             if (recPrinter++) info += "<br/>"
             //
-            var authorHTML = undefined != rec['email'] ? ` <div class= "tooltip" > by ${rec['author']}  <span class= "tooltiptext" > ${rec['email']}</span ></div > ` : rec['author']
             info += `
                 <div class= "record" >
-                <div class="ver"><a href="#" onclick="viewer.infoViewer.goToVersionByRecIndex(${index})">#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}</div>
-                <div class="message">${rec['message'].replaceAll('--NOTELE', '')}</div>
+                ${this._buildRecHeadHTML(rec, index)}
                 <div class="info">
             `
             if (screenRec['is_new'])
@@ -351,11 +365,10 @@ class infoViewer extends AbstractViewer
             info += `</div></div > `
         }, this)
 
-        this.data = data
-        byId("info_viewer_content_dynamic").innerHTML = info;
+        return info;
     }
 
-    _showDataForAll(data)
+    _buildDataForAll(data)
     {
         var info = ""
 
@@ -365,13 +378,11 @@ class infoViewer extends AbstractViewer
             if (rec["message"] === "-") return // don't show minor changes            
             if (recPrinter++) info += "<br/>"
             //
-            var authorHTML = undefined != rec['email'] ? ` <div class= "tooltip" > by ${rec['author']}  <span class= "tooltiptext" > ${rec['email']}</span ></div > ` : rec['author']
             info += `
-        <div class= "record" >
-                <div class="ver"><a href="#" onclick="viewer.infoViewer.goToVersionByRecIndex(${index})">#${rec['ver']}</a> ${new Date(rec['time'] * 1000).toLocaleDateString()} ${authorHTML}</div>
-                <div class="message">${rec['message'].replaceAll('--NOTELE', '')}</div>
+            <div class= "record" >
+                ${this._buildRecHeadHTML(rec, index)}             
                 <div class="info">
-            `
+            `;
             if (rec['screens_total_new'])
             {
                 info += `Added: <a href="#" onclick="viewer.infoViewer.showRecDetails(${index},true)" style="font-weight: normal">${rec['screens_total_new']} screen(s)</a>`
@@ -389,8 +400,7 @@ class infoViewer extends AbstractViewer
             info += `</div></div > `
         }, this)
 
-        this.data = data
-        byId("info_viewer_content_dynamic").innerHTML = info;
+        return info;;
     }
 
 
