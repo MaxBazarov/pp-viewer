@@ -375,29 +375,30 @@ class infoViewer extends AbstractViewer
         let recPrinter = 0;
         data['recs'].forEach(function (rec, index)
         {
-            if (rec["message"] === "-") return // don't show minor changes            
-            if (recPrinter++) info += "<br/>"
+            if (rec["message"] === "-") return // don't show minor changes                        
             //
             info += `
-            <div class= "record" >
+            <div class= "record">
                 ${this._buildRecHeadHTML(rec, index)}             
                 <div class="info">
             `;
             if (rec['screens_total_new'])
             {
                 info += `Added: <a href="#" onclick="viewer.infoViewer.showRecDetails(${index},true)" style="font-weight: normal">${rec['screens_total_new']} screen(s)</a>`
-                info += `<div class="nscreens" id="i${index}"/>`
+                info += `<div class="nscreens" id="i${index}"></div>`
             }
             if (rec['screens_total_changed'])
             {
                 info += `Updated: <a href="#" onclick="viewer.infoViewer.showRecDetails(${index},false)" style="font-weight: normal">${rec['screens_total_changed']} screen(s)</a>`
-                info += `<div class="uscreens" id="i${index}"/>`
+                info += `<div class="uscreens" id="i${index}"></div>`
             }
             if (!rec['screens_total_new'] && !rec['screens_total_changed'])
             {
-                info += "No visual changes"
+                info += "No visual changes";
             }
-            info += `</div></div > `
+            info += `
+                </div>
+            </div>`
         }, this)
 
         return info;;
