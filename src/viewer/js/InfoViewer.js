@@ -398,6 +398,9 @@ class infoViewer extends AbstractViewer
             }
             info += `
                 </div>
+                 <svg class='svgIcon'>
+                    <use xlink:href="#icMenu"></use>
+                </svg>
             </div>`
         }, this)
 

@@ -456,6 +456,7 @@ class GalleryViewer extends AbstractViewer
         story.groups.forEach(function (group)
         {
             this.buildContent_Group(group)
+            group.sections.forEach(section => this.buildContent_Section(section, group))
             group.pages.forEach(page => this.buildContent_Page(page, group))
         }, this);
         //this._buildLinks()
@@ -479,6 +480,42 @@ class GalleryViewer extends AbstractViewer
         group.pages = pages
     }
 
+    buildContent_Section(section, group)
+    {
+        //
+        {
+            //
+            var labelDiv = document.createElement("div");
+            labelDiv.style.left = "0px";
+            labelDiv.style.top = "0px";
+            //labelDiv.style.width = "0px";
+            //labelDiv.style.height = "0px";
+            labelDiv.style.fontSize = "12px";
+            labelDiv.style.color = invertColor(section.backColor);
+            labelDiv.className = "label galleryAbsFrameLabel hidden";
+            labelDiv.innerHTML = section.name;
+            //
+            this.divGrid.appendChild(labelDiv);
+            //            
+            section.label_div = labelDiv
+        }
+        // Show frame itself
+        {
+            var div = document.createElement("div");
+            div.style.left = "0px";
+            div.style.top = "0px";
+            div.style.width = "0px";
+            div.style.height = "0px";
+            div.className = "galleryArtboardAbs";
+            div.style.background = section.backColor;
+            div.id = "s" + section.index;
+
+            this.divGrid.appendChild(div);
+            section.div = div
+        }
+
+    }
+
     buildContent_Page(page, group)
     {
         let y = page.globalTop
@@ -486,6 +523,8 @@ class GalleryViewer extends AbstractViewer
         /// build frame label
         if (page.isFrame)
         {
+            //
+            //
             var labelDiv = document.createElement("div");
             labelDiv.style.left = "0px";
             labelDiv.style.top = "0px";
@@ -560,7 +599,6 @@ class GalleryViewer extends AbstractViewer
 
     calcNodePositions()
     {
-
         // find maximum width of page with frames
         this.maxGroupWidth = null
         let y = 0
@@ -571,7 +609,7 @@ class GalleryViewer extends AbstractViewer
             ///
             let groupLocLeft = null, groupLocRight = null, groupLocTop = null, groupLocBottom = null
             //
-            group.pages.forEach(function (page)
+            function _scan(page, group)
             {
                 page.group = group
                 page.slinks = []
@@ -582,8 +620,10 @@ class GalleryViewer extends AbstractViewer
                 if (null == groupLocLeft || page.x < groupLocLeft) groupLocLeft = page.x
                 if (null == groupLocRight || (page.x + page.width) > groupLocRight) groupLocRight = page.x + page.width
                 if (null == groupLocBottom || (page.y + page.height) > groupLocBottom) groupLocBottom = page.y + page.height
-                // 
-            }, this);
+                //             
+            }
+            group.pages.forEach(_scan, this);
+            group.sections.forEach(_scan, this);
             // 
             group.localTop = groupLocTop
             group.height = groupLocBottom - groupLocTop + GALLERY_GROUP_VMARGIN * 2
@@ -612,12 +652,14 @@ class GalleryViewer extends AbstractViewer
         story.groups.forEach(function (group)
         {
             if (group.pages.length == 0) return
-            //// show pages
-            group.pages.forEach(function (page)
+            function _calc(page)
             {
                 page.globalTop = group.globTop - group.localTop + page.y + GALLERY_GROUP_VMARGIN
                 page.globalLeft = page.x - group.localLeft
-            }, this);
+            }
+            //// show pages
+            group.sections.forEach(section => _calc(section));
+            group.pages.forEach(page => _calc(page));
             //
             this.fullHeight += group.height
             //
@@ -647,6 +689,7 @@ class GalleryViewer extends AbstractViewer
         story.groups.forEach(function (group)
         {
             this.positionContent_Group(group)
+            group.sections.forEach(section => this.positionContent_Page(section))
             group.pages.forEach(page => this.positionContent_Page(page))
         }, this);
         this._buildLinks()
@@ -673,8 +716,11 @@ class GalleryViewer extends AbstractViewer
         page.div.style.top = this._posToStyleValue(page.globalTop, GALLERY_TOP_MARGIN)
         page.div.style.width = this._posToStyleValue(page.width)
         page.div.style.height = this._posToStyleValue(page.height)
-        page.img_div.style.width = this._posToStyleValue(page.width)
-        page.img_div.style.height = this._posToStyleValue(page.height)
+        if (page.img_div)
+        {
+            page.img_div.style.width = this._posToStyleValue(page.width)
+            page.img_div.style.height = this._posToStyleValue(page.height)
+        }
     }
 
 
