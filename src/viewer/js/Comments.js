@@ -5,10 +5,6 @@ function commentReplaceEnds(value)
     return value.replace(new RegExp('\r?\n', 'g'), '<br/>')
 }
 
-function commentSaveMarker()
-{
-    commentsViewer.comments.commentForm.saveMarker()
-}
 
 function commentCursorClicked(e)
 {
@@ -17,15 +13,17 @@ function commentCursorClicked(e)
 
 class CommentsAbstractForm
 {
-    constructor(formName)
+    constructor(formName, parentID = "comments_viewer_content")
     {
-        this.formName = formName
-        this.built = false
+        this.formName = formName;
+        this.parentID = parentID;
+        this.formSelName = "#" + parentID + " #" + this.formName;
+        this.built = false;
         //
     }
-    _tuneInput(inputName, type = "input")
+    _tuneInput(inputName, type = "input", events = "")
     {
-        let input = bySel("#comments_viewer_content #" + this.formName + " #" + inputName)
+        let input = bySel(this.formSelName + " #" + inputName)
         input.addEventListener("focusin", function ()
         {
             comments.inputFocused = true
@@ -56,30 +54,30 @@ class CommentsAbstractForm
     }
     _setInputValue(inputName, value)
     {
-        let input = bySel("#comments_viewer_content #" + this.formName + " #" + inputName)
+        let input = bySel(this.formSelName + " #" + inputName)
         input.value = value;
         return input
     }
     _setElContent(elName, content)
     {
-        let el = bySel("#comments_viewer_content #" + this.formName + " #" + elName)
+        let el = bySel(this.formSelName + " #" + elName)
         el.innerHTML = content;
         return el;
     }
     showError(errorText)
     {
-        bySel("#comments_viewer_content #" + this.formName + " #error").innerHTML = errorText;
+        bySel(this.formSelName + " #error").innerHTML = errorText;
     }
     show()
     {
         if (!this.built) this.buildHTML();
         this.putDataInForm()
-        showEl(bySel("#comments_viewer_content #" + this.formName));
+        showEl(bySel(this.formSelName));
         comments.currentForm = this
     }
     hide()
     {
-        hideEl(bySel("#comments_viewer_content #" + this.formName));
+        hideEl(bySel(this.formSelName));
         this.showError("")
 
     }
@@ -352,27 +350,14 @@ class CommentsNewCommentForm extends CommentsAbstractForm
                 <span id="name"></span>&nbsp<a href="#" onclick="comments.logout();return false;">Logout</a>
                 <br/><br/>
             </div>    
-            <div id="error" style="color:red" ></div>
+            <div id="error" style="color:red"></div>
             <div>
                 <textarea id="msg" rows="5" cols="20" placeholder="New comment"></textarea>
             </div>
             <div id="buttons" style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: max-content max-content">
                 <div>
                     <button type="button" id="send" class="button button--primary" onclick="comments.commentForm.submit();return false;">Send</button> 
-                    <!-- <input id="send"  style="${comments.styles.buttonPrimary}" type="button" onclick="comments.commentForm.submit();return false;" value="Send"/> -->
-                </div>
-                <div id="addMarker">
-                    <button type="button" class="button button--secondary" onclick="comments.commentForm.startMarkerMove();return false;">Set marker</button> 
-                    <!-- <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.startMarkerMove();return false" value="Set Marker"/> -->
-                </div>
-                <div id="dropMarker" class="hidden">
-                    <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.stopMarkerMove();return false" value="Drop Marker"/>
-                </div>
-                <div id="editMarker"  class="hidden">
-                    <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.startMarkerMove();return false" value="Move Marker"/>
-                    &nbsp;
-                    <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.dropMarker();return false" value="Drop"/>
-                </div>           
+                </div>                       
             </div>
         </div> `
         return s
@@ -384,61 +369,10 @@ class CommentsNewCommentForm extends CommentsAbstractForm
         bySel("#comments_viewer_content #top").innerHTML += s;
         this._tuneInput("msg", "textarea")
     }
-    startMarkerMove()
-    {
-        //
-        if (null != this.markX)
-        {
-            commentsViewer.comments.removeCircleOnScene("new")
-            this.markX = null
-            this.markY = null
-        }
-        //
-        viewer.currentPage.imageDiv.style.cursor = `url('${MAP_ICON_URL}'), auto`;
-        viewer.currentPage.imageDiv.addEventListener("click", commentSaveMarker);
-        hideEl(bySel("#comments_viewer_content #addMarker"));
-        showEl(bySel("#comments_viewer_content #dropMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-        //
-        this.cursorEnabled = true
-        viewer.setMouseMoveHandler(this)
-    }
-    stopMarkerMove()
-    {
-        viewer.currentPage.imageDiv.style.cursor = "";
-        viewer.currentPage.imageDiv.removeEventListener("click", commentSaveMarker);
-        viewer.setMouseMoveHandler(null)
-        this.cursorEnabled = false
-        showEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-    }
     onMouseMove(x, y)
     {
         this.x = Math.round(x / viewer.currentZoom) - viewer.currentPage.currentLeft
         this.y = Math.round(y / viewer.currentZoom) - viewer.currentPage.currentTop
-    }
-    saveMarker()
-    {
-        this.stopMarkerMove()
-        //
-        this.markX = this.x
-        this.markY = this.y
-        //
-        commentsViewer.comments.addCircleToScene("new", this.markX, this.markY)
-        hideEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
-        showEl(bySel("#comments_viewer_content #editMarker"));
-    }
-    dropMarker()
-    {
-        this.markX = null
-        this.markY = null
-        commentsViewer.comments.removeCircleOnScene("new")
-        //
-        showEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
     }
     submit()
     {
@@ -488,12 +422,7 @@ class CommentsNewCommentForm extends CommentsAbstractForm
     }
     hide()
     {
-        if (this.cursorEnabled) this.stopMarkerMove()
         super.hide()
-    }
-    hideViewer()
-    {
-        if (this.cursorEnabled) this.stopMarkerMove()
     }
 }
 ////////////////// EDIT COMMENT FORM /////////
@@ -553,9 +482,9 @@ class CommentsEditCommentForm extends CommentsAbstractForm
     {
         let s = `
     <div id = "editCommentForm" class="commentForm"> 
-        <div id = "error" style = "color:red" ></div>
+        <div id = "error" style = "color:red"></div>
         <div>
-            <textarea id="msg" rows="5" cols="20" ></textarea>
+            <textarea id="msg" rows="5" cols="20"></textarea>
         </div>
         <div style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: max-content max-content">
             <div>
@@ -566,22 +495,8 @@ class CommentsEditCommentForm extends CommentsAbstractForm
                 <button type="button" class="button button--secondary" onclick="comments.editCommentForm.cancel();return false;">Cancel</button> 
                 <!-- <input id="send"  style="${comments.styles.buttonSecondary}" type="button" onclick="comments.editCommentForm.cancel();return false;" value="Cancel"/> -->
             </div>
-        `/*
-            <div id="addMarker" >
-                <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.startMarkerMove();return false" value="Set Marker"/>
-            </div>
-            <div id="dropMarker" style="display:none">
-                <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.stopMarkerMove();return false" value="Drop Marker"/>
-            </div>
-            <div id="editMarker" style="display:none">
-                <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.startMarkerMove();return false" value="Move Marker"/>
-                &nbsp;
-                <input style="${comments.styles.buttonSecondary}" type="button" onclick="comments.commentForm.dropMarker();return false" value="Drop"/>
-            </div>           
-            */
-        s += `
         </div>
-    </div > `
+    </div> `
         return s
     }
     buildHTML()
@@ -594,61 +509,10 @@ class CommentsEditCommentForm extends CommentsAbstractForm
         hideEl(this.elActions);
         return true
     }
-    startMarkerMove()
-    {
-        //
-        if (null != this.markX)
-        {
-            commentsViewer.comments.removeCircleOnScene("new")
-            this.markX = null
-            this.markY = null
-        }
-        //
-        viewer.currentPage.imageDiv.style.cursor = `url('${MAP_ICON_URL}'), auto`;
-        viewer.currentPage.imageDiv.addEventListener("click", commentSaveMarker);
-        hideEl(bySel("#comments_viewer_content #addMarker"));
-        showEl(bySel("#comments_viewer_content #dropMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-        //
-        this.cursorEnabled = true
-        viewer.setMouseMoveHandler(this)
-    }
-    stopMarkerMove()
-    {
-        viewer.currentPage.imageDiv.style.cursor = "";
-        viewer.currentPage.imageDiv.removeEventListener("click", commentSaveMarker);
-        viewer.setMouseMoveHandler(null)
-        this.cursorEnabled = false
-        showEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-    }
     onMouseMove(x, y)
     {
         this.x = Math.round(x / viewer.currentZoom) - viewer.currentPage.currentLeft
         this.y = Math.round(y / viewer.currentZoom) - viewer.currentPage.currentTop
-    }
-    saveMarker()
-    {
-        this.stopMarkerMove()
-        //
-        this.markX = this.x
-        this.markY = this.y
-        //
-        commentsViewer.comments.addCircleToScene("new", this.markX, this.markY)
-        hideEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
-        showEl(bySel("#comments_viewer_content #editMarker"));
-    }
-    dropMarker()
-    {
-        this.markX = null
-        this.markY = null
-        commentsViewer.comments.removeCircleOnScene("new")
-        //
-        showEl(bySel("#comments_viewer_content #addMarker"));
-        hideEl(bySel("#comments_viewer_content #editMarker"));
-        hideEl(bySel("#comments_viewer_content #dropMarker"));
     }
     submit()
     {
@@ -688,19 +552,13 @@ class CommentsEditCommentForm extends CommentsAbstractForm
     clear()
     {
         this.msg = ""
-        this.dropMarker()
         this.showError("")
         super.clear()
     }
     hide()
     {
-        if (this.cursorEnabled) this.stopMarkerMove()
         super.hide()
         showEl(this.elActions);
-    }
-    hideViewer()
-    {
-        if (this.cursorEnabled) this.stopMarkerMove()
     }
 }
 ////
@@ -712,31 +570,182 @@ class CommentsCursor
         this.enabled = false
         this.markX = null
         this.markY = null
+        this.datePaused = null;
     }
     show()
     {
-        viewer.currentPage.imageDiv.style.cursor = `url('${MAP_ICON_URL}'), auto`;
-        viewer.currentPage.imageDiv.addEventListener("click", commentCursorClicked);
+        this.datePaused = Date.now();
+        byId("commentsScene").style.cursor = `url('${MAP_ICON_URL}'), auto`;
+        byId("commentsScene").addEventListener("click", commentCursorClicked);
         //
         this.enabled = true
     }
     hide()
     {
-        viewer.currentPage.imageDiv.style.cursor = "";
-        viewer.currentPage.imageDiv.removeEventListener("click", commentCursorClicked);
+        byId("commentsScene").style.cursor = "";
+        byId("commentsScene").removeEventListener("click", commentCursorClicked);
         viewer.setMouseMoveHandler(null)
         this.enabled = false
     }
     clicked(e)
     {
+        if (comments.floatExpandedComment != null)
+        {
+            comments.floatExpandedComment.hide();
+            comments.floatExpandedComment = null;;
+        }
+        if (comments.floatNewComment != null)
+        {
+            comments.floatNewComment.hide();
+            comments.floatNewComment = null;;
+        }
+        //
+        if (this.datePaused)
+            if ((Date.now() - this.datePaused) < 1000)
+                return;
+            else
+                this.datePaused = null;
+        if (!this.enabled) return;
         const srcX = e.pageX, srcY = e.pageY;
         const x = Math.round(srcX / viewer.currentZoom) - viewer.currentPage.currentLeft;
         const y = Math.round((srcY) / viewer.currentZoom) - viewer.currentPage.currentTop;
         //
+        comments.floatNewComment = new Comments_Float_NewComment(x, y);
+        comments.floatNewComment.show();
         //this.hide()
         //        
         //
-        commentsViewer.comments.addCircleToScene("new", x, y)
+        //commentsViewer.comments.addCircleToScene("new", x, y)
+    }
+}
+class Comments_Float_NewComment extends CommentsAbstractForm
+{
+    constructor(x, y)
+    {
+        super("_newCommentForm", "commentsScene")
+        this.x = x;
+        this.y = y;
+        this.div = undefined;
+        this.hidden = false;
+        //                
+    }
+    show()
+    {
+        this._build();
+        //
+        showEl(this.div);
+        this.hidden = false;
+        //
+        if (comments.floatExpandedComment) comments.floatExpandedComment.hide();
+        // Hide comment mark 
+        comments.cursor.hide();
+    }
+    hide()
+    {
+        // Show comment mark again
+        comments.cursor.show();
+        /*setTimeout(function (id)
+        {
+            comments.showHideMarker(id, true);
+        }, 150, this.id);*/
+        //
+        hideEl(this.div);
+        this.hidden = true;
+        //
+        comments.floatNewComment = null;
+        this.div.remove();
+    }
+
+    _build()
+    {
+        let page = viewer.currentPage;
+        //        
+        //
+        const sd = new StageDiv(this.x, null, 200, null, "comment-overview-box", "comment-overview");
+        sd.bottom = (page.height - this.y) + "px";
+        const div = sd.elDiv()
+        addClass(div, "comment-overview-corner-leftbottom")
+        //        
+        div.innerHTML = this._buildHTML()
+        this.div = div;
+        //
+        bySel('#commentsScene').appendChild(div);
+        //
+        this._tuneInput("msg");
+        bySel(this.formSelName + " #msg").focus();
+        //
+    }
+    handleKeyDown(e)
+    {
+        if (27 == e.which)
+        {
+            e.preventDefault()
+            this.hide();
+            return true;
+        }
+        return false;
+    }
+    _buildHTML()
+    {
+        let code = "";
+        //
+        code += `
+        <div id = "_newCommentForm" class="comment">            
+            <div>                   
+                <textarea id="msg" style="font-size:12px" rows="3" cols="20" placeholder="Add a comment"></textarea>           
+                <button class="button button--primary" id="send" type="button" onclick="return comments.floatNewComment.submit();">Send</button>
+            </div>
+        `;
+        code += `
+            </div>
+        `
+        return code;
+    }
+    // Check data
+    checkData()
+    {
+        if ("" == this.msg)
+        {
+            this.showError("Specify message");
+            return false;
+        }
+        return true
+    }
+    getDataFromForm()
+    {
+        this.msg = bySel("#commentsScene #_newCommentForm #msg").value;
+    }
+    submit()
+    {
+        this.getDataFromForm();
+        if (!this.checkData()) return false;
+        ///
+        var formData = new FormData();
+        formData.append("msg", this.msg);
+        formData.append("pageOwnerName", story.authorName);
+        formData.append("pageOwnerEmail", story.authorEmail);
+        formData.append("markX", this.x);
+        formData.append("markY", this.y);
+        //
+        var handler = function ()
+        {
+            var result = JSON.parse(this.responseText);
+            if (comments.processRequestResult(result)) return
+            //                        
+            console.log(this.responseText)
+            if (result.status != 'ok')
+            {
+                //form.showError(result.message)
+            } else
+            {
+                const commentList = result.data.comments;
+                comments.reloadComments();
+            }
+        }
+        //
+        this.hide();
+        //
+        return comments.sendCommand("addComment", formData, handler);
     }
 }
 class Comments_CommentOverview
@@ -752,23 +761,56 @@ class Comments_CommentOverview
     }
     show()
     {
+        if (this.comment.expandedObj && !this.comment.expandedObj.hidden) this.comment.expandedObj.hide();
         if (!this.comment.overviewObj) this._build();
         //
         showEl(this.div);
         this.hidden = false;
         //
         // Hide comment mark 
+        comments.cursor.hide();
         comments.showHideMarker(this.id, false);
+        //        
+        if (comments.floatOverviewComment != null && comments.floatOverviewComment != this)
+        {
+            comments.floatOverviewComment.hide();
+            comments.floatOverviewComment = null;;
+        }
+        comments.setFloatOverviewComment(this, this.id);
     }
     hide()
     {
+        setTimeout(function (id)
+        {
+            comments.showHideMarker(id, true);
+        }, 150, this.id);
+        //
         hideEl(this.div);
         this.hidden = true;
-        // Show comment mark again
-        comments.showHideMarker(this.id, true);
+        //        
+        comments.unsetFloatOverviewComment(this, this.id);
     }
     _build()
     {
+        function setElTopVisible(el)
+        {
+            const offset = 10;
+            const rect = el.getBoundingClientRect();
+            const top = rect.top
+            if (top < offset)
+            {
+                const delta = offset - top;
+                el.style.top = (rect.top + delta) + "px";
+                el.style.height = rect.height + "px";
+            }
+
+        }
+        if (this.div)
+        {
+            this.div.remove();
+            this.div = undefined;
+        }
+        //
         const comment = this.comment;
         const id = this.id;
         let page = viewer.currentPage;
@@ -782,17 +824,26 @@ class Comments_CommentOverview
         div.addEventListener("mouseleave", (e) =>
         {
             this.hide();
+            // Show comment mark again
+            comments.cursor.show();
+
         });
         div.addEventListener("click", (e) =>
         {
+            if (comments.floatNewComment)
+            {
+                return comments.floatNewComment.hide();
+            }
+            e.preventDefault();
             this.hide();
             comments.showCommentExpanded(id);
-        });
+        }, undefined, true);
         //        
         div.innerHTML = this._buildHTML(comment, this.commentList)
         this.div = div;
         //
         bySel('#commentsScene').appendChild(div);
+        setElTopVisible(div);
         //
         comment.overviewObj = this;
     }
@@ -812,7 +863,7 @@ class Comments_CommentOverview
         let actions = ""
         //
         code += `
-        <div id = "c${commentID}" class="comment" >
+        <div id = "c${commentID}" class="comment">
             <div class="author">${user.name}</div> 
             <div class="date">${createdStr}</div>            
             <div>                             
@@ -826,8 +877,8 @@ class Comments_CommentOverview
             `;
         }
         code += `
-            </div >
-        `
+            </div>
+        `;
         return code;
     }
 }
@@ -839,6 +890,7 @@ class Comments_CommentExpanded
         this.id = comment.id;
         this.div = undefined;
         this.hidden = false;
+        this.editCommentID = "";
         //        
         this.show();
     }
@@ -847,19 +899,47 @@ class Comments_CommentExpanded
         if (!this.comment.expandedObj) this._build();
         showEl(this.div);
         this.hidden = false;
+        //
+        if (comments.floatExpandedComment != null)
+        {
+            comments.floatExpandedComment.hide();
+            comments.floatExpandedComment = null;;
+        }
+        //
+        comments.floatExpandedComment = this;
     }
     hide()
     {
+        //
         hideEl(this.div);
         this.hidden = true;
+        this._cancelEditing();
+        comments.floatExpandedComment = null;
+        comments._highlightComment(this.id, false)
+    }
+    _replaceData(newCommentData)
+    {
+        // Replace load comment by remote date
+        const oldComment = comments.getCommentByID(newCommentData.id);
+        if (!oldComment) return;
+        Object.keys(oldComment).forEach(key => oldComment[key] = newCommentData[key]);
+        // Rebuild view
+        this._build();
     }
     _build()
     {
+        if (this.div)
+        {
+            this.div.remove();
+            this.div = undefined;
+        }
+        //
+        //
         const comment = this.comment;
         let page = viewer.currentPage;
         let x = comment['markX'];
         //
-        const sd = new StageDiv(x, comment.markY, 200, null, "comment-expanded-box", "comment-expanded" + this.id);
+        const sd = new StageDiv(x, comment.markY, 240, null, "comment-expanded-box", "comment-expanded" + this.id);
         //sd.top = comment["markY"] + "px";
         const div = sd.elDiv()
         this.div = div;
@@ -868,6 +948,17 @@ class Comments_CommentExpanded
         //
         bySel('#commentsScene').appendChild(div);
         //
+        div.addEventListener("mouseleave", (e) =>
+        {
+            comments.cursor.show();
+
+        });
+        div.addEventListener("mouseenter", (e) =>
+        {
+            comments.cursor.hide();
+
+        });
+        //
         comment.expandedObj = this;
     }
     _buildHTML()
@@ -875,40 +966,221 @@ class Comments_CommentExpanded
         const commentList = comments.commentList;
         const comment = this.comment;
 
-        function buildMessageHTML(msg)
+        function buildMessageHTML(msg, replyMode = false)
         {
-            const user = commentList['users'][comment.uid];
+            const user = commentList['users'][msg.uid];
             let code = "";
             ///
-            var createdDate = new Date(comment['created'] * 1000)
+            var createdDate = new Date(msg['created'] * 1000)
             var createdStr = createdDate.toLocaleDateString() + " " + createdDate.toLocaleTimeString()
             ///            
-            let uid = comment['uid']
-            let commentID = comment['id']
-            let actions = ""
+            let uid = msg['uid']
+            let commentID = msg['id']
             //
             code += `
-                <div id = "c${commentID}" class="comment" >
-                <div class="author">${user.name}</div> 
+                <div id = "c${commentID}Edit" class="commentEdit hidden">
+                    <textarea id="msg" rows="2">${msg['msg']}</textarea>
+                    <div class="buttons">                        
+                        <button class="button button--primary" id="save" type="button" onclick="return comments.floatExpandedComment.saveEditing();">Save</button>
+                        <button class="button button--secondary" id="cancel" type="button" onclick="return comments.floatExpandedComment._cancelEditing();">Cancel</button>
+                    </div>
+                </div>
+                <div id = "c${commentID}" class="comment">
+                    <div class="head">
+                        <div class = "author"> ${user.name}</div> 
+            `;
+            if (comments.uid != "" && comments.uid == uid)
+            {
+                code += `
+                    <div style="cursor: pointer" onclick="comments.floatExpandedComment._switchToEdit('${commentID}'); return false;">
+                        <svg class="uiIcon16 uiIcon">
+                            <use xlink:href="#icEdit16"></use>
+                        </svg>
+                    </div>
+                `;
+                if (replyMode)
+                {
+                    code += `
+                        <div style="cursor: pointer" onclick="comments.editComment('${commentID}');return false;">
+                            <svg class="uiIcon16 uiIcon">
+                                <use xlink:href="#icDelete16"></use>
+                            </svg>
+                        </div>
+                    `;
+                }
+            }
+            code += `
+                </div>
                 <div class="date">
                     ${createdStr}                                    
                 </div> 
                 <div>                             
-                    <span id="msg">${commentReplaceEnds(comment['msg'])}<span>
+                    <span id="msg">${commentReplaceEnds(msg['msg'])}<span>
                 </div>
-            `
-            code += `
-             </div >
+             </div>
             `
             return code;
         }
-        let code = "";
-        code += buildMessageHTML(comment);
-        comment["replies"].forEach(msg =>
+        function _buildReplyForm()
         {
-            code += buildMessageHTML(msg);
-        });
+            let code = `
+    <div id = "replyForm" class="comment">
+        <div>
+            <textarea id="msg" rows="2" placeholder="Add a comment"
+                onfocus="comments.floatExpandedComment.newCommentFocused()"
+
+            ></textarea>
+            <button class="hidden button button--primary" id="send" type="button" onclick="return comments.floatExpandedComment.sendReply();">Send</button>
+        </div>
+`;
+            return code
+        }
+        let code = `
+        <div class="header">
+                <div style="width:100%;">Comment</div>
+        `
+        if (comments.uid != "" && comments.uid == comment.uid)
+        {
+            code += `
+                <div style="cursor: pointer" onclick="if(comments.floatExpandedComment) comments.floatExpandedComment._remove();  return false;">
+                    <svg class="uiIcon16">
+                        <use xlink:href="#icDelete16"></use>
+                    </svg>
+                </div>
+            `;
+        }
+        code += `            
+                <div style="cursor: pointer;margin-left:8px;" onclick="if(comments.floatExpandedComment) comments.floatExpandedComment.hide();  return false;">
+                    <svg class="uiIcon16">
+                        <use xlink:href="#icClose16"></use>
+                    </svg>
+                </div>
+            </div>
+    <div class="comments-list">
+        `;
+        code += buildMessageHTML(comment);
+        if (comment["replies"])
+        {
+            comment["replies"].forEach(msg =>
+            {
+                code += buildMessageHTML(msg, this.id);
+            });
+        }
+        code += _buildReplyForm();
+        code += `
+    </div>
+`;
         return code;
+    }
+
+    _cancelEditing()
+    {
+        if (this.editCommentID == "") return;
+        //
+        const cid = this.editCommentID;
+        const parentID = this.id;
+        function _findEl(ext = "")
+        {
+            return bySel("#comment-expanded" + parentID + " #c" + cid + ext);
+        }
+        // switch editing to view mode
+        hideEl(_findEl("Edit"));
+        showEl(_findEl());
+        const textArea = _findEl("Edit textarea");
+        textArea.value = this.editCommentOld;
+        // reset temp vars
+        this.editCommentID = "";
+        this.editCommentOld = "";
+    }
+    _switchToEdit(commentID)
+    {
+        const parentID = this.id;
+        function _findEl(ext = "")
+        {
+            return bySel("#comment-expanded" + parentID + " #c" + commentID + ext);
+        }
+        // close old editing
+        this._cancelEditing();
+
+        // open new editing
+        showEl(_findEl("Edit"));
+        hideEl(_findEl());
+        this.editCommentID = commentID;
+
+        // save old context
+        const textArea = _findEl("Edit textarea");
+        this.editCommentOld = textArea.value;
+    }
+
+    newCommentFocused()
+    {
+        const msgEl = bySel("#comment-expanded" + this.id + " #replyForm #msg");
+        addClass(msgEl, "focused");
+        const btn = bySel("#comment-expanded" + this.id + " #replyForm #send");
+        showEl(btn);
+    }
+
+    newCommentUnfocused()
+    {
+        const btn = bySel("#comment-expanded" + this.id + " #replyForm #send");
+        hideEl(btn);
+    }
+
+    _remove()
+    {
+        if (!comments.removeComment(this.id)) return;
+        this.hide();
+    }
+
+    _removeReply(replyID)
+    {
+        if (!confirm("Delete the reply?")) return;
+        //
+        var formData = new FormData();
+        formData.append("commentID", this.id);
+        formData.append("replyID", replyID);
+        var handler = function ()
+        {
+            var result = JSON.parse(this.responseText);
+            if (comments.processRequestResult(result)) return
+            //                        
+            if (result.status != 'ok')
+            {
+                alert("Can't remove the reply. " + result.message)
+            } else
+            {
+                comments.floatExpandedComment._replaceData(result.data);
+            }
+        }
+        //    
+        return comments.sendCommand("removeReply", formData, handler);
+    }
+
+    sendReply()
+    {
+        const text = bySel("#comment-expanded" + this.id + " #replyForm #msg").value;
+        ///
+        var formData = new FormData();
+        formData.append("msg", text);
+        formData.append("commentID", this.id);
+        //
+        var handler = function ()
+        {
+            var result = JSON.parse(this.responseText);
+            if (comments.processRequestResult(result)) return
+            //                        
+            console.log(this.responseText)
+            if (result.status != 'ok')
+            {
+                alert(result.message);
+                //form.showError(result.message)
+            } else
+            {
+                comments.floatExpandedComment._replaceData(result.data);
+            }
+        }
+        //
+        return comments.sendCommand("replyComment", formData, handler);
     }
 }
 ////
@@ -931,7 +1203,12 @@ class Comments
         this.loginForm = new CommentsLoginForm()
         this.authForm = new CommentsAuthForm()
         this.commentForm = new CommentsNewCommentForm()
+        //
         this.cursor = new CommentsCursor();
+        this.floatNewComment = null;
+        this.floatExpandedComment = null;
+        this.floatOverviewComment = null;
+        //
         this.editCommentForm = null
         //
         this.inputFocused = false
@@ -1032,9 +1309,10 @@ class Comments
         //    
         return comments.sendCommand("getComments", formData, handler);
     }
+
     removeComment(commentID)
     {
-        if (!confirm("Delete the comment?")) return;
+        if (!confirm("Delete the comment?")) return false;
         //
         var formData = new FormData();
         formData.append("commentID", commentID);
@@ -1045,7 +1323,6 @@ class Comments
             //                        
             if (result.status != 'ok')
             {
-                console.log(result.message)
                 alert("Can't remove the comment. " + result.message)
             } else
             {
@@ -1122,7 +1399,10 @@ class Comments
         let actions = ""
         //
         code += `
-        <div id = "c${commentID}" class="comment" >
+    <div id = "c${commentID}" class="comment"
+onmouseenter = "comments._highlightComment(${commentID},true,true)"
+onmouseleave = "comments._highlightComment(${commentID},false,true)"
+    >
             <div class="header" style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: 10px auto auto">
                 <div>#${counter}</div>                    
                 <div>
@@ -1147,9 +1427,38 @@ class Comments
             `
         }
         code += `
-            </div >
-        `
+            </div>
+`
         return code;
+    }
+    unsetFloatOverviewComment(obj, commentID)
+    {
+        this._highlightComment(commentID, false);
+        this.floatOverviewComment = null;
+    }
+    setFloatOverviewComment(obj, commentID)
+    {
+        this._highlightComment(commentID, true);
+        this.floatOverviewComment = obj;
+
+    }
+    _highlightComment(commentID, state, onMouse = false)
+    {
+        const div = bySel("#comments_viewer_content #comments #c" + commentID);
+        if (div) addRemoveClass(state, div, "highlighted")
+        if (onMouse && state)
+        {
+            const text = bySel("#commentsScene #mark-" + commentID + " text");
+            text.animate([
+                { fontSize: '12px' },
+                { fontSize: '24px' },
+                { fontSize: '12px' },
+            ], {
+                // timing options
+                duration: 700,
+                iterations: 1,
+            });
+        }
     }
     _addComment(newCommentHTML)
     {
@@ -1161,14 +1470,14 @@ class Comments
         //
         let code = ""
         //      
-        code += `<div id="list">`
+        code += `<div id = "list">`
         let counter = commentList['comments'].length
         commentList['comments'].forEach(function (comment)
         {
             code += this._buildCommentHTML(comment, counter, commentList);
             counter--;
         }, this)
-        code += `</div>`
+        code += `</div> `
         //
         bySel("#comments_viewer_content #comments").innerHTML = code;
         //
@@ -1200,9 +1509,9 @@ class Comments
         let width = page.imageDiv.style.width;
         let height = page.imageDiv.style.height;
 
-        let code = `<div id="commentsScene"><svg height="${height}" width="${width}">
-                    </svg>
-                    </div>`
+        let code = `<div id = "commentsScene"> <svg height="${height}" width="${width}">
+</svg>
+                    </div> `
         page.linksDiv.innerHTML += code;
         //
         this.currentPage = page
@@ -1210,11 +1519,15 @@ class Comments
     }
     showHideMarker(id, visible)
     {
-        showEl(bySel(`#commentsScene svg #mark-${id}`), visible);
+        showEl(bySel(`#commentsScene svg #mark-${id} `), visible);
     }
     showCommentOverview(id)
     {
         const comment = this.getCommentByID(id);
+        //
+        if (comment.overviewObj && !comment.overviewObj.hidden) return;
+        if (comment.expandedObj && !comment.expandedObj.hidden) return;
+        //
         if (!comment.overviewObj)
             comment.overviewObj = new Comments_CommentOverview(comment);
         else
@@ -1235,10 +1548,10 @@ class Comments
         y = Number(y) - 40
         //        
         let code = `
-        <svg 
-            id="mark-${id}"                        
-            onmouseenter="comments.showCommentOverview('${id}')"             
-            width="40" height="40" id="c${id}" x="${x}" y="${y}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+id = "mark-${id}"
+onmouseenter = "comments.showCommentOverview('${id}')"
+width = "40" height = "40" id = "c${id}" x = "${x}" y = "${y}" fill = "none" xmlns = "http://www.w3.org/2000/svg">
         <g filter="url(#filter0_d_217_21)">
         <path d="M3 19C3 10.1634 10.1634 3 19 3V3C27.8366 3 35 10.1634 35 19V19C35 27.8366 27.8366 35 19 35H3V19Z" fill="white" shape-rendering="crispEdges"/>
         <rect x="7" y="7" width="24" height="24" rx="12" fill="#007BE5"/>
@@ -1256,16 +1569,16 @@ class Comments
         <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_217_21" result="shape"/>
         </filter>
         </defs>
-        </svg>        
-        `;
+        </svg>
+    `;
 
         if (comment !== undefined)
         {
             let text = `
-                <div id="${id}> 
+    <div id = "${id}> 
                     ${comment['msg']}
                 </div>
-            `
+    `
             bySel('#commentsScene').innerHTML += text;
             //            
         }
