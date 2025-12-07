@@ -11,6 +11,38 @@ function commentCursorClicked(e)
     commentsViewer.comments.cursor.clicked(e)
 }
 
+function tuneInput(input, type = "input")
+{
+    input.addEventListener("focusin", function ()
+    {
+        comments.inputFocused = true
+    });
+    input.addEventListener("focusout", function ()
+    {
+        comments.inputFocused = false
+    })
+    if ("input" == type)
+    {
+        input.addEventListener("keydown", function (e)            
+        {
+            if (e.which == 13)
+            {
+                comments.currentForm.submit()
+            }
+        });
+    } else if ("textarea" == type)
+    {
+        input.addEventListener("keydown", function (e)                
+        {
+            if (e.which == 13 && e.metaKey)
+            {
+                comments.currentForm.submit()
+            }
+        });
+    }
+}
+
+
 class CommentsAbstractForm
 {
     constructor(formName, parentID = "comments_viewer_content")
@@ -21,36 +53,10 @@ class CommentsAbstractForm
         this.built = false;
         //
     }
-    _tuneInput(inputName, type = "input", events = "")
+    _tuneInput(inputName, type = "input")
     {
         let input = bySel(this.formSelName + " #" + inputName)
-        input.addEventListener("focusin", function ()
-        {
-            comments.inputFocused = true
-        });
-        input.addEventListener("focusout", function ()
-        {
-            comments.inputFocused = false
-        })
-        if ("input" == type)
-        {
-            input.addEventListener("keydown", function (e)            
-            {
-                if (e.which == 13)
-                {
-                    comments.currentForm.submit()
-                }
-            });
-        } else if ("textarea" == type)
-        {
-            input.addEventListener("keydown", function (e)                
-            {
-                if (e.which == 13 && e.metaKey)
-                {
-                    comments.currentForm.submit()
-                }
-            });
-        }
+        tuneInput(input, type);
     }
     _setInputValue(inputName, value)
     {
@@ -150,9 +156,9 @@ class CommentsLoginForm extends CommentsAbstractForm
         <div>
             <input id="email" style="${comments.styles.input}" placeholder="Your email" />
         </div>
-        <div id="buttons">
-            <input style="${comments.styles.buttonPrimary}" id="send" type="button" onclick="comments.loginForm.submit();return false;" value="Login" />
-        </div>
+        <div class="buttons">                        
+            <button class="button button--primary" id="send" type="button" onclick="comments.loginForm.submit();return false;">Login</button>
+        </div> 
     </div>`
         bySel("#comments_viewer_content #top").innerHTML += s;
         this._tuneInput("email")
@@ -296,7 +302,6 @@ class CommentsAuthForm extends CommentsAbstractForm
                 comments.saveSessionInBrowser()
 
                 form.hide()
-                comments.commentForm.show()
                 comments.reloadComments()
             }
         }
@@ -312,256 +317,6 @@ class CommentsAuthForm extends CommentsAbstractForm
     }
 
 }
-////////////////// NEW COMMENT FORM /////////
-class CommentsNewCommentForm extends CommentsAbstractForm
-{
-    constructor()
-    {
-        super("commentForm")
-        this.msg = ""
-        this.cursorEnabled = false
-        this.markX = null
-        this.markY = null
-    }
-    putDataInForm()
-    {
-        this._setInputValue("msg", this.msg)
-        this._setElContent("name", comments.user.name)
-    }
-    // Check data
-    checkData()
-    {
-        if ("" == this.msg)
-        {
-            this.showError("Specify message");
-            return false;
-        }
-        return true
-    }
-    getDataFromForm()
-    {
-        this.msg = bySel("#comments_viewer_content #top #commentForm #msg").value;
-    }
-    getHTML()
-    {
-        let s = `
-        <div id="commentForm" class="commentForm hidden" style="font-size:12px;">
-            <div id="user">
-                <span id="name"></span>&nbsp<a href="#" onclick="comments.logout();return false;">Logout</a>
-                <br/><br/>
-            </div>    
-            <div id="error" style="color:red"></div>
-            <div>
-                <textarea id="msg" rows="5" cols="20" placeholder="New comment"></textarea>
-            </div>
-            <div id="buttons" style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: max-content max-content">
-                <div>
-                    <button type="button" id="send" class="button button--primary" onclick="comments.commentForm.submit();return false;">Send</button> 
-                </div>                       
-            </div>
-        </div> `
-        return s
-    }
-    buildHTML()
-    {
-        super.buildHTML()
-        let s = this.getHTML()
-        bySel("#comments_viewer_content #top").innerHTML += s;
-        this._tuneInput("msg", "textarea")
-    }
-    onMouseMove(x, y)
-    {
-        this.x = Math.round(x / viewer.currentZoom) - viewer.currentPage.currentLeft
-        this.y = Math.round(y / viewer.currentZoom) - viewer.currentPage.currentTop
-    }
-    submit()
-    {
-        this.getDataFromForm();
-        if (!this.checkData()) return false;
-        ///
-        var formData = new FormData();
-        formData.append("msg", this.msg);
-        formData.append("pageOwnerName", story.authorName);
-        formData.append("pageOwnerEmail", story.authorEmail);
-        if (null != this.markX)
-        {
-            formData.append("markX", this.markX);
-            formData.append("markY", this.markY);
-        }
-        //
-        var handler = function ()
-        {
-            var form = comments.commentForm
-            var result = JSON.parse(this.responseText);
-            if (comments.processRequestResult(result)) return
-            //                        
-            console.log(this.responseText)
-            if (result.status != 'ok')
-            {
-                form.showError(result.message)
-            } else
-            {
-                console.log(result)
-                form.clear()
-                const commentList = result.data.comments;
-                //
-                const newComment = commentList[0];
-                const newCommentHTML = comments._buildCommentHTML(newComment, commentList.length, result.data);
-                comments._addComment(newCommentHTML);
-            }
-        }
-        //    
-        return comments.sendCommand("addComment", formData, handler);
-    }
-    clear()
-    {
-        this.msg = ""
-        this.dropMarker()
-        this.showError("")
-        super.clear()
-    }
-    hide()
-    {
-        super.hide()
-    }
-}
-////////////////// EDIT COMMENT FORM /////////
-class CommentsEditCommentForm extends CommentsAbstractForm
-{
-    constructor(commentID)
-    {
-        super("editCommentForm")
-        this.commentID = ""
-        //
-        this.msg = ""
-        this.cursorEnabled = false
-        this.markX = null
-        this.markY = null
-    }
-    build(commentID)
-    {
-        this.commentID = commentID
-
-        this.msgDiv = bySel("#comments #c" + this.commentID + " #msg");
-        if (!this.msgDiv) return false
-
-        const comment = comments.getCommentByID(commentID)
-        if (undefined == comment) return false
-        this.msg = comment['msg']
-        //
-        this.buildHTML()
-        this.putDataInForm()
-        //
-        return true
-    }
-    putDataInForm()
-    {
-        this._setInputValue("msg", this.msg)
-    }
-    // Check data
-    checkData()
-    {
-        if ("" == this.msg)
-        {
-            this.showError("Specify message");
-            return false;
-        }
-        return true
-    }
-    cancel()
-    {
-        this.msgDiv.innerHTML = commentReplaceEnds(this.msg);
-        comments.editCommentForm = null
-        showEl(this.elActions);
-    }
-    getDataFromForm()
-    {
-        this.msg = bySel("#comments #c" + this.commentID + " #editCommentForm #msg").value;
-    }
-    getHTML()
-    {
-        let s = `
-    <div id = "editCommentForm" class="commentForm"> 
-        <div id = "error" style = "color:red"></div>
-        <div>
-            <textarea id="msg" rows="5" cols="20"></textarea>
-        </div>
-        <div style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: max-content max-content">
-            <div>
-                <button type="button" id="send" class="button button--primary" onclick="comments.editCommentForm.submit();return false;">Save</button> 
-                <!-- <input id="send"  style="${comments.styles.buttonPrimary}" type="button" onclick="comments.editCommentForm.submit();return false;" value="Save"/>-->
-            </div>
-            <div>
-                <button type="button" class="button button--secondary" onclick="comments.editCommentForm.cancel();return false;">Cancel</button> 
-                <!-- <input id="send"  style="${comments.styles.buttonSecondary}" type="button" onclick="comments.editCommentForm.cancel();return false;" value="Cancel"/> -->
-            </div>
-        </div>
-    </div> `
-        return s
-    }
-    buildHTML()
-    {
-        super.buildHTML()
-        let s = this.getHTML()
-        this.msgDiv.innerHTML = s;
-        this._tuneInput("msg", "textarea")
-        this.elActions = bySel("#comments_viewer_content #comments #c" + this.commentID + " .actions");
-        hideEl(this.elActions);
-        return true
-    }
-    onMouseMove(x, y)
-    {
-        this.x = Math.round(x / viewer.currentZoom) - viewer.currentPage.currentLeft
-        this.y = Math.round(y / viewer.currentZoom) - viewer.currentPage.currentTop
-    }
-    submit()
-    {
-        this.getDataFromForm();
-        if (!this.checkData()) return false;
-        ///
-        var formData = new FormData();
-        formData.append("msg", this.msg);
-        formData.append("commentID", this.commentID);
-        if (null != this.markX)
-        {
-            formData.append("markX", this.markX);
-            formData.append("markY", this.markY);
-        }
-        //
-        var handler = function ()
-        {
-            var form = comments.editCommentForm
-            var result = JSON.parse(this.responseText);
-            if (comments.processRequestResult(result)) return
-            //                        
-            console.log(this.responseText)
-            if (result.status != 'ok')
-            {
-                form.showError(result.message)
-            } else
-            {
-                console.log(result)
-                form.cancel()
-                //form.clear()
-                //$("#comments_viewer_content #comments").html(result.data)
-            }
-        }
-        //    
-        return comments.sendCommand("updateComment", formData, handler);
-    }
-    clear()
-    {
-        this.msg = ""
-        this.showError("")
-        super.clear()
-    }
-    hide()
-    {
-        super.hide()
-        showEl(this.elActions);
-    }
-}
-////
 ////////////////// NewComment /////////
 class CommentsCursor
 {
@@ -601,11 +356,17 @@ class CommentsCursor
         }
         //
         if (this.datePaused)
-            if ((Date.now() - this.datePaused) < 1000)
+        {
+            console.log(Date.now() - this.datePaused)
+            if ((Date.now() - this.datePaused) < 200)
                 return;
             else
                 this.datePaused = null;
+        }
         if (!this.enabled) return;
+        //
+        if (comments.uid == "") return alert("You need to log in before");
+        //
         const srcX = e.pageX, srcY = e.pageY;
         const x = Math.round(srcX / viewer.currentZoom) - viewer.currentPage.currentLeft;
         const y = Math.round((srcY) / viewer.currentZoom) - viewer.currentPage.currentTop;
@@ -693,7 +454,10 @@ class Comments_Float_NewComment extends CommentsAbstractForm
         <div id = "_newCommentForm" class="comment">            
             <div>                   
                 <textarea id="msg" style="font-size:12px" rows="3" cols="20" placeholder="Add a comment"></textarea>           
-                <button class="button button--primary" id="send" type="button" onclick="return comments.floatNewComment.submit();">Send</button>
+                <div class="buttons">                        
+                    <button class="button button--primary" id="send" type="button" onclick="return comments.floatNewComment.submit();">Send</button>
+                    <button class="button button--secondary" id="cancel" type="button" onclick="return comments.floatNewComment._cancel();return false;">Cancel</button>
+                </div>                            
             </div>
         `;
         code += `
@@ -715,6 +479,10 @@ class Comments_Float_NewComment extends CommentsAbstractForm
     {
         this.msg = bySel("#commentsScene #_newCommentForm #msg").value;
     }
+    _cancel()
+    {
+        this.hide();
+    }
     submit()
     {
         this.getDataFromForm();
@@ -731,8 +499,7 @@ class Comments_Float_NewComment extends CommentsAbstractForm
         {
             var result = JSON.parse(this.responseText);
             if (comments.processRequestResult(result)) return
-            //                        
-            console.log(this.responseText)
+            //                                    
             if (result.status != 'ok')
             {
                 //form.showError(result.message)
@@ -803,7 +570,17 @@ class Comments_CommentOverview
                 el.style.top = (rect.top + delta) + "px";
                 el.style.height = rect.height + "px";
             }
-
+        }
+        function setElRightVisible(el)
+        {
+            const offset = 10;
+            const rect = el.getBoundingClientRect();
+            const sceneWidth = viewer.fullWidth - viewer.defSidebarWidth;
+            if (rect.right > sceneWidth)
+            {
+                el.style.left = (sceneWidth - rect.width - offset) + "px";
+                el.style.width = rect.width + "px";
+            }
         }
         if (this.div)
         {
@@ -844,6 +621,7 @@ class Comments_CommentOverview
         //
         bySel('#commentsScene').appendChild(div);
         setElTopVisible(div);
+        setElRightVisible(div);
         //
         comment.overviewObj = this;
     }
@@ -958,6 +736,7 @@ class Comments_CommentExpanded
             comments.cursor.hide();
 
         });
+        //        
         //
         comment.expandedObj = this;
     }
@@ -979,9 +758,13 @@ class Comments_CommentExpanded
             //
             code += `
                 <div id = "c${commentID}Edit" class="commentEdit hidden">
-                    <textarea id="msg" rows="2">${msg['msg']}</textarea>
+                    <textarea id="msg" rows="2"
+                        onfocus="comments.inputFocused = true"
+                        onblur="comments.inputFocused = false"
+
+                    >${msg['msg']}</textarea>
                     <div class="buttons">                        
-                        <button class="button button--primary" id="save" type="button" onclick="return comments.floatExpandedComment.saveEditing();">Save</button>
+                        <button class="button button--primary" id="save" type="button" onclick="return comments.floatExpandedComment._saveEditing();">Save</button>
                         <button class="button button--secondary" id="cancel" type="button" onclick="return comments.floatExpandedComment._cancelEditing();">Cancel</button>
                     </div>
                 </div>
@@ -1001,7 +784,7 @@ class Comments_CommentExpanded
                 if (replyMode)
                 {
                     code += `
-                        <div style="cursor: pointer" onclick="comments.editComment('${commentID}');return false;">
+                        <div style="cursor: pointer" onclick="comments.floatExpandedComment._deleteReply('${commentID}');return false;">
                             <svg class="uiIcon16 uiIcon">
                                 <use xlink:href="#icDelete16"></use>
                             </svg>
@@ -1027,10 +810,14 @@ class Comments_CommentExpanded
     <div id = "replyForm" class="comment">
         <div>
             <textarea id="msg" rows="2" placeholder="Add a comment"
-                onfocus="comments.floatExpandedComment.newCommentFocused()"
+                onfocus="comments.inputFocused = true; comments.floatExpandedComment.newCommentFocused()"                
+                onblur="comments.inputFocused = false"
 
             ></textarea>
-            <button class="hidden button button--primary" id="send" type="button" onclick="return comments.floatExpandedComment.sendReply();">Send</button>
+            <div class="buttons hidden">
+                <button class="button button--primary" id="send" type="button" onclick="return comments.floatExpandedComment.sendReply();">Send</button>
+                <button class="button button--secondary" id="reset" type="button" onclick="return comments.floatExpandedComment._resetReply();">Reset</button>
+            </div>
         </div>
 `;
             return code
@@ -1066,49 +853,76 @@ class Comments_CommentExpanded
                 code += buildMessageHTML(msg, this.id);
             });
         }
-        code += _buildReplyForm();
+        if (comments.uid != "") code += _buildReplyForm();
         code += `
     </div>
 `;
         return code;
     }
-
-    _cancelEditing()
+    _findCommentEl(ext = "")
+    {
+        return bySel("#comment-expanded" + this.id + " #c" + this.editCommentID + ext);
+    }
+    _saveEditing()
     {
         if (this.editCommentID == "") return;
         //
-        const cid = this.editCommentID;
-        const parentID = this.id;
-        function _findEl(ext = "")
+        const textArea = this._findCommentEl("Edit textarea");
+        ///
+        var formData = new FormData();
+        formData.append("msg", textArea.value);
+        formData.append("commentID", this.id);
+        const replyMode = this.editCommentID != this.id;
+        if (replyMode)
         {
-            return bySel("#comment-expanded" + parentID + " #c" + cid + ext);
+            formData.append("replyID", this.editCommentID);
         }
+        //
+        var handler = function ()
+        {
+            var result = JSON.parse(this.responseText);
+            if (comments.processRequestResult(result)) return
+            //                       
+            console.log(this.responseText)
+            if (result.status != 'ok')
+            {
+                alert(result.message);
+                //form.showError(result.message)
+            } else
+            {
+                comments.floatExpandedComment._replaceData(result.data);
+            }
+        }
+        //
+        return comments.sendCommand(replyMode ? "updateReply" : "updateComment", formData, handler);
+    }
+    _cancelEditing(rollback = true)
+    {
+        if (this.editCommentID == "") return;
         // switch editing to view mode
-        hideEl(_findEl("Edit"));
-        showEl(_findEl());
-        const textArea = _findEl("Edit textarea");
-        textArea.value = this.editCommentOld;
+        hideEl(this._findCommentEl("Edit"));
+        showEl(this._findCommentEl());
+        if (rollback)
+        {
+            const textArea = this._findCommentEl("Edit textarea");
+            textArea.value = this.editCommentOld;
+        }
         // reset temp vars
         this.editCommentID = "";
         this.editCommentOld = "";
     }
     _switchToEdit(commentID)
     {
-        const parentID = this.id;
-        function _findEl(ext = "")
-        {
-            return bySel("#comment-expanded" + parentID + " #c" + commentID + ext);
-        }
         // close old editing
         this._cancelEditing();
 
         // open new editing
-        showEl(_findEl("Edit"));
-        hideEl(_findEl());
         this.editCommentID = commentID;
+        showEl(this._findCommentEl("Edit"));
+        hideEl(this._findCommentEl());
 
         // save old context
-        const textArea = _findEl("Edit textarea");
+        const textArea = this._findCommentEl("Edit textarea");
         this.editCommentOld = textArea.value;
     }
 
@@ -1116,14 +930,20 @@ class Comments_CommentExpanded
     {
         const msgEl = bySel("#comment-expanded" + this.id + " #replyForm #msg");
         addClass(msgEl, "focused");
-        const btn = bySel("#comment-expanded" + this.id + " #replyForm #send");
+        const btn = bySel("#comment-expanded" + this.id + " #replyForm .buttons");
         showEl(btn);
     }
 
     newCommentUnfocused()
     {
-        const btn = bySel("#comment-expanded" + this.id + " #replyForm #send");
+        const btn = bySel("#comment-expanded" + this.id + " #replyForm .buttons");
         hideEl(btn);
+    }
+
+    _resetReply()
+    {
+        const msgEl = bySel("#comment-expanded" + this.id + " #replyForm #msg");
+        msgEl.value = "";
     }
 
     _remove()
@@ -1132,7 +952,7 @@ class Comments_CommentExpanded
         this.hide();
     }
 
-    _removeReply(replyID)
+    _deleteReply(replyID)
     {
         if (!confirm("Delete the reply?")) return;
         //
@@ -1194,6 +1014,10 @@ class Comments
         this.url = url
         this.currentPage = null
 
+        this.uid = ""
+        this.sid = ""
+        this.user = []
+
         // load user data from browser storage   
         this.loadSessionFromBrowser();
         //
@@ -1202,14 +1026,11 @@ class Comments
         this.currentForm = null
         this.loginForm = new CommentsLoginForm()
         this.authForm = new CommentsAuthForm()
-        this.commentForm = new CommentsNewCommentForm()
         //
         this.cursor = new CommentsCursor();
         this.floatNewComment = null;
         this.floatExpandedComment = null;
         this.floatOverviewComment = null;
-        //
-        this.editCommentForm = null
         //
         this.inputFocused = false
         commentsViewer.comments = this
@@ -1229,9 +1050,7 @@ class Comments
         this.saveSessionInBrowser()
         this.loginForm.clear()
         this.authForm.clear()
-        this.commentForm.clear()
         //
-        this.commentForm.hide()
         this.loginForm.show()
     }
     loadSessionFromBrowser()
@@ -1338,16 +1157,6 @@ class Comments
         //    
         return comments.sendCommand("removeComment", formData, handler);
     }
-    editComment(commentID)
-    {
-        // Create edit form
-        this.editCommentForm = new CommentsEditCommentForm()
-        if (!this.editCommentForm.build(commentID))
-        {
-            this.editCommentForm = null
-            return false
-        }
-    }
     getCommentByID(commentID)
     {
         const found = this.commentList['comments'].find(c => c['id'] == commentID)
@@ -1363,14 +1172,10 @@ class Comments
     {
         //
         this.commentList = commentList
-        this.commentForm.buildHTML();
         this.loginForm.buildHTML();
         this.authForm.buildHTML();
         //        
-        if (this.sid != "")
-        {
-            this.commentForm.show()
-        } else
+        if (this.sid == "")        
         {
             this.loginForm.show()
         }
@@ -1399,36 +1204,22 @@ class Comments
         let actions = ""
         //
         code += `
-    <div id = "c${commentID}" class="comment"
-onmouseenter = "comments._highlightComment(${commentID},true,true)"
-onmouseleave = "comments._highlightComment(${commentID},false,true)"
-    >
-            <div class="header" style="display: grid; gap:10px;grid-auto-rows: minmax(10px, auto); grid-template-columns: 10px auto auto">
-                <div>#${counter}</div>                    
+            <div id = "c${commentID}" class="comment"
+                onclick = "comments._openComment(${commentID})"
+                onmouseenter = "comments._highlightComment(${commentID},true,true)"
+                onmouseleave = "comments._highlightComment(${commentID},false,true)"
+            >
+                <div class="head">                
+                    <div class="author">${user['name']}</div>
+                </div>
                 <div>
                     ${createdStr}                    
-                </div>                    
-            </div>
-            <div class="tooltip">${user['name']}
-                <span class="tooltiptext">${user['email']}</span>
-            </div> 
-            <div>                             
-                <span id="msg">${commentReplaceEnds(comment['msg'])}<span>
+                </div>                       
+                <div>                             
+                    <span id="msg">${commentReplaceEnds(comment['msg'])}<span>
+                </div>
             </div>
         `
-        if (uid == this.uid)
-        {
-            code += `    
-            <!-- Actions -->
-            <div class="actions" style="display: grid; gap:8px;grid-auto-rows: minmax(10px, auto); grid-template-columns: 20px auto auto">
-                <button class="button button--tertiary mb-xxsmall" onclick="comments.editComment('${commentID}')">Edit</button>
-                <button class="button button--tertiary mb-xxsmall" onclick="comments.removeComment('${commentID}')">Remove</button>
-            </div>
-            `
-        }
-        code += `
-            </div>
-`
         return code;
     }
     unsetFloatOverviewComment(obj, commentID)
@@ -1441,6 +1232,10 @@ onmouseleave = "comments._highlightComment(${commentID},false,true)"
         this._highlightComment(commentID, true);
         this.floatOverviewComment = obj;
 
+    }
+    _openComment(commentID)
+    {
+        this.showCommentExpanded(commentID);
     }
     _highlightComment(commentID, state, onMouse = false)
     {
@@ -1469,8 +1264,14 @@ onmouseleave = "comments._highlightComment(${commentID},false,true)"
     {
         //
         let code = ""
-        //      
+        //
         code += `<div id = "list">`
+        if (commentList['comments'].length == 0)
+        {
+            code += `<div class="empty">
+                Click anywhere to leave a comment
+            `;
+        }
         let counter = commentList['comments'].length
         commentList['comments'].forEach(function (comment)
         {

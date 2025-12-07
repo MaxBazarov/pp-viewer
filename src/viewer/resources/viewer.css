@@ -312,21 +312,24 @@ select:focus {
 }
 
 .viewer .title {
-    height: 56px;
     display: flex;
     align-items: center;
     position: fixed;
     box-sizing: border-box;
     width: 240px;
-    padding: 0 12px;
+    padding: 12px 12px;
     background: var(--color-background);
     font-weight: var(--font-weight-bold);
     border-bottom: solid 1px var(--color-border);
     z-index: 10;
 }
 
+#comments_viewer_content #loginForm div:not(:last-child) {
+    margin-bottom: 8px;
+}
+
 #comments_viewer_content {
-    padding: 72px 12px 0 12px;
+    padding: 56px 12px 12px 12px;
 }
 
 @keyframes mymove {
@@ -342,22 +345,40 @@ select:focus {
     margin-top: 10px
 }
 
+#comments_viewer_content #comments #list .empty {
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-normal);
+}
+
 #comments_viewer_content #comments .highlighted {
     background-color: var(--color-active);
 }
 
-#comments_viewer_content,
+
+#comments_viewer_content .comment .author,
 #commentsScene .comment .author {
-    font-weight: bold;
-    font-size: 14px;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: 13px;
     width: 100%;
 }
 
-.commentEdit .buttons {
+#comments_viewer_content .comment:not(:last-child) {
+    margin-bottom: 12px;
+}
+
+#comments_viewer_content .comment #msg {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-regular);
+    font-size: 12px;
+
+}
+
+.buttons {
     display: flex;
 }
 
-.commentEdit .buttons .button:not(:last-child) {
+.buttons .button:not(:last-child) {
     margin-right: 8px;
 }
 
@@ -366,23 +387,20 @@ select:focus {
     margin-left: 8px;
 }
 
-#comments_viewer_content,
 #commentsScene .comment .date {
     color: var(--color-secondary);
+    font-size: 13px;
 }
 
-#comments_viewer_content,
 #commentsScene .comment .replies {
     color: var(--color-secondary);
 }
 
-#comments_viewer_content,
 #commentsScene .commentForm {
     font-size: 12px;
     width: 99%;
 }
 
-#comments_viewer_content,
 #commentsScene .commentForm #msg {
     font-size: 12px;
     width: 99%
@@ -442,6 +460,9 @@ select:focus {
     display: flex;
 }
 
+#comments .comment .head {
+    display: flex;
+}
 
 #symbol_viewer_content #empty {
     position: absolute;
