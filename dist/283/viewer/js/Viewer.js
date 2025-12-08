@@ -1,15 +1,17 @@
 class StageDiv
 {
-    constructor(x = 0, y = 0, w = 0, h = 0, _class = "", id = null)
+    constructor(x = 0, y = 0, w = 0, h = 0, _class = "", id = null, applyZoomToCoords = false)
     {
-        this.x = x + "px"
-        this.y = (y != null) ? (y + "px") : null;
+        const zoom = applyZoomToCoords ? viewer.currentZoom : 1;
+        this.x = x * zoom + "px"
+        this.y = (y != null) ? (y * zoom + "px") : null;
         this.w = (w != null) ? (w + "px") : null;
         this.h = (h != null) ? (h + "px") : null;
         this.class = _class
         this.id = id;
         this.bottom = null;
     }
+
 
     coordsToCSS()
     {
@@ -236,9 +238,6 @@ class Viewer
         }
 
         if (story.fileKey) removeClass(bySel("#nav #figma"), "hidden")
-
-        ///
-        //this.urlParams.get('g')
 
     }
 
