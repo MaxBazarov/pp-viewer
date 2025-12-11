@@ -69,6 +69,10 @@ class CommentsViewer extends AbstractViewer
     {
         if (27 == event.which)
         { // esc
+            if (comments.newComment && comments.newComment.handleKeyDown(event))
+            {
+                return true;
+            }
             this.toggle()
         } else if (!comments.inputFocused && 67 == event.which)
         { // key "g"
