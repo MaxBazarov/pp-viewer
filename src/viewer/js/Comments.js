@@ -598,7 +598,11 @@ class Comments_CommentOverview
         let page = viewer.currentPage;
         //
         //
-        const sd = new StageDiv(comment['markX'], comment['markY'], 200, null, "comment-overview-box", "comment-overview" + id, true);
+        const sd = new StageDiv(
+            comment['markX'] * viewer.currentZoom + viewer.currentMarginLeft,
+            comment['markY'] * viewer.currentZoom + viewer.currentMarginTop,
+            200, null, "comment-overview-box", "comment-overview" + id
+        );
         const div = sd.elDiv()
         addClass(div, "comment-overview-corner-lefttop")
         div.addEventListener("mouseleave", (e) =>
@@ -730,7 +734,11 @@ class Comments_CommentExpanded
         const comment = this.comment;
         let page = viewer.currentPage;
         //
-        const sd = new StageDiv(comment.markX, comment.markY, 240, null, "comment-expanded-box", "comment-expanded" + this.id, true);
+        const sd = new StageDiv(
+            comment['markX'] * viewer.currentZoom + viewer.currentMarginLeft,
+            comment['markY'] * viewer.currentZoom + viewer.currentMarginTop,
+            240, null, "comment-expanded-box", "comment-expanded" + this.id
+        );
         //sd.top = comment["markY"] + "px";
         const div = sd.elDiv()
         this.div = div;
@@ -1323,10 +1331,9 @@ class Comments
         this._dropScene()
         //
         let page = viewer.currentPage
-        let width = page.width * viewer.currentZoom;
-        let height = page.height * viewer.currentZoom;
+        let width = viewer.fullWidth;
 
-        let code = `<div id = "commentsScene"> <svg style="z-index:2" height="${height}px" width="${width}px"></svg>
+        let code = `<div id = "commentsScene" style="position:fixed"> <svg style="z-index:2" height="100%" width="${width}px"></svg>
                     </div> `
         bySel("body #container").innerHTML += code;
         //
@@ -1359,15 +1366,20 @@ class Comments
     }
     addMarkersToScene(id, x, y, text = "", comment = undefined)
     {
+        const width = 40, height = 40;
         let r = 20
-        x = (Number(x)) * viewer.currentZoom;
-        y = (Number(y)) * viewer.currentZoom;
+        x = (Number(x)) * viewer.currentZoom + viewer.currentMarginLeft;
+        if ((x + width) >= (viewer.fullWidth - viewer.defSidebarWidth))
+        {
+            x = viewer.fullWidth - viewer.defSidebarWidth - width;
+        }
+        y = (Number(y)) * viewer.currentZoom + viewer.currentMarginTop;
         //        
         let code = `
         <svg
             id = "mark-${id}"
             onmouseenter = "comments.showCommentOverview('${id}')"
-            width = "40" height = "40" id = "c${id}" x = "${x}" y = "${y}" fill = "none" xmlns = "http://www.w3.org/2000/svg"
+            width = "${width}" height = "${height}" id = "c${id}" x = "${x}" y = "${y}" fill = "none" xmlns = "http://www.w3.org/2000/svg"
         >
 <g filter="url(#filter0_d_217_21)">
 <path d="M3 3H19C27.8366 3 35 10.1634 35 19C35 27.8366 27.8366 35 19 35C10.1634 35 3 27.8366 3 19V3Z" fill="white" shape-rendering="crispEdges"/>
@@ -1392,7 +1404,7 @@ class Comments
         if (comment !== undefined)
         {
             let text = `
-    <div id = "${id}> 
+                <div id = "${id}> 
                     ${comment['msg']}
                 </div>
     `
@@ -1401,7 +1413,7 @@ class Comments
         }
         bySel('#commentsScene svg').innerHTML += code;
         bySel('#commentsScene').innerHTML = bySel('#commentsScene').innerHTML;
-        //    
+        //
     }
     removeCircleOnScene(id)
     {
