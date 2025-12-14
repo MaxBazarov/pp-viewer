@@ -915,6 +915,12 @@ select:focus {
     position: absolute;
     background: none;
     text-align: left;
+    display: flex;
+}
+
+.galleryAbsFrameLabel #comm {
+    padding-left: 8px;
+    font-weight: bold;
 }
 
 

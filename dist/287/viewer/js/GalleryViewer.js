@@ -287,9 +287,9 @@ class GalleryViewer extends AbstractViewer
             }
             //
             let text = ""
-            if (pageInfo['commentsTotal'] != 0) text = "  (" + pageInfo['commentsTotal'] + ")"
+            if (pageInfo['commentsTotal'] != 0) text = "(" + pageInfo['commentsTotal'] + " comments)"
             //
-            bySel("#gallery #grid #t" + page.index + " #comm").innerHTML = text;
+            bySel("#gallery #grid #l" + page.index + " #comm").innerHTML = text;
         }, this);
     }
 
@@ -526,6 +526,7 @@ class GalleryViewer extends AbstractViewer
             //
             //
             var labelDiv = document.createElement("div");
+            labelDiv.id = "l" + page.index;
             labelDiv.style.left = "0px";
             labelDiv.style.top = "0px";
             //labelDiv.style.width = "0px";
@@ -533,8 +534,20 @@ class GalleryViewer extends AbstractViewer
             labelDiv.style.fontSize = "12px";
             labelDiv.style.color = invertColor(group.backColor);
             labelDiv.className = "label galleryAbsFrameLabel hidden";
-            labelDiv.innerHTML = page.title;
-            //
+            //            
+            {
+                var textDiv = document.createElement("div");
+                textDiv.id = "text";
+                textDiv.innerHTML = page.title;
+                labelDiv.appendChild(textDiv);
+            }
+
+            if (viewer.commentsViewer)
+            {
+                var commDiv = document.createElement("div");
+                commDiv.id = "comm";
+                labelDiv.appendChild(commDiv);
+            }
             this.divGrid.appendChild(labelDiv);
             //            
             page.label_div = labelDiv
