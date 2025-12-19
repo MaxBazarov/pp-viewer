@@ -426,8 +426,8 @@ class Comments_Float_NewComment extends CommentsAbstractForm
         //        
         //
         const sd = new StageDiv(
-            (this.x + 10) * viewer.currentZoom,
-            (this.y + 10) * viewer.currentZoom,
+            (this.x + 10) * viewer.currentZoom + viewer.currentMarginLeft,
+            (this.y + 10) * viewer.currentZoom + viewer.currentMarginTop,
             200, null, "comment-overview-box", "comment-overview");
         const div = sd.elDiv()
         addClass(div, "comment-overview-corner-lefttop")
