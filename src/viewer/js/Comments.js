@@ -912,6 +912,7 @@ class Comments_CommentExpanded
                 //form.showError(result.message)
             } else
             {
+                comments.floatExpandedComment._cleanUpEditing();
                 comments.floatExpandedComment._replaceData(result.data);
             }
         }
@@ -929,6 +930,10 @@ class Comments_CommentExpanded
             const textArea = this._findCommentEl("Edit textarea");
             textArea.value = this.editCommentOld;
         }
+        this._cleanUpEditing();
+    }
+    _cleanUpEditing()
+    {
         // reset temp vars
         this.editCommentID = "";
         this.editCommentOld = "";
