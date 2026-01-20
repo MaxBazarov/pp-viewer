@@ -286,7 +286,6 @@ class CommentsAuthForm extends CommentsAbstractForm
             var result = JSON.parse(this.responseText);
             if (comments.processRequestResult(result)) return
             //                        
-            console.log(this.responseText);
             if (result.status != 'ok')
             {
                 if ("#010.003" == result.errorCode)
@@ -1291,8 +1290,22 @@ class Comments
     }
     _buildComments(commentList)
     {
-        //
         let code = ""
+        //
+        if (comments.user)
+        {
+            code += `<div id = "user" style="width:100%;">   
+                    <div id="name" style="width:100%;">
+                        Logged as ${comments.user.name}         
+                    </div>
+                    <div style="width:16px; height:16px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
+                        <svg class="svgIcon">
+                            <use xlink:href="#icSignOut16"></use>
+                        </svg>
+                    </div>            
+            </div>
+        `;
+        }
         //
         code += `<div id = "list">`
         if (commentList['comments'].length == 0)

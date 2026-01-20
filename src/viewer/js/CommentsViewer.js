@@ -155,41 +155,6 @@ class CommentsViewer extends AbstractViewer
         }
     }
 
-    _showComments()
-    {
-        /*
-        var formData = new FormData();
-        //
-        var uid = window.localStorage.getItem("comments-uid")
-        var sid = window.localStorage.getItem("comments-sid")
-        if (null != uid && null != sid)
-        {
-            formData.append("uid", uid);
-            formData.append("sid", sid);
-        }
-        //
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", this.commentsURL + "&cmd=buildFullHTML", true);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.onload = function ()
-        {
-            var result = JSON.parse(this.responseText);
-            //
-            if ("ok" == result.status)
-            {
-                byId('comments_viewer_content').innerHTML = result.data;
-            } else
-            {
-                byId('comments_viewer_content').innerHTML = result.message;
-            }
-            return
-
-        };
-        xhr.send(formData);
-        */
-    }
-
-
     _showSelf()
     {
         if (!this.inited) this.initialize()

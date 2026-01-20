@@ -329,7 +329,7 @@ select:focus {
 }
 
 #comments_viewer_content {
-    padding: 56px 12px 12px 12px;
+    padding: 32px 12px 12px 12px;
 }
 
 @keyframes mymove {
@@ -346,6 +346,14 @@ select:focus {
     width: 100%;
     z-index: 2;
 }
+
+
+#comments_viewer_content #comments #user {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
 
 #comments_viewer_content,
 #commentsScene .comment,
