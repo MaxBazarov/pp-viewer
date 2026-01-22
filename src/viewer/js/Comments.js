@@ -150,7 +150,7 @@ class CommentsLoginForm extends CommentsAbstractForm
     {
         super.buildHTML()
         let s = `
-    <div id='loginForm' class="hidden"">
+    <div id='loginForm' class="hidden">
         <div id="title" style="font-weight:bold;">Login As</div>
         <div id="error" style="color:red"></div>
         <div>
@@ -255,9 +255,9 @@ class CommentsAuthForm extends CommentsAbstractForm
         <div>
             <input id="name" style="${comments.styles.input}" placeholder="Your name" />
         </div>
-        <div id="buttons">
-            <input id="send" style="${comments.styles.buttonPrimary}" type="button" onclick="comments.authForm.submit();return false;" value="Confirm" />
-            <input id="send" style="${comments.styles.buttonSecondary}" type="button" onclick="comments.authForm.cancel();return false;" value="Cancel" />
+        <div class="buttons">
+            <button class="button button--primary" id="send" type="button" onclick="comments.authForm.submit();return false;">Confirm</button>
+            <button class="button button--secondary" id="cancel" type="button" onclick="comments.authForm.cancel();return false;">Cancel</button>
         </div>
     </div>`
         bySel("#comments_viewer_content #top").innerHTML += s;
@@ -680,6 +680,11 @@ class Comments_CommentExpanded
     }
     show()
     {
+        if (comments.floatExpandedComment == this)
+        { // Hide
+            return this.hide();
+        }
+        // Show
         if (!this.comment.expandedObj) this._build();
         showEl(this.div);
         this.hidden = false;
@@ -691,6 +696,7 @@ class Comments_CommentExpanded
         }
         //
         comments.floatExpandedComment = this;
+        comments._selectComment(this.id, true);
     }
     hide()
     {
@@ -700,6 +706,7 @@ class Comments_CommentExpanded
         this._cancelEditing();
         comments.floatExpandedComment = null;
         comments._highlightComment(this.id, false)
+        comments._selectComment(this.id, false);
     }
     _replaceData(newCommentData)
     {
@@ -1042,7 +1049,7 @@ class Comments
 
         this.uid = ""
         this.sid = ""
-        this.user = []
+        this.user = null;
 
         // load user data from browser storage   
         this.loadSessionFromBrowser();
@@ -1072,10 +1079,11 @@ class Comments
     {
         this.uid = ""
         this.sid = ""
-        this.user = []
+        this.user = null;
         this.saveSessionInBrowser()
         this.loginForm.clear()
         this.authForm.clear()
+        hideEl(bySel("#comments_viewer_content #comments #user"));
         //
         this.loginForm.show()
     }
@@ -1125,10 +1133,11 @@ class Comments
     ///////
     logout()
     {
+        if (!confirm("Sign out?")) return false;
+        //
         var formData = new FormData();
         var handler = function ()
         {
-            console.log(this.responseText)
             comments.clearSession()
         }
         //    
@@ -1265,10 +1274,27 @@ class Comments
     {
         this.showCommentExpanded(commentID);
     }
+    _selectComment(commentID, state)
+    {
+        const div = bySel("#comments_viewer_content #comments #c" + commentID);
+        if (div)
+        {
+            if (state)
+                addClass(div, "selected");
+            else
+                removeClass(div, "selected");
+        }
+    }
     _highlightComment(commentID, state, onMouse = false)
     {
         const div = bySel("#comments_viewer_content #comments #c" + commentID);
-        if (div) addRemoveClass(state, div, "highlighted")
+        if (div)
+        {
+            if (state)
+                addClass(div, "highlighted");
+            else
+                removeClass(div, "highlighted");
+        }
         if (onMouse && state)
         {
             const text = bySel("#commentsScene #mark-" + commentID + " text");
@@ -1298,7 +1324,9 @@ class Comments
                     <div id="name" style="width:100%;">
                         Logged as ${comments.user.name}         
                     </div>
-                    <div style="width:16px; height:16px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
+                    <div style="width:16px; height:16px; cursor: pointer;" 
+                        onclick="commentsViewer.comments.logout();  return false;"
+                        >
                         <svg class="svgIcon">
                             <use xlink:href="#icSignOut16"></use>
                         </svg>

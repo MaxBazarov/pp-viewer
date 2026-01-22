@@ -750,7 +750,6 @@ async function buildMainHTML(options, es)
                 </div>
                 <div ID="comments_viewer_content">
                     <div id="top"></div>
-                    <br />
                     <div id="comments"></div>
                 </div>
             </div>

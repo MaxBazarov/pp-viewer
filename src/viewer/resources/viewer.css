@@ -314,7 +314,6 @@ select:focus {
 .viewer .title {
     display: flex;
     align-items: center;
-    position: fixed;
     box-sizing: border-box;
     width: 240px;
     padding: 12px 12px;
@@ -324,12 +323,8 @@ select:focus {
     z-index: 10;
 }
 
-#comments_viewer_content #loginForm div:not(:last-child) {
-    margin-bottom: 8px;
-}
-
 #comments_viewer_content {
-    padding: 32px 12px 12px 12px;
+    padding: 12px 12px 12px 12px;
 }
 
 @keyframes mymove {
@@ -349,17 +344,22 @@ select:focus {
 
 
 #comments_viewer_content #comments #user {
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
 }
 
+#comments_viewer_content #loginForm div:not(:last-child) {
+    margin-bottom: 8px;
+}
 
-#comments_viewer_content,
 #commentsScene .comment,
 .commentEdit {
     font-size: 12px;
     margin-top: 10px
+}
+
+#comments_viewer_content #comments #list {
+    margin-top: 12px;
 }
 
 #comments_viewer_content #comments #list .empty {
@@ -368,9 +368,12 @@ select:focus {
 }
 
 #comments_viewer_content #comments .highlighted {
-    background-color: var(--color-active);
+    background-color: var(--color-hover);
 }
 
+#comments_viewer_content #comments .selected {
+    background-color: var(--color-active);
+}
 
 #comments_viewer_content .comment .author,
 #commentsScene .comment .author {
@@ -393,6 +396,7 @@ select:focus {
 
 .buttons {
     display: flex;
+    margin-top: 8px;
 }
 
 .buttons .button:not(:last-child) {
