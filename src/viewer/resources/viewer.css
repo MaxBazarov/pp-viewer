@@ -197,6 +197,17 @@
     width: 100%;
 }
 
+#info_viewer #tools {
+    padding: 12px 12px 12px 12px;
+    width: 100%;
+}
+
+#info_viewer #info_viewer_content {
+    padding: 12px 12px 12px 12px;
+    width: 100%;
+}
+
+
 
 #info_viewer .record {
     padding-bottom: 20px;

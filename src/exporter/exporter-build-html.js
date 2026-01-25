@@ -763,7 +763,7 @@ async function buildMainHTML(options, es)
                                             </svg>
                                         </div>
                                     </div>
-                                    <div style="padding: 72px 20px 0 20px">
+                                    <div id="tools">
                                         <a href="../live">Live</a><br /><br />
                                         <select onchange="viewer.infoViewer.switchContext(this.value)">
                                             <option value="all">All screen versions</option>

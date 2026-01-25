@@ -397,11 +397,8 @@ class infoViewer extends AbstractViewer
                 info += "No visual changes";
             }
             info += `
-                </div>
-                 <svg class='svgIcon'>
-                    <use xlink:href="#icMenu"></use>
-                </svg>
-            </div>`
+                </div></div>
+                `;
         }, this)
 
         return info;;
