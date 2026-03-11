@@ -1057,7 +1057,7 @@ class ViewerPage
                 link.triggerTimeout = timeOutReaction.triggerTimeout;
             }
 
-            const a = document.createElement("a");
+            let a = document.createElement("a");
             a.setAttribute("lpi", this.index);
             a.setAttribute("li", link.index);
             a.setAttribute("lppi", "fixedPanels" in panel ? -1 : panel.index);
@@ -1068,6 +1068,15 @@ class ViewerPage
             for (var reaction of link.reactions)
             {
                 var eventType = Constants.TRIGGER_ON_CLICK
+
+                if (reaction.action == "URL" && !story.showFigmaLinks && reaction.url.includes("figma.com"))
+                {
+                    if (!reaction.url.includes(story.fileKey))
+                    {
+                        a = null;
+                        break;
+                    }
+                }
 
                 if ('frameIndex' in reaction)
                 {
@@ -1121,6 +1130,7 @@ class ViewerPage
                 // the second will be handled in handleLinkEvent_Final()
                 break;
             }
+            if (a == null) continue;
 
             linksDiv.appendChild(a);
             link.a = a
