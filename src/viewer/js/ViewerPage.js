@@ -1069,7 +1069,10 @@ class ViewerPage
             {
                 var eventType = Constants.TRIGGER_ON_CLICK
 
-                if (reaction.action == "URL" && !story.showFigmaLinks && reaction.url.includes("figma.com"))
+                if (story.singleFile
+                    && reaction.action == "URL"
+                    && !story.showFigmaLinks
+                    && reaction.url.includes("figma.com"))
                 {
                     if (!reaction.url.includes(story.fileKey))
                     {
