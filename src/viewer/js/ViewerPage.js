@@ -1377,7 +1377,9 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
         const extURL = viewer.convFigmaURL(reaction.url);
         //
         if (typeof extURL == "string" && (extURL.includes("//") || extURL.includes("./")))
-        { // Redirect to some URL
+        {
+            if (!story.showFigmaLinks && extURL.includes("figma.com")) return alert("Link can't be resolved");
+            // Redirect to some URL
             window.open(extURL, target != undefined ? target : "_self")
         } else if (typeof extURL == "number")
         {
