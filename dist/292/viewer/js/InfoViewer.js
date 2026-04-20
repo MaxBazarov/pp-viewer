@@ -265,7 +265,10 @@ class infoViewer extends AbstractViewer
         const screen = this.screenDiffs[page.getHash()]
         if (!screen) return false
 
-        this.mode = $("#info_viewer_mode_diff").prop('checked') ? 'diff' : ($("#info_viewer_mode_prev").prop('checked') ? 'prev' : 'new')
+
+        this.mode = bySel("#info_viewer_mode_diff").checked
+            ? 'diff'
+            : (bySel("#info_viewer_mode_prev").checked ? 'prev' : 'new');
         var newSrc = ''
 
         // save original image srcs
