@@ -276,7 +276,7 @@ class infoViewer extends AbstractViewer
 
         if ('diff' == this.mode)
         {
-            newSrc = `../ ${data['ver']} / images - diff / ${screen['image_name']}`
+            newSrc = `../ ${data['ver']}/images-diff/${screen['image_name']}`
         } else if ('new' == this.mode)
         {
             if (page.elImage.src != page.srcImagejSrc) newSrc = page.srcImageSrc
