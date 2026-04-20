@@ -217,7 +217,7 @@ class infoViewer extends AbstractViewer
     {
         story.pages.forEach(function (page)
         {
-            if (page.srcImageSrc) page.image.src = page.srcImageSrc;
+            if (page.srcImageSrc) page.elImage.src = page.srcImageSrc;
         })
 
     }
@@ -272,20 +272,20 @@ class infoViewer extends AbstractViewer
         var newSrc = ''
 
         // save original image srcs
-        if (!page.srcImageSrc) page.srcImageSrc = page.image.src;
+        if (!page.srcImageSrc) page.srcImageSrc = page.elImage.src;
 
         if ('diff' == this.mode)
         {
             newSrc = `../ ${data['ver']} / images - diff / ${screen['image_name']}`
         } else if ('new' == this.mode)
         {
-            if (page.image.src != page.srcImagejSrc) newSrc = page.srcImageSrc
+            if (page.elImage.src != page.srcImagejSrc) newSrc = page.srcImageSrc
         } else
         {
             if (this.nextRec) newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageSrc
         }
 
-        page.image.src = newSrc;
+        page.elImage.src = newSrc;
         return true
     }
 
