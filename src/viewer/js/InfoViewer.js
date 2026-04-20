@@ -217,7 +217,7 @@ class infoViewer extends AbstractViewer
     {
         story.pages.forEach(function (page)
         {
-            if (page.srcImageObjSrc) page.imageObj.attr("src", page.srcImageObjSrc)
+            if (page.srcImageSrc) page.elImage.src = page.srcImageSrc;
         })
 
     }
@@ -259,7 +259,7 @@ class infoViewer extends AbstractViewer
     _showCurrentPageDiffs()
     {
         const data = this.currentRec
-        const page = viewer.currentPage
+        let page = viewer.currentPage
         if (!page || !data) return false
 
         const screen = this.screenDiffs[page.getHash()]
@@ -272,21 +272,20 @@ class infoViewer extends AbstractViewer
         var newSrc = ''
 
         // save original image srcs
-        if (!page.srcImageObjSrc) page.srcImageObjSrc = page.imageObj.attr("src")
+        if (!page.srcImageSrc) page.srcImageSrc = page.elImage.src;
 
         if ('diff' == this.mode)
         {
-            newSrc = `../ ${data['ver']} / images - diff / ${screen['image_name']}`
+            newSrc = `../${data['ver']}/images-diff/${screen['image_name']}`
         } else if ('new' == this.mode)
         {
-            if (page.imageObj.attr("src") != page.srcImageObjSrc) newSrc = page.srcImageObjSrc
+            if (page.elImage.src != page.srcImagejSrc) newSrc = page.srcImageSrc
         } else
         {
-            if (this.nextRec) newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageObjSrc
+            if (this.nextRec) newSrc = newSrc = "../" + this.nextRec['ver'] + "/images/" + page.image; // newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageSrc
         }
 
-
-        page.imageObj.attr("src", newSrc)
+        page.elImage.src = newSrc;
         return true
     }
 
