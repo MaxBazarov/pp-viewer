@@ -259,7 +259,7 @@ class infoViewer extends AbstractViewer
     _showCurrentPageDiffs()
     {
         const data = this.currentRec
-        const page = viewer.currentPage
+        let page = viewer.currentPage
         if (!page || !data) return false
 
         const screen = this.screenDiffs[page.getHash()]
@@ -284,7 +284,6 @@ class infoViewer extends AbstractViewer
         {
             if (this.nextRec) newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageSrc
         }
-
 
         page.image.src = newSrc;
         return true
