@@ -282,7 +282,7 @@ class infoViewer extends AbstractViewer
             if (page.elImage.src != page.srcImagejSrc) newSrc = page.srcImageSrc
         } else
         {
-            if (this.nextRec) newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageSrc
+            if (this.nextRec) newSrc = newSrc = "../" + this.nextRec['ver'] + "/images/" + page.image; // newSrc = "../" + this.nextRec['ver'] + "/" + page.srcImageSrc
         }
 
         page.elImage.src = newSrc;
