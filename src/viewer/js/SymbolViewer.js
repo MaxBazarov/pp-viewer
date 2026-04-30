@@ -744,10 +744,8 @@ class SymbolViewer extends AbstractViewer
         var frameY = layer.finalY
         var frameWidth = layer.w
         var frameHeight = layer.h
-        const PADDING = 20;
 
-        info += `
-                <hr/>
+        info += `                
                 <div class="panel" style="position:relative;height:64px">
                     <div class="label">Frame</div>
                     <div class="field" style="position:absolute;top:30px;left:0px;">

@@ -737,7 +737,7 @@ async function buildMainHTML(options, es)
                                         <span class="checkbox-label">Show symbols&nbsp;&nbsp;</span>
                                         <select ID="lib_selector" style="width:200px;display:none;"></select>
                                     </div>
-                                    <div ID="symbol_viewer_content" style="margin-top:20px;"></div>
+                                    <div ID="symbol_viewer_content"></div>
                                 </div>
                                  <div ID="comments_viewer" class="hidden viewer">
                 <div class="title">
