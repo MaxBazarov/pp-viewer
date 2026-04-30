@@ -777,12 +777,12 @@ class SymbolViewer extends AbstractViewer
             return `
                 <div class="segmentedCntrol" >            
                 <div class='svIconContainer${value == "VERTICAL" ? " selected" : ""}'>
-                    <svg class='uiIcon'>
+                    <svg class='uiIcon16'>
                         <use xlink:href="#svDown"></use> 
                     </svg>
                 </div>
                 <div class='svIconContainer${value == "HORIZONTAL" ? " selected" : ""}'>
-                    <svg class='uiIcon' >
+                    <svg class='uiIcon16' >
                         <use xlink:href="#svRight"></use> 
                     </svg>
                 </div>
@@ -795,7 +795,7 @@ class SymbolViewer extends AbstractViewer
             return `
                 <div class="segmentedCntrol" >
                     <div class='svIconContainer'>
-                        <svg class="uiIcon">
+                        <svg class="uiIcon16">
                             <use xlink:href="#svItemsSpace${autoLayoutType === " VERTICAL" ? "V" : "H"}"></use>
                     </svg>                                                            
                 </div>
@@ -808,7 +808,7 @@ class SymbolViewer extends AbstractViewer
             return `
                 <div class="segmentedCntrol" >                           
                 <div class='svIconContainer'>
-                    <svg class="uiIcon">
+                    <svg class="uiIcon16">
                         <use xlink:href="#${icon}"></use > 
                     </svg>                                                            
                 </div>
