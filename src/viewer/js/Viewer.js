@@ -599,7 +599,7 @@ class Viewer
                 console.log("Got error: " + resp["error"])
             } else
             {
-                if (resp["docID"] !== this.docID)
+                if (resp["docID"] !== this.docID || resp["get"] == null)
                     return resp["url"]
                 else
                     return resp["get"]
