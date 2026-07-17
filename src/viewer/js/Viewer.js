@@ -506,6 +506,10 @@ class Viewer
 
     convFigmaURL(url)
     {
+        if (story.fileKey != "" && story.prevFileKey != "" && url.includes("figma.com"))
+        {
+            url = url.replace(story.prevFileKey, story.fileKey);
+        }
         if (story.cloud)
             return this._convFigmaURL_Cloud(url);
         else
