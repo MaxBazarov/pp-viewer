@@ -1038,7 +1038,11 @@ class Viewer
         var prevPage = this.getPreviousUserPage(page)
         var nextPage = this.getNextUserPage(page)
 
-        bySel('#nav .title').innerHTML = (page.userIndex + 1) + '/' + this.userStoryPages.length + ' - ' + page.title + VERSION_INJECT;
+        let info = "";
+        if (story.filePath) info += `${story.filePath} / ${story.docName}<br/>`;
+        info += `${page.title} ${VERSION_INJECT} ${page.userIndex + 1}/${this.userStoryPages.length}`;
+        bySel('#nav .title').innerHTML = info;
+
         toggleClass(byId('nav-left-prev'), 'disabled', !prevPage);
         toggleClass(byId('nav-left-next'), 'disabled', !nextPage);
 
