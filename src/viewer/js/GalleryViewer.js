@@ -257,7 +257,7 @@ class GalleryViewer extends AbstractViewer
         }
 
         //update info
-        document.querySelector("#gallery-header-container #info #title").innerHTML = story.title
+        document.querySelector("#gallery-header-container #info #title").innerHTML = story.docTitle
         document.querySelector("#gallery-header-container #info #frames").innerHTML = this.pages.length + " frames";
         //
         this.inited = true

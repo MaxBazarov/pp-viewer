@@ -1322,7 +1322,7 @@ class SymbolViewer extends AbstractViewer
         if (!foundTokens.length) return ""
         const tokenName = foundTokens[foundTokens.length - 1][1]
         //
-        const libName = siLayer && undefined != siLayer.b ? siLayer.b : story.docName
+        const libName = siLayer && undefined != siLayer.b ? siLayer.b : story.fileName
         const finalTokenInfo = this._findTokenValueByName(tokenName, libName, styleValue)
         //
         if (finalTokenInfo)

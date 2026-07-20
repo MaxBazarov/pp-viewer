@@ -636,7 +636,7 @@ class Viewer
     openFigma()
     {
         const group = story.groups[this.currentPage.groupIndex];
-        let url = `https://www.figma.com/file/${story.fileKey}/${encodeURIComponent(story.docName)}?page-id=${encodeURIComponent(group.id)}&node-id=${encodeURIComponent(this.currentPage.id)}`
+        let url = `https://www.figma.com/file/${story.fileKey}/${encodeURIComponent(story.fileName)}?page-id=${encodeURIComponent(group.id)}&node-id=${encodeURIComponent(this.currentPage.id)}`
         window.open(url);
     }
     showChild(child)
@@ -1125,7 +1125,7 @@ class Viewer
     {
         if (!page) page = this.currentPage;
         this.urlLastIndex = page.index;
-        document.title = story.title + ': ' + page.title;
+        document.title = story.docTitle + ': ' + page.title;
 
         let newPath = this._getPageFullURL(page, extURL);
         this.fullCurrentPageURL = newPath;
