@@ -1125,7 +1125,7 @@ class Viewer
     {
         if (!page) page = this.currentPage;
         this.urlLastIndex = page.index;
-        document.title = story.docTitle + ': ' + page.title;
+        document.title = story.docName + ': ' + page.title;
 
         let newPath = this._getPageFullURL(page, extURL);
         this.fullCurrentPageURL = newPath;
