@@ -1071,7 +1071,7 @@ class ViewerPage
 
                 if (story.singleFile
                     && reaction.action == "URL"
-                    && !story.showFigmaLinks
+                    //&& !story.showFigmaLinks
                     && reaction.url.includes("figma.com"))
                 {
                     if (!reaction.url.includes(story.fileKey))
