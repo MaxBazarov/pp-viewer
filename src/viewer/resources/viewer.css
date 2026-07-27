@@ -1233,6 +1233,7 @@ body {
 }
 
 .navLeft,
+.navCenter,
 .nav #pageComments,
 .nav #experimental {
     pointer-events: all;
