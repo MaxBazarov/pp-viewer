@@ -1041,7 +1041,7 @@ class Viewer
         let info = "";
         if (story.filePath)
         {
-            //if (story.cloud) info += `<a href="/" style="font-size:16px">⬅</a>&nbsp;`;
+            if (story.cloud) info += `<a href="/" style="font-size:16px">⬅</a>&nbsp;`;
             info += `${story.filePath} / ${story.docName}<br/>`;
         }
         info += `${page.title} ${VERSION_INJECT} ${page.userIndex + 1}/${this.userStoryPages.length}`;
