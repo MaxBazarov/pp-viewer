@@ -1,85 +1,3 @@
-class FogmaURLParser
-{
-    constructor()
-    {
-        this.fileKey = null;
-        this.frameID = null;
-        this.error = null;
-    }
-
-    parseURL(url)
-    {
-        // URL examples:
-        // https://www.figma.com/proto/2irRrkEgfBgbLMcdgPUSXt/CX-OpenSearch?page-id=72%3A8537&type=design&node-id=72-8539&viewport=573%2C324%2C0.55&t=O8y2XTWKw9peUxsc-1&scaling=min-zoom&starting-point-node-id=72%3A8539&mode=design
-        // https://www.figma.com/file/2irRrkEgfBgbLMcdgPUSXt/CX-OpenSearch?type=design&node-id=72%3A8539&mode=design&t=gbtgxDgFPZbXo6GZ-1
-        // https://www.figma.com/design/9C0Vp58ZQcvJC0G4gM6dIH/Common-pages?m=auto&t=Q2kLcrXlPng5YLvB-1
-
-        // Проверка на пустой URL
-        if (!url || url === "")
-        {
-            return this.setError("ERROR_CONVERT_EMPTY_URL");
-        }
-
-        try
-        {
-            // Парсинг URL
-            const urlObj = new URL(url);
-            const pathItems = urlObj.pathname.split("/").filter(segment => segment !== "");
-
-            if (pathItems.length < 1)
-            {
-                return this.setError("ERROR_CONVERT_BAD_URL");
-            }
-
-            // Извлечение fileKey
-            this.fileKey = pathItems[1];
-
-            // Парсинг параметров запроса
-            const params = new URLSearchParams(urlObj.search);
-
-            // Извлечение frameID с приоритетами
-            const priorityParams = ["starting-point-node-id", "node-id", "t"];
-            this.frameID = null;
-
-            for (const param of priorityParams)
-            {
-                if (params.has(param))
-                {
-                    this.frameID = params.get(param).replaceAll("-", ":");
-                    break;
-                }
-            }
-
-            return true;
-        } catch (error)
-        {
-            return this.setError("ERROR_CONVERT_BAD_URL");
-        }
-    }
-
-    setError(errorMessage)
-    {
-        this.error = errorMessage;
-        return false;
-    }
-
-    // Геттеры для получения значений
-    getFileKey()
-    {
-        return this.fileKey;
-    }
-
-    getFrameID()
-    {
-        return this.frameID;
-    }
-
-    getError()
-    {
-        return this.error;
-    }
-}
-
 class StageDiv
 {
     constructor(x = 0, y = 0, w = 0, h = 0, _class = "", id = null, applyZoomToCoords = false)
@@ -665,19 +583,6 @@ class Viewer
     _convFigmaURL_Cloud(url)
     {
         if (!url.includes("figma.com") || this.teamID === "free") return url;
-        // Parse URL
-        const urlParser = new FogmaURLParser();
-        if (!urlParser.parseURL(url))
-        {
-            console.log(urlParser.error);
-            return false;
-        }
-        // local redirect, try tp found local frame
-        if (urlParser.fileKey == story.fileKey)
-        {
-            const foundFrame = story.pages.find(el => { return el.id == urlParser.frameID });
-            if (foundFrame) return foundFrame.index;
-        }
         //
         var formData = new FormData()
         formData.append("url", url)
