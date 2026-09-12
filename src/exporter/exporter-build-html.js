@@ -1009,6 +1009,9 @@ async function buildMainHTML(options, es)
                                         <svg class="svgIcon"> <use xlink:href="#icAddComment"></use></svg>
                                         <div ID="counter"></div>
                                     </div>
+                                    <div ID="pageNotes" onclick="notesViewer.toggle(); return false;" class="hidden">
+                                        <div ID="counter"></div>
+                                    </div>
                                     <div ID="experimental" onclick="viewer.expViewer.toggle();return false;" class="hidden">
                                         <svg class="svgIcon"> <use xlink:href="#icExperimental"></use></svg>
                                     </div>

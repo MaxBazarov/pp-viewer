@@ -5,7 +5,7 @@ class NotesViewer extends AbstractViewer
 {
     constructor()
     {
-        super("text_viewer")
+        super("notes_viewer")
 
         this.alwaysHandlePageChanged = true
         this.preventCustomTextSearch = true

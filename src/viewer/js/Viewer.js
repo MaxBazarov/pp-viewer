@@ -233,7 +233,7 @@ class Viewer
         }
         if (story.enableNotes)
         {
-            this.commentsViewer = new NotesViewer()
+            this.notesViewer = new NotesViewer()
             removeClass(bySel("#nav #pageNotes"), "hidden")
         }
 

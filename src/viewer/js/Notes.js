@@ -3,11 +3,6 @@ function noteReplaceEnds(value)
     return value.replace(new RegExp('\r?\n', 'g'), '<br/>')
 }
 
-function noteCursorClicked(e)
-{
-    notesViewer.notes.cursor.clicked(e)
-}
-
 class Notes_NoteOverview
 {
     constructor(note)
@@ -27,10 +22,6 @@ class Notes_NoteOverview
         showEl(this.div);
         this.hidden = false;
         //
-        // Hide note mark 
-        notes.cursor.hide();
-        notes.showHideMarker(this.id, false);
-        //        
         if (notes.floatOverviewNote != null && notes.floatOverviewNote != this)
         {
             notes.floatOverviewNote.hide();
@@ -96,9 +87,6 @@ class Notes_NoteOverview
         div.addEventListener("mouseleave", (e) =>
         {
             this.hide();
-            // Show note mark again
-            notes.cursor.show();
-
         });
         div.addEventListener("click", (e) =>
         {
@@ -241,17 +229,7 @@ class Notes_NoteExpanded
         div.innerHTML = this._buildHTML()
         //
         bySel('#notesScene').appendChild(div);
-        //
-        div.addEventListener("mouseleave", (e) =>
-        {
-            notes.cursor.show();
-
-        });
-        div.addEventListener("mouseenter", (e) =>
-        {
-            notes.cursor.hide();
-
-        });
+        //        
         //        
         setElRightVisible(div);
         //
@@ -262,16 +240,11 @@ class Notes_NoteExpanded
         const notes = notes.notes;
         const note = this.note;
 
-        function buildMessageHTML(msg, replyMode = false)
+        function buildMessageHTML(note, index)
         {
-            const user = notes['users'][msg.uid];
             let code = "";
             ///
-            var createdDate = new Date(msg['created'] * 1000)
-            var createdStr = createdDate.toLocaleDateString() + " " + createdDate.toLocaleTimeString()
-            ///            
-            let uid = msg['uid']
-            let noteID = msg['id']
+            let noteID = index
             //
             code += `
                 <div id = "c${noteID}Edit" class="noteEdit hidden">
@@ -289,31 +262,8 @@ class Notes_NoteExpanded
                     <div class="head">
                         <div class = "author"> ${user.name}</div> 
             `;
-            if (notes.uid != "" && notes.uid == uid)
-            {
-                code += `
-                    <div style="cursor: pointer" onclick="notes.floatExpandedNote._switchToEdit('${noteID}'); return false;">
-                        <svg class="uiIcon16 uiIcon">
-                            <use xlink:href="#icEdit16"></use>
-                        </svg>
-                    </div>
-                `;
-                if (replyMode)
-                {
-                    code += `
-                        <div style="cursor: pointer" onclick="notes.floatExpandedNote._deleteReply('${noteID}');return false;">
-                            <svg class="uiIcon16 uiIcon">
-                                <use xlink:href="#icDelete16"></use>
-                            </svg>
-                        </div>
-                    `;
-                }
-            }
             code += `
-                </div>
-                <div class="date">
-                    ${createdStr}                                    
-                </div> 
+                </div>              
                 <div>                             
                     <span id="msg">${noteReplaceEnds(msg['msg'])}<span>
                 </div>
@@ -321,38 +271,10 @@ class Notes_NoteExpanded
             `
             return code;
         }
-        function _buildReplyForm()
-        {
-            let code = `
-    <div id = "replyForm" class="note">
-        <div>
-            <textarea id="msg" rows="2" placeholder="Add a note"
-                onfocus="notes.inputFocused = true; notes.floatExpandedNote.newNoteFocused()"                
-                onblur="notes.inputFocused = false"
-
-            ></textarea>
-            <div class="buttons hidden">
-                <button class="button button--primary" id="send" type="button" onclick="return notes.floatExpandedNote.sendReply();">Send</button>
-                <button class="button button--secondary" id="reset" type="button" onclick="return notes.floatExpandedNote._resetReply();">Reset</button>
-            </div>
-        </div>
-`;
-            return code
-        }
         let code = `
         <div class="header">
                 <div style="width:100%;">Note</div>
         `
-        if (notes.uid != "" && notes.uid == note.uid)
-        {
-            code += `
-                <div style="cursor: pointer" onclick="if(notes.floatExpandedNote) notes.floatExpandedNote._remove();  return false;">
-                    <svg class="uiIcon16">
-                        <use xlink:href="#icDelete16"></use>
-                    </svg>
-                </div>
-            `;
-        }
         code += `            
                 <div style="cursor: pointer;margin-left:8px;" onclick="if(notes.floatExpandedNote) notes.floatExpandedNote.hide();  return false;">
                     <svg class="uiIcon16">
@@ -362,15 +284,7 @@ class Notes_NoteExpanded
             </div>
     <div class="notes-list">
         `;
-        code += buildMessageHTML(note);
-        if (note["replies"])
-        {
-            note["replies"].forEach(msg =>
-            {
-                code += buildMessageHTML(msg, this.id);
-            });
-        }
-        if (notes.uid != "") code += _buildReplyForm();
+        code += buildMessageHTML(note, index);
         code += `
     </div>
 `;
