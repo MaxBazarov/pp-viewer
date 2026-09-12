@@ -231,6 +231,11 @@ class Viewer
             this.commentsViewer = new CommentsViewer()
             removeClass(bySel("#nav #pageComments"), "hidden")
         }
+        if (story.enableNotes)
+        {
+            this.commentsViewer = new NotesViewer()
+            removeClass(bySel("#nav #pageNotes"), "hidden")
+        }
 
         if (story.experimentalExisting)
         {

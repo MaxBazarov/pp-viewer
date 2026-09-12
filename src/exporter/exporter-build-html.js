@@ -562,6 +562,13 @@ async function buildMainHTML_JS(options, es, verPostfix, srcPath)
             <script type="text/javascript" src="${srcPath}js/Comments.js${verPostfix}" charset="UTF-8"></script>
             `;
         }
+        if (es.enableNotes)
+        {
+            s += `
+            <script type="text/javascript" src="${srcPath}js/NotesViewer.js${verPostfix}" charset="UTF-8"></script>
+            <script type="text/javascript" src="${srcPath}js/Notes.js${verPostfix}" charset="UTF-8"></script>
+            `;
+        }
         if (es.galleryEnabled)
         {
             s += `
@@ -739,20 +746,33 @@ async function buildMainHTML(options, es)
                                     <div ID="symbol_viewer_content"></div>
                                 </div>
                                  <div ID="comments_viewer" class="hidden viewer">
-                <div class="title">
-                    <div style="width:100%;">Comments</div>
-                    <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
-                        <svg class="svgIcon">
-                            <use xlink:href="#icClose"></use>
-                        </svg>
-                    </div>
-                </div>
-                <div ID="comments_viewer_content">
-                    <div id="top"></div>
-                    <div id="comments"></div>
-                </div>
-            </div>
-                                
+                                    <div class="title">
+                                        <div style="width:100%;">Comments</div>
+                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.commentsViewer.toggle();  return false;">
+                                            <svg class="svgIcon">
+                                                <use xlink:href="#icClose"></use>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div ID="comments_viewer_content">
+                                        <div id="top"></div>
+                                        <div id="comments"></div>
+                                    </div>
+                                </div>   
+                                 <div ID="notes_viewer" class="hidden viewer">
+                                    <div class="title">
+                                        <div style="width:100%;">Notes</div>
+                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.notesViewer.toggle();  return false;">
+                                            <svg class="svgIcon">
+                                                <use xlink:href="#icClose"></use>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div ID="notes_viewer_content">
+                                        <div id="top"></div>
+                                        <div id="notes"></div>
+                                    </div>
+                                </div>                                
                                  <div ID="info_viewer" class="hidden viewer">
                                     <div class="title">
                                         <div style="width:100%;">Document versions</div>
@@ -847,6 +867,7 @@ async function buildMainHTML(options, es)
                 { ID: "embed", label: "Embed code", icon: "icEmbed", key: "E", onclick: "viewer.share();", on: es.menuEmbedCodeEnabled },
                 { ID: "img", label: "Full page image", icon: "icImage2", key: "I", onclick: "viewer.openFullImage();", on: es.menuFullPageImageEnabled },
                 { ID: "menu_comments_viewer", label: "Comments", icon: "icAnnotation", key: "C", onclick: "viewer.commentsViewer.toggle();", on: options.uploading && es.enableComments === true && es.menuCommentsEnabled },
+                { ID: "menu_notes_viewer", label: "Notes", icon: "icAnnotation", key: "N", onclick: "viewer.notesViewer.toggle();", on: es.enableNotes === true && es.menuNotesEnabled },
                 { ID: "figma", label: "Source in Figma", icon: "icAnnotation", key: "", onclick: "viewer.openFigma();", hidden: true, on: es.menuSourceInFigmaEnabled },
             ]
         },
