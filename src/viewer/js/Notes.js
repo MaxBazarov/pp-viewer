@@ -218,7 +218,6 @@ class Notes_NoteExpanded
     }
     _buildHTML()
     {
-        const notes = notes.notes;
         const note = this.note;
 
         function buildMessageHTML(note)
@@ -263,7 +262,7 @@ class Notes
         notes = this;
         this.currentPage = null
 
-        this.notes = null
+        this.notelist = null
         //        
         this.floatExpandedNote = null;
         this.floatOverviewNote = null;
@@ -285,13 +284,13 @@ class Notes
     }
     getNoteByID(noteID)
     {
-        return this.notes[noteID];
+        return this.notelist[noteID];
     }
     ///////
-    build(notes)
+    build(noteList)
     {
+        this.notelist = noteList
         //
-        this.notes = notes
         //        
         this._buildScene()
         this._buildMarkers()
@@ -308,12 +307,21 @@ class Notes
         let noteID = index;
         let actions = ""
         //
-        code += `
-            <div id = "n${noteID}" class="note"
-                onclick = "notes._openNote(${noteID})"
+        /*
+        onclick = "notes._openNote(${noteID})"
+                onmouseenter = "notes.onclick = "notes._openNote(${noteID})"
                 onmouseenter = "notes._highlightNote(${noteID},true,true)"
+                onmouseleave = "notes._highlightNote(${noteID},false,true)"(${noteID},true,true)"
                 onmouseleave = "notes._highlightNote(${noteID},false,true)"
+                */
+        code += `
+            <div id = "n${noteID}" class="note"             
+                onmouseenter = "notes.showNoteOverview(${noteID});notes._highlightNote(${noteID},true,true)"(${noteID},true,true)"
+                onmouseleave = "notes.hidewNoteOverview(${noteID});notes._highlightNote(${noteID},false,true);"
             >
+              <div class="head">                
+                    <div class="author">#${index + 1}</div>
+                </div>
                 <div>                             
                     <span id="msg">${noteReplaceEnds(note.text)}<span>
                 </div>
@@ -382,8 +390,8 @@ class Notes
         //
         //
         code += `<div id = "list">`
-        let counter = this.notes.length
-        this.notes.forEach(function (note, index)
+        let counter = this.notelist.length
+        this.notelist.forEach(function (note, index)
         {
             code += this._buildNoteHTML(note, index);
             counter--;
@@ -392,14 +400,14 @@ class Notes
         //
         bySel("#notes_viewer_content #notes").innerHTML = code;
         //
-        notesViewer.updateNoteCounter(this.notes.length)
+        notesViewer.updateNoteCounter(this.notelist.length)
     }
     _buildMarkers(showCount = false)
     {
         this._clearScene()
-        //let counter = this.notes.length
+        //let counter = this.notelist.length
         //
-        this.notes.reverse().forEach(function (note, index)
+        this.notelist.reverse().forEach(function (note, index)
         {
             if (undefined != note.x)
             {
@@ -437,6 +445,13 @@ class Notes
             note.overviewObj = new Notes_NoteOverview(note);
         else
             note.overviewObj.show();
+    }
+    hidewNoteOverview(id)
+    {
+        const note = this.getNoteByID(id);
+        //
+        if (!note.overviewObj || note.overviewObj.hidden) return;
+        note.overviewObj.hide();
     }
     showNoteExpanded(id)
     {

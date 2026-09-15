@@ -86,10 +86,10 @@ class NotesViewer extends AbstractViewer
 
     updateNoteCounter(total)
     {
-        var div = bySel('#nav #pageNotes #counter')
+        var div = bySel('#nav #pageNotes')
         if (total > 0)
         {
-            div.innerHTML = total;
+            //div.innerHTML = total;
             showEl(div);
         } else
         {

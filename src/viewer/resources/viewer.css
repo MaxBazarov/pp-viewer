@@ -1377,6 +1377,7 @@ body {
 .navLeft,
 .navCenter,
 .nav #pageComments,
+.nav #pageNotes,
 .nav #experimental {
     pointer-events: all;
 }
