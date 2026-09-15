@@ -1344,6 +1344,12 @@ body {
     fill: var(--color-primary);
 }
 
+.svgIconWarning {
+    width: 24px;
+    height: 24px;
+    fill: var(--color-warning);
+}
+
 #sidebar {
     position: fixed;
     left: 0;
