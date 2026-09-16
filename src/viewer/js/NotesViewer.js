@@ -14,7 +14,7 @@ class NotesViewer extends AbstractViewer
         this.inputFocused = false
         notesViewer = this
 
-        this.notes = new Notes();
+        this.scene = new NotesScene();
     }
 
     initialize(force = false)
@@ -24,15 +24,6 @@ class NotesViewer extends AbstractViewer
 
     ///////////////////////////////////////////////// called by Viewer
 
-
-    _hideSelf()
-    {
-        hideEl(byId("notes_viewer"));
-        super._hideSelf()
-        viewer.refresh_url(viewer.currentPage, "", false)
-        showEl(byClass("linksDiv"));
-        if (this.notes) this.notes.hideViewer()
-    }
 
     handleKeyDownWhileInactive(event)
     {
@@ -64,8 +55,8 @@ class NotesViewer extends AbstractViewer
 
     handleKeyDown(event)
     {
-        if (27 == event.which)
-        { // esc           
+        if (78 == event.which)
+        { // n           
             this.toggle()
         } else
         {
@@ -100,12 +91,20 @@ class NotesViewer extends AbstractViewer
     _showSelf()
     {
         if (!this.inited) this.initialize()
-        showEl(byId("notes_viewer"))
+        //
+        this.scene.show()
+        //viewer.linksDisabled = true
+        //
+        showEl(byId('notes_viewer'));
         super._showSelf()
+    }
+
+
+    _hideSelf()
+    {
+        this.scene.hide()        //
+        viewer.linksDisabled = false;
         //
-        viewer.refresh_url(viewer.currentPage, "", false)
-        hideEl(byClass("linksDiv"));
-        //
-        if (this.notes) this.notes.showViewer()
+        super._hideSelf()
     }
 }
