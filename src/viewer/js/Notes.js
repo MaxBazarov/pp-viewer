@@ -77,10 +77,11 @@ class Notes_NoteOverview
         //
         //
         const sd = new StageDiv(
-            note.x * viewer.currentZoom + viewer.currentMarginLeft,
-            note.y * viewer.currentZoom + viewer.currentMarginTop,
+            note.x,
+            note.y,
             200, null, "note-overview-box", "note-overview" + id
         );
+        sd.position = "absolute";
         const div = sd.elDiv()
         addClass(div, "note-overview-corner-lefttop")
         div.addEventListener("mouseleave", (e) =>
@@ -91,7 +92,7 @@ class Notes_NoteOverview
         div.innerHTML = this._buildHTML(note)
         this.div = div;
         //
-        bySel('#notesScene').appendChild(div);
+        notesScene.sceneEl.appendChild(div);
         setElTopVisible(div);
         setElRightVisible(div);
         //
@@ -137,17 +138,8 @@ class NotesScene
         ///
         let code = "";
         ///
-        ///            
         let noteID = index;
-        let actions = ""
-        //
-        /*
-        onclick = "notesScene._openNote(${noteID})"
-                onmouseenter = "notesScene.onclick = "notesScene._openNote(${noteID})"
-                onmouseenter = "notesScene._highlightNote(${noteID},true,true)"
-                onmouseleave = "notesScene._highlightNote(${noteID},false,true)"(${noteID},true,true)"
-                onmouseleave = "notesScene._highlightNote(${noteID},false,true)"
-                */
+        //        
         code += `
             <div id = "n${noteID}" class="note"             
                 onmouseenter = "notesScene.showNoteOverview(${noteID});notesScene._highlightNote(${noteID},true,true)"(${noteID},true,true)"
@@ -217,21 +209,21 @@ class NotesScene
     _buildScene()
     {
         this._dropScene()
-        //
-        let width = viewer.fullWidth;
-        let code = `<div id = "notesScene" style="position:fixed"> <svg style="z-index:2" height="100%" width="${width}px"></svg></div>`;
-        bySel("body #container").innerHTML += code;
+        //        
+        //let code = `<div id = "notesScene" style="position:fixed"> <svg style="z-index:2" height="100%" width="100%"></svg></div>`;
+        //bySel(`body #container #div_links_${viewer.currentPage.index}`).innerHTML += code;
+        //this.sceneEl = bySel("#notesScene svg");
+        //let code = `<div id = "notesScene" style="position:fixed"> <svg style="z-index:2" height="100%" width="100%"></svg></div>`;        
+        this.sceneEl = bySel(`body #container #div_links_${viewer.currentPage.index}`);
     }
     _dropScene()
     {
-        const sceneEl = byId('notesScene');
-        if (!sceneEl) return;
-        //hideEl(sceneEl);
-        sceneEl.remove();
+        if (!this.sceneEl) return;
+        this.sceneEl.querySelectorAll(".notesMarker").forEach(el => el.remove());
     }
     showHideMarker(id, visible)
     {
-        showEl(bySel(`#notesScene svg #mark-${id} `), visible);
+        showEl(bySel(`#content #marker-${id} `), visible);
     }
     showNoteOverview(id)
     {
@@ -256,18 +248,26 @@ class NotesScene
     {
         const width = 40, height = 40;
         let r = 20
-        x = (Number(x)) * viewer.currentZoom + viewer.currentMarginLeft;
-        if ((x + width) >= (viewer.fullWidth - viewer.defSidebarWidth))
+        x = Number(x)
+        if ((x + width) >= viewer.currentPage.width)
         {
-            x = viewer.fullWidth - viewer.defSidebarWidth - width;
+            x = viewer.currentPage.width - width;
         }
-        y = (Number(y)) * viewer.currentZoom + viewer.currentMarginTop;
+        y = (Number(y))
         //        
+        const sd = new StageDiv(
+            x,
+            y,
+            width, height, "notesMarker", "marker-" + id
+        );
+        sd.position = "absolute";
+        const div = sd.elDiv()
+
         let code = `
         <svg
             id = "mark-${id}"
             onmouseenter = "notesScene.showNoteOverview('${id}')"
-            width = "${width}" height = "${height}" id = "n${id}" x = "${x}" y = "${y}" fill = "none" xmlns = "http://www.w3.org/2000/svg"
+            width = "${width}" height = "${height}" id = "n${id}" x = "0" y = "0" fill = "none" xmlns = "http://www.w3.org/2000/svg"
         >
 <g filter="url(#filter0_d_217_21)">
 <path d="M3 3H19C27.8366 3 35 10.1634 35 19C35 27.8366 27.8366 35 19 35C10.1634 35 3 27.8366 3 19V3Z" fill="white" shape-rendering="crispEdges"/>
@@ -287,8 +287,10 @@ class NotesScene
 </filter>
 </defs>
 </svg>
-    `;
-        bySel('#notesScene svg').innerHTML += code;
+</div>
+    `   ;
+        div.innerHTML += code;
+        this.sceneEl.appendChild(div);
     }
 
     _fillSidebar()
@@ -325,5 +327,11 @@ class NotesScene
     hide()
     {
         this._dropScene()
+    }
+
+    reload()
+    {
+        this.hide();
+        this.show();
     }
 }

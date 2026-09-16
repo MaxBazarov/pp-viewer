@@ -10,6 +10,7 @@ class StageDiv
         this.class = _class
         this.id = id;
         this.bottom = null;
+        this.position = "";
     }
 
 
@@ -21,6 +22,8 @@ class StageDiv
     {
         const el = document.createElement(elType);
         if (this.id != null) el.id = this.id;
+        if (this.position != "") el.style.position = this.position;
+
         el.style.left = this.x;
 
         if (this.y != null) el.style.top = this.y;

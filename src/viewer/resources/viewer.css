@@ -500,7 +500,7 @@ select:focus {
     display: flex;
 }
 
-#notesScene {
+#content {
     display: flex;
     margin-left: 0px;
     margin-top: 0px;
@@ -519,7 +519,7 @@ select:focus {
     margin-bottom: 8px;
 }
 
-#notesScene .note,
+#content .note,
 .noteEdit {
     font-size: 12px;
     margin-top: 10px
@@ -543,7 +543,7 @@ select:focus {
 }
 
 #notes_viewer_content .note .author,
-#notesScene .note .author {
+#content .note .author {
     color: var(--color-primary);
     font-weight: var(--font-weight-bold);
     font-size: 13px;
@@ -561,26 +561,26 @@ select:focus {
 
 }
 
-#notesScene .note .date {
+#content .note .date {
     color: var(--color-secondary);
     font-size: 13px;
 }
 
-#notesScene .note .replies {
+#content .note .replies {
     color: var(--color-secondary);
 }
 
-#notesScene .noteForm {
+#content .noteForm {
     font-size: 12px;
     width: 99%;
 }
 
-#notesScene .noteForm #msg {
+#content .noteForm #msg {
     font-size: 12px;
     width: 99%
 }
 
-#notesScene .note-overview-box {
+#content .note-overview-box {
     position: absolute;
     z-index: 33;
     text-align: left;
@@ -589,15 +589,15 @@ select:focus {
     padding: 0px 0px 12px 12px;
 }
 
-#notesScene .note-overview-corner-lefttop {
+#content .note-overview-corner-lefttop {
     border-radius: 4px 20px 20px 20px;
 }
 
-#notesScene .note-overview-corner-leftbottom {
+#content .note-overview-corner-leftbottom {
     border-radius: 20px 20px 20px 4px;
 }
 
-#notesScene .note-expanded-box {
+#content .note-expanded-box {
     position: absolute;
     z-index: 33;
     text-align: left;
