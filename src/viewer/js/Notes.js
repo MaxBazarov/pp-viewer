@@ -110,6 +110,10 @@ class Notes_NoteOverview
         if (note.link != null)
         {
             code += `<br/><br/><a href="${note.link}">Link</a>`;
+        } else if (note.targetNodeId != null)
+        {
+
+            code += `<br/><br/><a href="#" onclick="viewer.goTo('${note.targetNodeId}')">Link</a>`;
         }
         code += `<span>
             </div>

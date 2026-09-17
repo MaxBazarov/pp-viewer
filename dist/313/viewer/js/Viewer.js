@@ -869,6 +869,15 @@ class Viewer
         } else if (page === "")
         {
             index = defIndex;
+        } else if (page.includes(":")) // search by nodeId
+        {
+            const pageFound = story.pages.find(el => el.id == page);
+            if (!pageFound)
+            {
+                console.log(`Can't find frame by ID=${page}`);
+                return null;
+            }
+            index = pageFound.index;
         } else
         {
             index = this.getPageHashes()[page];
