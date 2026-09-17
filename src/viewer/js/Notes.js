@@ -106,7 +106,12 @@ class Notes_NoteOverview
         code += `
         <div id = "n${note.id}" class="note">
             <div>                             
-                <span id="msg">${noteReplaceEnds(note.text)}<span>
+                <span id="msg">${noteReplaceEnds(note.text)}`;
+        if (note.link != null)
+        {
+            code += `<br/><br/><a href="${note.link}">Link</a>`;
+        }
+        code += `<span>
             </div>
         `
         code += `
