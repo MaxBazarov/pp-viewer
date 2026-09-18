@@ -198,7 +198,7 @@ class NotesScene
         }
         if (onMouse && state)
         {
-            const text = bySel("#notesScene #mark-" + noteID + " text");
+            const text = bySel("#content #mark-" + noteID + " text");
             text.animate([
                 { fontSize: '12px' },
                 { fontSize: '24px' },
