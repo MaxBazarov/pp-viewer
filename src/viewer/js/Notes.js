@@ -30,11 +30,6 @@ class Notes_NoteOverview
     }
     hide()
     {
-        setTimeout(function (id)
-        {
-            notesScene.showHideMarker(id, true);
-        }, 150, this.id);
-        //
         hideEl(this.div);
         this.hidden = true;
         //        
@@ -151,8 +146,8 @@ class NotesScene
         //        
         code += `
             <div id = "n${noteID}" class="note"             
-                onmouseenter = "notesScene.showNoteOverview(${noteID});notesScene._highlightNote(${noteID},true,true)"(${noteID},true,true)"
-                onmouseleave = "notesScene.hidewNoteOverview(${noteID});notesScene._highlightNote(${noteID},false,true);"
+                onmouseenter = "notesScene.showNoteOverview(${noteID})"
+                onmouseleave = "notesScene.hidewNoteOverview(${noteID})"
             >
               <div class="head">                
                     <div class="author">#${index + 1}</div>
@@ -166,49 +161,12 @@ class NotesScene
     }
     unsetFloatOverviewNote(obj, noteID)
     {
-        this._highlightNote(noteID, false);
         this.floatOverviewNote = null;
     }
     setFloatOverviewNote(obj, noteID)
     {
-        this._highlightNote(noteID, true);
         this.floatOverviewNote = obj;
 
-    }
-    _selectNote(noteID, state)
-    {
-        const div = bySel("#notes_viewer_content #notes #n" + noteID);
-        if (div)
-        {
-            if (state)
-                addClass(div, "selected");
-            else
-                removeClass(div, "selected");
-        }
-    }
-    _highlightNote(noteID, state, onMouse = false)
-    {
-        const div = bySel("#notes_viewer_content #notes #n" + noteID);
-        if (div)
-        {
-            if (state)
-                addClass(div, "highlighted");
-            else
-                removeClass(div, "highlighted");
-        }
-        if (onMouse && state)
-        {
-            const text = bySel("#content #mark-" + noteID + " text");
-            text.animate([
-                { fontSize: '12px' },
-                { fontSize: '24px' },
-                { fontSize: '12px' },
-            ], {
-                // timing options
-                duration: 700,
-                iterations: 1,
-            });
-        }
     }
     _buildMarkers(showCount = false)
     {
@@ -302,33 +260,12 @@ class NotesScene
         this.sceneEl.appendChild(div);
     }
 
-    _fillSidebar()
-    {
-        let code = ""
-        //
-        code += `<div id = "list">`
-        let counter = this.notelist.length
-        this.notelist.forEach(function (note, index)
-        {
-            code += this._buildNoteHTML(note, index);
-            counter--;
-        }, this)
-        code += `</div> `
-        //
-        bySel("#notes_viewer_content #notes").innerHTML = code;
-        //
-        notesViewer.updateNoteCounter(this.notelist.length)
-    }
-    //
 
     //
     show()
     {
         // prepare data
         this.notelist = viewer.currentPage.notes;
-
-        // Fill sidebar        
-        this._fillSidebar()
 
         this._buildScene();
         this._buildMarkers()

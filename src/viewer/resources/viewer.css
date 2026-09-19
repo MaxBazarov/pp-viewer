@@ -586,7 +586,7 @@ select:focus {
     text-align: left;
     box-shadow: 0 2px 4px 4px rgba(0, 0, 0, 0.1);
     background-color: var(--color-background);
-    padding: 0px 0px 12px 12px;
+    padding: 0px 12px 12px 12px;
 }
 
 #content .note-overview-corner-lefttop {

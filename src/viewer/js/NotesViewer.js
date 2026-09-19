@@ -8,8 +8,8 @@ class NotesViewer extends AbstractViewer
         super("notes_viewer")
 
         this.alwaysHandlePageChanged = true
-        //this.preventCustomTextSearch = true
-        //this.blockMainNavigation = true;
+        this.isSidebarChild = false
+        this.preventCustomTextSearch = false;
 
         notesViewer = this
         this.scene = new NotesScene();
@@ -91,9 +91,7 @@ class NotesViewer extends AbstractViewer
         if (!this.inited) this.initialize()
         //
         this.scene.show()
-        //viewer.linksDisabled = true
         //
-        showEl(byId('notes_viewer'));
         super._showSelf()
     }
 
@@ -101,7 +99,6 @@ class NotesViewer extends AbstractViewer
     _hideSelf()
     {
         this.scene.hide()        //
-        //viewer.linksDisabled = false;
         //
         super._hideSelf()
     }
