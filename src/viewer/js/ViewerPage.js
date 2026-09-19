@@ -132,7 +132,7 @@ class ViewerPage
     getHash()
     {
         var image = this.image;
-        return image.substring(0, image.length - 4); // strip .png suffix
+        return image.substring(0, image.length - this.image.includes(".webp") ? 5 : 4); // strip .png suffix
     }
 
     hide(hideChilds = false, disableAnim = false)
