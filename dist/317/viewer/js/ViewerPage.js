@@ -132,7 +132,7 @@ class ViewerPage
     getHash()
     {
         var image = this.image;
-        return image.substring(0, image.length - (this.image.includes(".webp") ? 5 : 4)); // strip .png suffix
+        return image.substring(0, image.length - 4); // strip .png suffix
     }
 
     hide(hideChilds = false, disableAnim = false)
@@ -1378,7 +1378,7 @@ function handleLinkEvent(event, customEvent = undefined, reactionIndex = 0, obj 
         //
         if (typeof extURL == "string" && (extURL.includes("//") || extURL.includes("./")))
         {
-            if (!story.showFigmaLinks && extURL.includes("figma.com")) return alert("Link can't be resolved");
+            if (!story.showFigmaLinks && extURL.includes("figma.com")) return showInfoDialog("Link can't be resolved");
             // Redirect to some URL
             window.open(extURL, target != undefined ? target : "_self")
         } else if (typeof extURL == "number")

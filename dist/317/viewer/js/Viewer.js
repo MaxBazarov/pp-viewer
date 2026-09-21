@@ -512,9 +512,18 @@ class Viewer
         return true
     }
 
-    _parseFigmaURL(url)
+    convFigmaURL(url)
     {
-        if (!url.includes("figma.com")) return null;
+        if (story.cloud)
+            return this._convFigmaURL_Cloud(url);
+        else
+            return this._convFigmaURL_Local(url);
+    }
+
+    _convFigmaURL_Local(url)
+    {
+        if (!url.includes("figma.com")) return url;
+        if (story.fileKey === undefined || story.fileKey === "") return url;
         //
         let fileKey = "";
         let frameID = "";
@@ -530,7 +539,7 @@ class Viewer
             if (items.length < 2)
             {
                 console.log(`Can't parse ${url}`);
-                return null;
+                return "";
             }
             fileKey = items[4];
         }
@@ -539,7 +548,7 @@ class Viewer
         if (qi < 0)
         {
             console.log(`Can't find ? in ${url}`);
-            return null;
+            return "";
         }
         const searchParams = new URLSearchParams(url.substring(qi));
         if (searchParams.has("starting-point-node-id"))
@@ -552,44 +561,23 @@ class Viewer
                 frameID = searchParams.get("node-id");
             }
         }
-        return {
-            fileKey: fileKey,
-            frameID: frameID
-        }
-    }
-
-    convFigmaURL(url)
-    {
-        if (story.cloud)
-            return this._convFigmaURL_Cloud(url);
-        else
-            return this._convFigmaURL_Local(url);
-    }
-
-    _convFigmaURL_Local(url)
-    {
-        if (!url.includes("figma.com")) return url;
-        if (story.fileKey === undefined || story.fileKey === "") return url;
-
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return "";
-
-        if (story.fileKey !== parsedUrl.fileKey)
+        //            
+        if (story.fileKey !== fileKey)
         {
             if (story.localHTMLMap)
             {
-                const mapItem = story.localHTMLMap[parsedUrl.fileKey];
+                const mapItem = story.localHTMLMap[fileKey];
                 if (mapItem)
                 {
-                    return "./" + mapItem + (parsedUrl.frameID ? "?frameID=" + parsedUrl.frameID : "");
+                    return "./" + mapItem + (frameID ? "?frameID=" + frameID : "");
                 }
             }
             return url;
         } else
         {
-            if (parsedUrl.frameID === "") return url;
+            if (frameID === "") return url;
             // Try to find a local page by node-id
-            const frameID = parsedUrl.frameID.replace("-", ":");
+            frameID = frameID.replace("-", ":");
             const foundPages = story.pages.filter(p => p.id === frameID);
             if (foundPages.length == 0)
             {
@@ -602,25 +590,7 @@ class Viewer
 
     _convFigmaURL_Cloud(url)
     {
-        if (!url.includes("figma.com") || this.teamID === "free" || !story.cloud) return url;
-        //
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return url;
-
-        // Find published folder by fileKey
-        const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey];
-        if (targedFolder == undefined) return url;
-        //
-        let targedURL = `../../${targedFolder}/live?frameID=${parsedUrl.frameID}`;
-        return targedURL;
-    }
-
-    _convFigmaURL_Cloud_OLD(url)
-    {
         if (!url.includes("figma.com") || this.teamID === "free") return url;
-        //
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return url;
         //
         var formData = new FormData()
         formData.append("url", url)
@@ -738,7 +708,7 @@ class Viewer
         iframe += "src='" + ihref + "'"
         iframe += "/></a>"
 
-        alert(iframe)
+        showInfoDialog(iframe);
     }
 
 
@@ -1257,7 +1227,7 @@ class Viewer
         var pageIndex = locInfo.page_name != null ? this.getPageIndex(locInfo.page_name, null) : null
         if (null == pageIndex)
         {
-            if (locInfo.page_name != "") alert("The requested page is not found. You will be redirected to the default page.")
+            if (locInfo.page_name != "") showInfoDialog("The requested page is not found. You have been redirected to a default page.")
             // get the default page
             pageIndex = story.startPageIndex
             locInfo.reset_url = true
@@ -1457,14 +1427,6 @@ class Viewer
         else
             divs.forEach(d => removeClass(d, "contentLinksVisible"))
     }
-
-    showHints()
-    {
-        var text = this.currentPage.annotations;
-        if (text == undefined) return;
-        alert(text);
-    }
-
     handleStateChanges(e)
     {
         if (this.stateChangeIgnore)
@@ -1611,6 +1573,20 @@ function toogleVisEl(el)
 function hideEl(el)
 {
     addClass(el, "hidden")
+}
+
+function showInfoDialog(text, button = "Close", onClose = null)
+{
+    bySel("#InfoDialog p").textContent = text;
+    bySel("#InfoDialog button").textContent = button;
+    //
+    const dialog = byId('InfoDialog');
+    if (onClose)
+    {
+        dialog.addEventListener('close', onClose, { once: true });
+    }
+    //
+    dialog.showModal();
 }
 
 function handleStateChanges(e)
