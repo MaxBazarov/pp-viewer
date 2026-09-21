@@ -500,15 +500,6 @@ select:focus {
     display: flex;
 }
 
-#content {
-    display: flex;
-    margin-left: 0px;
-    margin-top: 0px;
-    height: 100%;
-    width: 100%;
-    z-index: 2;
-}
-
 
 #notes_viewer_content #notes #user {
     display: flex;
