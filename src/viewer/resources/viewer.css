@@ -586,7 +586,7 @@ select:focus {
     text-align: left;
     box-shadow: 0 2px 4px 4px rgba(0, 0, 0, 0.1);
     background-color: var(--color-background);
-    padding: 0px 12px 12px 12px;
+    padding: 0px 0px 12px 12px;
 }
 
 #content .note-overview-corner-lefttop {
@@ -2039,4 +2039,15 @@ area {
 
 .button--tertiary-destructive:disabled {
     opacity: 0.4;
+}
+
+dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0px 12px 12px 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+dialog #closeBtn {
+    min-width: 120px;
 }

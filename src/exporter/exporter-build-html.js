@@ -1040,6 +1040,10 @@ async function buildMainHTML(options, es)
                             document.body.classList.add('touch-device'); 
                         });
                     </script>
+                    <dialog id="InfoDialog">
+                        <p></p>
+                        <button id="closeBtn" onclick="byId('InfoDialog').close();">Ok</button>
+                    </dialog>
                     `
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     s += `
