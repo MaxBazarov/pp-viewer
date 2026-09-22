@@ -512,18 +512,9 @@ class Viewer
         return true
     }
 
-    convFigmaURL(url)
+    _parseFigmaURL(url)
     {
-        if (story.cloud)
-            return this._convFigmaURL_Cloud(url);
-        else
-            return this._convFigmaURL_Local(url);
-    }
-
-    _convFigmaURL_Local(url)
-    {
-        if (!url.includes("figma.com")) return url;
-        if (story.fileKey === undefined || story.fileKey === "") return url;
+        if (!url.includes("figma.com")) return null;
         //
         let fileKey = "";
         let frameID = "";
@@ -539,7 +530,7 @@ class Viewer
             if (items.length < 2)
             {
                 console.log(`Can't parse ${url}`);
-                return "";
+                return null;
             }
             fileKey = items[4];
         }
@@ -548,7 +539,7 @@ class Viewer
         if (qi < 0)
         {
             console.log(`Can't find ? in ${url}`);
-            return "";
+            return null;
         }
         const searchParams = new URLSearchParams(url.substring(qi));
         if (searchParams.has("starting-point-node-id"))
@@ -561,23 +552,44 @@ class Viewer
                 frameID = searchParams.get("node-id");
             }
         }
-        //            
-        if (story.fileKey !== fileKey)
+        return {
+            fileKey: fileKey,
+            frameID: frameID
+        }
+    }
+
+    convFigmaURL(url)
+    {
+        if (story.cloud)
+            return this._convFigmaURL_Cloud(url);
+        else
+            return this._convFigmaURL_Local(url);
+    }
+
+    _convFigmaURL_Local(url)
+    {
+        if (!url.includes("figma.com")) return url;
+        if (story.fileKey === undefined || story.fileKey === "") return url;
+
+        const parsedUrl = this._parseFigmaURL(url);
+        if (parsedUrl == null) return "";
+
+        if (story.fileKey !== parsedUrl.fileKey)
         {
             if (story.localHTMLMap)
             {
-                const mapItem = story.localHTMLMap[fileKey];
+                const mapItem = story.localHTMLMap[parsedUrl.fileKey];
                 if (mapItem)
                 {
-                    return "./" + mapItem + (frameID ? "?frameID=" + frameID : "");
+                    return "./" + mapItem + (parsedUrl.frameID ? "?frameID=" + parsedUrl.frameID : "");
                 }
             }
             return url;
         } else
         {
-            if (frameID === "") return url;
+            if (parsedUrl.frameID === "") return url;
             // Try to find a local page by node-id
-            frameID = frameID.replace("-", ":");
+            const frameID = parsedUrl.frameID.replace("-", ":");
             const foundPages = story.pages.filter(p => p.id === frameID);
             if (foundPages.length == 0)
             {
@@ -590,7 +602,25 @@ class Viewer
 
     _convFigmaURL_Cloud(url)
     {
+        if (!url.includes("figma.com") || this.teamID === "free" || !story.cloud) return url;
+        //
+        const parsedUrl = this._parseFigmaURL(url);
+        if (parsedUrl == null) return url;
+
+        // Find published folder by fileKey
+        const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey];
+        if (targedFolder == undefined) return url;
+        //
+        let targedURL = `../../${targedFolder}/live?frameID=${parsedUrl.frameID}`;
+        return targedURL;
+    }
+
+    _convFigmaURL_Cloud_OLD(url)
+    {
         if (!url.includes("figma.com") || this.teamID === "free") return url;
+        //
+        const parsedUrl = this._parseFigmaURL(url);
+        if (parsedUrl == null) return url;
         //
         var formData = new FormData()
         formData.append("url", url)
@@ -708,7 +738,7 @@ class Viewer
         iframe += "src='" + ihref + "'"
         iframe += "/></a>"
 
-        showInfoDialog(iframe);
+        showInfoDialog(iframe)
     }
 
 
@@ -1227,7 +1257,7 @@ class Viewer
         var pageIndex = locInfo.page_name != null ? this.getPageIndex(locInfo.page_name, null) : null
         if (null == pageIndex)
         {
-            if (locInfo.page_name != "") showInfoDialog("The requested page is not found. You have been redirected to a default page.")
+            if (locInfo.page_name != "") showInfoDialog("The requested page is not found. You will be redirected to the default page.")
             // get the default page
             pageIndex = story.startPageIndex
             locInfo.reset_url = true
@@ -1427,6 +1457,7 @@ class Viewer
         else
             divs.forEach(d => removeClass(d, "contentLinksVisible"))
     }
+
     handleStateChanges(e)
     {
         if (this.stateChangeIgnore)
