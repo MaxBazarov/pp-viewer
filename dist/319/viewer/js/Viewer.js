@@ -608,7 +608,7 @@ class Viewer
         if (parsedUrl == null) return url;
 
         // Find published folder by fileKey
-        const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey];
+        const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey]["docID"];
         if (targedFolder == undefined) return url;
         //
         let targedURL = `../../${targedFolder}/live?frameID=${parsedUrl.frameID}`;
