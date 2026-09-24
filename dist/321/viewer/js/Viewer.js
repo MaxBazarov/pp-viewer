@@ -53,13 +53,13 @@ function getQuery(uri, q)
 
 function showError(error)
 {
-    alert(error)
+    showInfoDialog(error)
     return false
 }
 
 function showMessage(message)
 {
-    alert(message)
+    showInfoDialog(message)
 }
 
 
@@ -277,26 +277,30 @@ class Viewer
         });
         window.addEventListener('resize', function () { viewer.zoomContent() });
 
-        // Activate galleryViewer
-        const gParam = this.urlParams.get('g')
-        const av = this.urlParams.get('av')
-        if (gParam != null && this.galleryViewer)
+        // Enable some viewer by default 
+        const mode = this.urlParams.get('m')
+        if (mode != null) 
         {
-            this.galleryViewer.show()
-        } else if (this.urlParams.get('v') != null && this.infoViewer)
-        {
-            // Activate Changes Inspector
-            this.infoViewer.toggle()
-        } else if (this.urlParams.get('c') != null && this.commentsViewer)
-        {
-            // Activate Comment Viewer
-            this.commentsViewer.toggle()
-        } else if (av != null && av === "exp" && this.expViewer)
-        {
-            const widgetName = this.urlParams.get('expn')
-            if (widgetName !== null) this.expViewer.highlightWidget(decodeURIComponent(widgetName))
-            // Activate Experimental Viewer widget
-            this.expViewer.toggle()
+            if (mode == "g" && this.galleryViewer)  // Activate galleryViewer
+            {
+                this.galleryViewer.show()
+            } else if (mode == "v" && this.infoViewer) // Activate Changes Inspector
+            {
+                this.infoViewer.toggle()
+            } else if (mode == "n" && this.notesViewer) // Activate Notes
+            {
+                this.notesViewer.toggle()
+            } else if (mode == "c" && this.commentsViewer)
+            {
+                // Activate Comment Viewer
+                this.commentsViewer.toggle()
+            } else if (mode == "exp" && this.expViewer)
+            {
+                const widgetName = this.urlParams.get('expn')
+                if (widgetName !== null) this.expViewer.highlightWidget(decodeURIComponent(widgetName))
+                // Activate Experimental Viewer widget
+                this.expViewer.toggle()
+            }
         }
     }
 
