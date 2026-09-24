@@ -191,7 +191,6 @@ class Viewer
         this.infoViewer = null
         this.commentsViewer = null
         this.presenterViewer = null
-        this.expViewer = null
 
         this.defSidebarWidth = 240
 
@@ -224,7 +223,6 @@ class Viewer
         if (story.layersExist)
         {
             this.symbolViewer = new SymbolViewer()
-            if (story.experimentalExisting) this.expViewer = new ExpViewer()
         }
         this.infoViewer = new infoViewer()
         this.presenterViewer = new PresenterViewer()
@@ -294,12 +292,6 @@ class Viewer
             {
                 // Activate Comment Viewer
                 this.commentsViewer.toggle()
-            } else if (mode == "exp" && this.expViewer)
-            {
-                const widgetName = this.urlParams.get('expn')
-                if (widgetName !== null) this.expViewer.highlightWidget(decodeURIComponent(widgetName))
-                // Activate Experimental Viewer widget
-                this.expViewer.toggle()
             }
         }
     }

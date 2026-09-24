@@ -595,12 +595,6 @@ async function buildMainHTML_JS(options, es, verPostfix, srcPath)
             s += `
                     <script type = "text/javascript" src = "${srcPath}js/SymbolViewer.js${verPostfix}" charset = "UTF-8"></script>
                 `
-            if (options.enableExpViewer)
-            {
-                s += `
-                     <script type = "text/javascript" src = "${srcPath}js/ExpViewer.js${verPostfix}" charset = "UTF-8"></script>
-                `
-            }
         }
         s += `
             <script type="text/javascript" src="data/story.js${verPostfix}" charset="UTF-8"></script>
@@ -803,33 +797,7 @@ async function buildMainHTML(options, es)
                                         </select>
                                     </div>
                                     <div ID="info_viewer_content" style="padding: 24px 20px 0 20px"></div>
-                                </div>
-                                <div ID="exp_viewer" class="hidden viewer">
-                                    <div class="title">
-                                        <div style="width:100%;">Widgets</div>
-                                        <div style="width:24px; height:24px; cursor: pointer;" onclick="viewer.expViewer.toggle();  return false;">
-                                            <svg class="svgIcon"><use xlink:href="#icClose"></use></svg>
-                                        </div>
-                                    </div>
-                                    <div ID="controls" style="padding: 62px 20px 0 20px">
-                                        <div class="label">Show</div>
-                                        <div>
-                                            <input type="radio" ID="exp-scope-project" name="exp-scope" checked onclick="viewer.expViewer.setScope('project')" /><label for="exp-scope-project">all pages</label>&nbsp;
-                                            <input type="radio" ID="exp-scope-page" name="exp-scope" onclick="viewer.expViewer.setScope('page')" /><label for="exp-scope-page">current page</label>
-                                        </div>
-                                        <div class="label">Group by</div>
-                                        <div>
-                                            <input type="radio" ID="exp-mode-widgets" name="exp-mode" checked onclick="viewer.expViewer.setMode('widgets')" /><label for="exp-mode-widgets">Widgets</label>&nbsp;
-                                            <input type="radio" ID="exp-mode-pages" name="exp-mode" onclick="viewer.expViewer.setMode('pages')" /><label for="exp-mode-pages">Pages</label>
-                                        </div>
-                                        <div class="label">Filter by</div>
-                                        <div>
-                                            <input type="radio" ID="exp-filter-exp" name="exp-filter" checked onclick="viewer.expViewer.setFilter('exp')" /><label for="exp-filter-exp">Experimental</label>&nbsp;
-                                            <input type="radio" ID="exp-filter-all" name="exp-filter" onclick="viewer.expViewer.setFilter('all')" /><label for="exp-filter-all">All</label>
-                                        </div>
-                                    </div>
-                                    <div ID="exp_viewer_content" style="padding: 20px 20px 0 20px"></div>
-                                </div>
+                                </div>                                
                             </div>
                             <div ID="content-shadow" class="hidden" onclick="viewer.onContentClick()"></div>
                             <div ID="content-modal" class="contentModal hidden" onclick="viewer.onModalClick()"></div>
