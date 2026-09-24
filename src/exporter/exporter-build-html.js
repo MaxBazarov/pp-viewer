@@ -995,9 +995,6 @@ async function buildMainHTML(options, es)
                                             <use xlink:href="#icNotesWarning"></use>
                                         </svg>
                                     </div>
-                                    <div ID="experimental" onclick="viewer.expViewer.toggle();return false;" class="hidden">
-                                        <svg class="svgIcon"> <use xlink:href="#icExperimental"></use></svg>
-                                    </div>
                                 </div>
                             </div>
                         </div>

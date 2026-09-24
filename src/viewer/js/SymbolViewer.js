@@ -17,7 +17,6 @@ class SymbolViewer extends AbstractViewer
         //this.symbolIDs = {} // layer indexes ( in pages[].layers ) of symbols
         this.selected = null
         this.showSymbols = false
-        this.insideExpViewer = false
         this.highlightWidgetName = null
     }
 
@@ -132,20 +131,9 @@ class SymbolViewer extends AbstractViewer
     hide()
     {
         super.hide()
-        if (this.insideExpViewer)
-        {
-            this.insideExpViewer = false
-            viewer.expViewer.show()
-        }
         this.highlightWidgetName = null
     }
 
-    showFromExpViewer(highlightWidgetName = null)
-    {
-        this.insideExpViewer = true
-        this.highlightWidgetName = highlightWidgetName
-        this.show()
-    }
 
     _hideSelf()
     {
