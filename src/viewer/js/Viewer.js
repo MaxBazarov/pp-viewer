@@ -608,6 +608,10 @@ class Viewer
         if (parsedUrl == null) return url;
 
         // Find published folder by fileKey
+        if (!(parsedUrl.fileKey in TEAM_REP.fileMap))
+        {
+            return url;
+        }
         const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey]["docID"];
         if (targedFolder == undefined) return url;
         //
