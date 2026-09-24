@@ -373,7 +373,7 @@ class Viewer
         const enableTopNavigation = !this.child || this.child.enableTopNavigation
 
         // allow all childs to handle global keys
-        if (!this.child)
+        if (!this.child || !this.child.preventOtherViewersInactiveKeyHandling)
         {
             for (const child of this.allChilds)
             {

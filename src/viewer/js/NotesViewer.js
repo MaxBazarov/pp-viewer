@@ -10,6 +10,7 @@ class NotesViewer extends AbstractViewer
         this.alwaysHandlePageChanged = true
         this.isSidebarChild = false
         this.preventCustomTextSearch = false;
+        this.preventOtherViewersInactiveKeyHandling = false;
 
         notesViewer = this
         this.scene = new NotesScene();

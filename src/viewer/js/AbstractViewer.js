@@ -10,6 +10,7 @@ class AbstractViewer
         this.enableTopNavigation = false
         this.alwaysHandlePageChanged = false
         this.preventCustomTextSearch = true
+        this.preventOtherViewersInactiveKeyHandling = true
 
         // internal viewer props, can be read by child 
         this.inited = false
