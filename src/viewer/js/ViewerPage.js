@@ -1069,7 +1069,7 @@ class ViewerPage
             {
                 var eventType = Constants.TRIGGER_ON_CLICK
 
-                if (story.singleFile
+                /*if (story.singleFile
                     && reaction.action == "URL"
                     //&& !story.showFigmaLinks
                     && reaction.url.includes("figma.com"))
@@ -1079,7 +1079,7 @@ class ViewerPage
                         a = null;
                         break;
                     }
-                }
+                }*/
 
                 if ('frameIndex' in reaction)
                 {
