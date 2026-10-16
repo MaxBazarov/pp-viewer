@@ -53,7 +53,7 @@ class Notes_NoteOverview
         {
             const offset = 10;
             const rect = el.getBoundingClientRect();
-            const sceneWidth = viewer.fullWidth - viewer.defSidebarWidth;
+            const sceneWidth = viewer.fullWidth;
             if (rect.right > sceneWidth)
             {
                 el.style.left = (sceneWidth - rect.width - offset) + "px";
