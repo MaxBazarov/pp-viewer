@@ -519,23 +519,25 @@ class Viewer
         // URL examples: 
         // https://www.figma.com/proto/2irRrkEgfBgbLMcdgPUSXt/CX-OpenSearch?page-id=72%3A8537&type=design&node-id=72-8539&viewport=573%2C324%2C0.55&t=O8y2XTWKw9peUxsc-1&scaling=min-zoom&starting-point-node-id=72%3A8539&mode=design
         // https://www.figma.com/file/2irRrkEgfBgbLMcdgPUSXt/CX-OpenSearch?type=design&node-id=72%3A8539&mode=design&t=gbtgxDgFPZbXo6GZ-1
+        // https://www.figma.com/design/5HLMlYdWAYq4yir3rvNE0M?node-id=4077-7339
         //                                                 
-        {
-            // Parse URL
-            const items = url.split("/");
-            if (items.length < 2)
-            {
-                console.log(`Can't parse ${url}`);
-                return null;
-            }
-            fileKey = items[4];
-        }
         //    
         const qi = url.indexOf("?");
         if (qi < 0)
         {
             console.log(`Can't find ? in ${url}`);
             return null;
+        }
+        {
+            const baseURL = url.substring(0, qi);
+            // Parse URL
+            const items = baseURL.split("/");
+            if (items.length < 2)
+            {
+                console.log(`Can't parse ${baseURL}`);
+                return null;
+            }
+            fileKey = items[4];
         }
         const searchParams = new URLSearchParams(url.substring(qi));
         if (searchParams.has("starting-point-node-id"))
