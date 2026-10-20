@@ -592,7 +592,7 @@ class Viewer
                 console.log(`Can't find page by node-id "${frameID}"`);
                 return "";
             }
-            return foundPages[0].index;
+            return "?" + foundPages[0].name;
         }
     }
 
