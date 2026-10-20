@@ -615,6 +615,8 @@ class Viewer
         const urlInfo = this._parseFigmaURL(url);
         if (urlInfo == null) return url;
 
+        if (urlInfo.internalFrameIndex != null) return urlInfo.internalFrameIndex;
+
         // Find published folder by fileKey
         if (!(urlInfo.fileKey in TEAM_REP.fileMap))
         {
