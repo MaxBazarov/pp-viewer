@@ -105,7 +105,18 @@ class Notes_NoteOverview
         if (note.link != null)
         {
             const url = viewer.convFigmaURL(note.link);
-            code += `<br/><br/><a href="${url}">Link</a>`;
+            code += `<br/><br/><a `;
+            if (typeof url == "string")
+            {
+                code += `href="${url}"`;
+            } else if (typeof url == "number")
+            {
+                code += `href="#" onclick="viewer.goTo(${url});return true;"`;
+            } else
+            {
+                console.error(`Can't find page by name "${note.link}"`)
+            }
+            code += `>Link</a>`;
         } else if (note.targetNodeId != null)
         {
 

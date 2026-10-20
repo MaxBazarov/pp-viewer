@@ -95,10 +95,6 @@ class AbstractViewer
         return this.visible
     }
 
-    toggle()
-    {
-        return this.visible ? this.hide() : this.show()
-    }
 
     _showSelf()
     {

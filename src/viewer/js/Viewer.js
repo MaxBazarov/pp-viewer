@@ -550,12 +550,29 @@ class Viewer
                 frameID = searchParams.get("node-id");
             }
         }
+        const isFrameInternal = fileKey == story.fileKey;
+        let internalFrameIndex = null;
+        if (isFrameInternal)
+        {
+            const locFrameID = frameID.replace("-", ":");
+            const foundPages = story.pages.filter(p => p.id == locFrameID);
+            if (foundPages.length != 0)
+            {
+                internalFrameIndex = foundPages[0].index;
+            } else
+            {
+                console.log(`Can't find page by node-id "${locFrameID}"`);
+                return null;
+            }
+        }
         return {
+            internalFrameIndex: internalFrameIndex,
             fileKey: fileKey,
             frameID: frameID
         }
     }
 
+    // return URL or internal frame index
     convFigmaURL(url)
     {
         if (story.cloud)
@@ -564,56 +581,49 @@ class Viewer
             return this._convFigmaURL_Local(url);
     }
 
+    // return URL or internal frame index
     _convFigmaURL_Local(url)
     {
         if (!url.includes("figma.com")) return url;
         if (story.fileKey === undefined || story.fileKey === "") return url;
 
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return "";
+        const urlInfo = this._parseFigmaURL(url);
+        if (urlInfo == null) return "";
 
-        if (story.fileKey !== parsedUrl.fileKey)
+        if (urlInfo.internalFrameIndex == null)
         {
             if (story.localHTMLMap)
             {
-                const mapItem = story.localHTMLMap[parsedUrl.fileKey];
+                const mapItem = story.localHTMLMap[urlInfo.fileKey];
                 if (mapItem)
                 {
-                    return "./" + mapItem + (parsedUrl.frameID ? "?frameID=" + parsedUrl.frameID : "");
+                    return "./" + mapItem + (urlInfo.frameID ? "?frameID=" + urlInfo.frameID : "");
                 }
             }
             return url;
         } else
         {
-            if (parsedUrl.frameID === "") return url;
-            // Try to find a local page by node-id
-            const frameID = parsedUrl.frameID.replace("-", ":");
-            const foundPages = story.pages.filter(p => p.id === frameID);
-            if (foundPages.length == 0)
-            {
-                console.log(`Can't find page by node-id "${frameID}"`);
-                return "";
-            }
-            return "?" + foundPages[0].name;
+            return urlInfo.internalFrameIndex;
         }
     }
 
+    // return URL or internal frame index
     _convFigmaURL_Cloud(url)
     {
         if (!url.includes("figma.com") || this.teamID === "free" || !story.cloud) return url;
         //
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return url;
+        const urlInfo = this._parseFigmaURL(url);
+        if (urlInfo == null) return url;
 
         // Find published folder by fileKey
-        if (!(parsedUrl.fileKey in TEAM_REP.fileMap))
+        if (!(urlInfo.fileKey in TEAM_REP.fileMap))
         {
             return url;
         }
-        const targedFolder = TEAM_REP.fileMap[parsedUrl.fileKey]["docID"];
+        const targedFolder = TEAM_REP.fileMap[urlInfo.fileKey]["docID"];
         if (targedFolder == undefined) return url;
         //
-        let targedURL = `../../${targedFolder}/live?frameID=${parsedUrl.frameID}`;
+        let targedURL = `../../${targedFolder}/live?frameID=${urlInfo.frameID}`;
         return targedURL;
     }
 
@@ -621,8 +631,8 @@ class Viewer
     {
         if (!url.includes("figma.com") || this.teamID === "free") return url;
         //
-        const parsedUrl = this._parseFigmaURL(url);
-        if (parsedUrl == null) return url;
+        const urlInfo = this._parseFigmaURL(url);
+        if (urlInfo == null) return url;
         //
         var formData = new FormData()
         formData.append("url", url)
