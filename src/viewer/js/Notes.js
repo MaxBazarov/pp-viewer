@@ -104,7 +104,8 @@ class Notes_NoteOverview
                 <span id="msg">${noteReplaceEnds(note.text)}`;
         if (note.link != null)
         {
-            code += `<br/><br/><a href="${note.link}">Link</a>`;
+            const url = viewer.convFigmaURL(note.link);
+            code += `<br/><br/><a href="${url}">Link</a>`;
         } else if (note.targetNodeId != null)
         {
 
