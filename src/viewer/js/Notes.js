@@ -105,22 +105,22 @@ class Notes_NoteOverview
         if (note.link != null)
         {
             const url = viewer.convFigmaURL(note.link);
-            code += `<br/><br/><a `;
+            code += `<br/><br/>`;
             if (typeof url == "string")
             {
-                code += `href="${url}"`;
+                code += `<a href="${url}">Link</a>`;
             } else if (typeof url == "number")
             {
-                code += `href="#" onclick="viewer.goTo(${url});return true;"`;
+                code += `<button type="button" class="link" onclick="viewer.goTo(${url});return true;">Link</button>`;
             } else
             {
                 console.error(`Can't find page by name "${note.link}"`)
             }
-            code += `>Link</a>`;
         } else if (note.targetNodeId != null)
         {
 
-            code += `<br/><br/><a href="#" onclick="viewer.goTo('${note.targetNodeId}')">Link</a>`;
+            code += `<br/><br/><button type="button" class="link" onclick="viewer.goTo('${note.targetNodeId}');return true;">Link</button>`;
+            //code += `<a href="#" onclick="viewer.goTo('${note.targetNodeId}')">Link</a>`;
         }
         code += `<span>
             </div>

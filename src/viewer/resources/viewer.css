@@ -2042,3 +2042,16 @@ dialog {
 dialog #closeBtn {
     min-width: 120px;
 }
+
+.link {
+    all: unset;
+    /* сброс рамок/фона шрифта */
+    color: #06c;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.link:focus-visible {
+    outline: 2px solid #06c;
+    outline-offset: 2px;
+}
