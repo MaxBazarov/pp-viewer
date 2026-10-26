@@ -520,29 +520,22 @@ class ViewerPage
         }, this)*/
     }
 
-    showOverlayByLinkIndex(linkIndex)
+    _showOverlayLinked(link)
     {
-        linkIndex = parseInt(linkIndex, 10)
-
-        var link = this._getLinkByIndex(linkIndex)
-        if (!link)
-        {
-            console.log('Error: can not find link to overlay by index="' + linkIndex + '"')
-            return false
-        }
+        const reaction = link.reactions.filter(r => r.action == "FRAME")[0];
 
         // can handle only page-to-page transition
-        if ((link["page"] == undefined)) return false
+        if (reaction == undefined) return false
 
-        var destPage = story.pages[link.frameIndex]
+        var destPage = story.pages[reaction.frameIndex]
         // for mouseover overlay we need to show it on click, but only one time)
         if ("overlay" == destPage.type && Constants.TRIGGER_ON_HOVER == destPage.overlayByEvent)
         {
             destPage.tmpSrcOverlayByEvent = destPage.overlayByEvent
             destPage.overlayByEvent = Constants.TRIGGER_ON_HOVER
             viewer.customEvent = {
-                x: link.rect.x,
-                y: link.rect.y,
+                x: reaction.rect.x,
+                y: reaction.rect.y,
                 pageIndex: this.index,
                 linkIndex: link.index
             }
@@ -552,6 +545,48 @@ class ViewerPage
         {
             link.a.click()
         }
+    }
+
+    showOverlayByLinkIndex(srclinkIndex)
+    {
+        const linkIndex = parseInt(srclinkIndex, 10)
+
+        // Try to find local opening overlay
+        {
+            const link = this._getLinkByIndex(linkIndex)
+            if (link)
+            {
+                return this._showOverlayLinked(link);
+            }
+        }
+
+        /// Try to find overlay in all story
+        {
+            function findLinkInfoByIndexGlobaly(index)
+            {
+                for (const page of story.pages)
+                {
+                    const link = (page.links).find(l => l.index === index);
+                    if (link) return { link, page };
+                }
+                return null;
+            }
+            const linkInfo = findLinkInfoByIndexGlobaly(linkIndex);
+            if (linkInfo)                
+            {
+                const link = linkInfo.link;
+                const reaction = link.reactions.filter(l => l.navigationType == "OVERLAY")[0];
+                if (reaction)
+                {
+                    const overlayPage = story.pages[reaction.frameIndex];
+                    const [pageX, pageY] = _calcOverlayPos(this, overlayPage, reaction.overlayPinPagePositionType)
+                    overlayPage.showAsOverlayInCurrentPage(linkInfo.page, link, reaction, pageX, pageY);
+                }
+            }
+        }
+
+        console.log('Error: can not find link to overlay by index="' + linkIndex + '"')
+        return false
     }
 
     // return true (overlay is hidden) or false (overlay is visible)
