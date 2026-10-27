@@ -571,7 +571,7 @@ select:focus {
     width: 99%
 }
 
-#content .note-overview-box {
+.note-overview-box {
     position: absolute;
     z-index: 33;
     text-align: left;
@@ -580,15 +580,15 @@ select:focus {
     padding: 0px 12px 12px 12px;
 }
 
-#content .note-overview-corner-lefttop {
+.note-overview-corner-lefttop {
     border-radius: 4px 20px 20px 20px;
 }
 
-#content .note-overview-corner-leftbottom {
+.note-overview-corner-leftbottom {
     border-radius: 20px 20px 20px 4px;
 }
 
-#content .note-expanded-box {
+.note-expanded-box {
     position: absolute;
     z-index: 33;
     text-align: left;
