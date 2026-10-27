@@ -285,14 +285,15 @@ class Viewer
             } else if (mode == "v" && this.infoViewer) // Activate Changes Inspector
             {
                 this.infoViewer.toggle()
-            } else if (mode == "n" && this.notesViewer) // Activate Notes
-            {
-                this.notesViewer.toggle()
             } else if (mode == "c" && this.commentsViewer)
             {
                 // Activate Comment Viewer
                 this.commentsViewer.toggle()
             }
+        }
+        if (this.urlParams.get('vn') != null && this.notesViewer) // Activate Notes
+        {
+            this.notesViewer.toggle()
         }
     }
 
@@ -1211,6 +1212,10 @@ class Viewer
         if (this.commentsViewer && this.commentsViewer.isVisible())
         {
             newPath += "&c=1"
+        }
+        if (this.notesViewer && this.notesViewer.isVisible())
+        {
+            newPath += "&vn=1"
         }
 
         if (pushHistory)

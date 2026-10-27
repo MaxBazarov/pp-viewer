@@ -92,15 +92,17 @@ class NotesViewer extends AbstractViewer
         if (!this.inited) this.initialize()
         //
         this.scene.show()
-        //
+        //        
         super._showSelf()
+        viewer.refresh_url(viewer.currentPage, "", false)
     }
 
 
     _hideSelf()
     {
         this.scene.hide()        //
-        //
+        //        
         super._hideSelf()
+        viewer.refresh_url(viewer.currentPage, "", false)
     }
 }
