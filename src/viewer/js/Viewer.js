@@ -1479,11 +1479,11 @@ class Viewer
 
     handleStateChanges(e)
     {
-        if (this.stateChangeIgnore)
+        /*if (this.stateChangeIgnore)
         {
             this.stateChangeIgnore = false
             return
-        }
+        }*/
 
         viewer.urlLocked = true
         viewer.currentPage.hide(true, true)
